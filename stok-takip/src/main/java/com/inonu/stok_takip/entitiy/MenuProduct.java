@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Table(name = "menu_product")
 public class MenuProduct extends BaseEntity {
 
-    private int quantity; // kullanlacak ürü
+    private int quantity; // kullanlacak ürün miktarı ( 1 su, 2 ekmek vb.)
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "menu_id", nullable = false)

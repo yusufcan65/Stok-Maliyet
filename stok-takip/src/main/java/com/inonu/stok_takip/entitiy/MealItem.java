@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @Entity
 public class MealItem extends BaseEntity {
 
-    private Double quantity; // Kullanılan miktar
+    private Double productQuantity; // Kullanılan ürün miktarı
     private Double price;// her ürünün birim fiyatı
 
     @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
@@ -17,12 +17,12 @@ public class MealItem extends BaseEntity {
     private Product product;
 
 
-    public Double getQuantity() {
-        return quantity;
+    public Double getProductQuantity() {
+        return productQuantity;
     }
 
-    public void setQuantity(Double quantity) {
-        this.quantity = quantity;
+    public void setProductQuantity(Double productQuantity) {
+        this.productQuantity = productQuantity;
     }
 
     public Double getPrice() {
