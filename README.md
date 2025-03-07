@@ -1,6 +1,6 @@
 arkadaşlar görev dağılımı bu şekildedir;
 
-Oğuzhan Timur : Projede gerekli olan tüm DTO'ların(request ve response) oluşturma
+Oğuzhan Timur : Projede gerekli olan tüm DTO(request ve response) sınıflarının oluşturması
 
 Semih Temur : Bütün service sınıfları için interface sınıflarının oluşturulması ve aynı şekilde bu yapıya uygun tüm controller sınıflarının oluşturulması
 
