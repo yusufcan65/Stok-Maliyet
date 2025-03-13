@@ -2,6 +2,8 @@ package com.inonu.stok_takip.entitiy;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 
 @Entity
 public class Product extends BaseEntity{
@@ -20,8 +22,8 @@ public class Product extends BaseEntity{
     @JoinColumn(name = "subcategory_id",nullable = false)
     private SubCategory subCategory;
 
-    @OneToOne(mappedBy = "product")
-    private MealItem mealItem;
+    @OneToMany(mappedBy = "product")
+    private List<MealItem> mealItem;
 
     public String getName() {
         return name;
@@ -55,11 +57,11 @@ public class Product extends BaseEntity{
         this.subCategory = subCategory;
     }
 
-    public MealItem getMealItem() {
+    public List<MealItem> getMealItem() {
         return mealItem;
     }
 
-    public void setMealItem(MealItem mealItem) {
+    public void setMealItem(List<MealItem> mealItem) {
         this.mealItem = mealItem;
     }
 }

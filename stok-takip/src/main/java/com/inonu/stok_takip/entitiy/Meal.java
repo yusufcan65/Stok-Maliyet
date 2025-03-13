@@ -18,6 +18,9 @@ public class Meal extends BaseEntity{
     @OneToMany(mappedBy = "meal")
     private List<MealItem> mealItems;
 
+    @OneToMany(mappedBy = "meal")
+    private List<MenuMeal> menuMeals;
+
     public Double getMealAmount() {
         return mealAmount;
     }

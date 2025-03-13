@@ -10,7 +10,7 @@ public class MenuMeal extends BaseEntity{
     @JoinColumn(name = "menu_id") // hangi menüye ait olduğunu belirtir
     private Menu menu;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "meal_id") // menüde hangi yemeğin olacağını belirtir
     private Meal meal;
 
