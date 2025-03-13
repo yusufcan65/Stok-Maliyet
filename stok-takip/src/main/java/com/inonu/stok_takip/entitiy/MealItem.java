@@ -12,7 +12,7 @@ public class MealItem extends BaseEntity {
     @JoinColumn(name = "meal_id")
     private Meal meal;
 
-    @OneToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
 
