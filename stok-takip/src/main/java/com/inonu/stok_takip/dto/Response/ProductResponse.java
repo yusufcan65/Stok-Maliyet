@@ -5,16 +5,14 @@ public class ProductResponse {
     private String name;
     private Long measurementTypeId;
     private Long categoryId;
-    private Long subCategoryId;
 
     public ProductResponse(){}
 
-    public ProductResponse(Long id, String name, Long measurementTypeId,Long categoryId,Long subCategoryId){
+    public ProductResponse(Long id, String name, Long measurementTypeId,Long categoryId){
         this.id=id;
         this.name=name;
         this.measurementTypeId=measurementTypeId;
         this.categoryId=categoryId;
-        this.subCategoryId=subCategoryId;
     }
 
     public Long getId() {
@@ -49,11 +47,4 @@ public class ProductResponse {
         this.categoryId = categoryId;
     }
 
-    public Long getSubCategoryId() {
-        return subCategoryId;
-    }
-
-    public void setSubCategoryId(Long subCategoryId) {
-        this.subCategoryId = subCategoryId;
-    }
 }
