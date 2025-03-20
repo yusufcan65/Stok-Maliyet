@@ -56,12 +56,7 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
         MeasurementTypeResponse measurementTypeResponse = new MeasurementTypeResponse(measurementType.getId(),measurementType.getName());
         return measurementTypeResponse;
     }
-    private MeasurementType toEntity(MeasurementTypeResponse measurementTypeResponse) {
-        MeasurementType measurementType = new MeasurementType();
-        measurementType.setId(measurementTypeResponse.getId());
-        measurementType.setName(measurementTypeResponse.getName());
-        return measurementType;
-    }
+
     private List<MeasurementTypeResponse> toResponseList(List<MeasurementType> measurementTypes) {
         List<MeasurementTypeResponse> measurementTypeResponses = measurementTypes.stream()
                 .map(this::toResponse)
@@ -69,5 +64,12 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
         return measurementTypeResponses;
 
     }
+
+    /* private MeasurementType toEntity(MeasurementTypeResponse measurementTypeResponse) {
+        MeasurementType measurementType = new MeasurementType();
+        measurementType.setId(measurementTypeResponse.getId());
+        measurementType.setName(measurementTypeResponse.getName());
+        return measurementType;
+    }*/
 
 }

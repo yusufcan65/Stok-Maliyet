@@ -1,29 +1,37 @@
 package com.inonu.stok_takip.entitiy;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 import java.util.List;
-
 
 @Entity
 public class Product extends BaseEntity{
 
-    private String name;
+    private String name;  // Malzeme adı
+    private Double vatAmount; // ürün kdv miktarı
 
-    @OneToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "measurementType_id", nullable = false)
-    private MeasurementType measurementType;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "category_id",nullable = false)  // malzeme kategorisi örneğin (bakliyat, temizlik, kru meyve vb.)
     private Category category;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST,CascadeType.MERGE}, fetch = FetchType.EAGER)
-    @JoinColumn(name = "subcategory_id",nullable = false)
-    private SubCategory subCategory;
+    @ManyToOne
+    @JoinColumn(name = "measurementType_id",nullable = false) //malzeme ölçü birimi
+    private MeasurementType measurementType;
+
+    // yeni eklenenler
 
     @OneToMany(mappedBy = "product")
-    private List<MealItem> mealItem;
+    private List<MaterialEntry> materialEntry;
+
+    @OneToMany(mappedBy = "product")
+    private List<MaterialExit> materialExits;
+
+    @OneToMany(mappedBy = "product")
+    private List<MaterialDemand> materialDemands;
+
 
     public String getName() {
         return name;
@@ -33,12 +41,12 @@ public class Product extends BaseEntity{
         this.name = name;
     }
 
-    public MeasurementType getMeasurementType() {
-        return measurementType;
+    public Double getVatAmount() {
+        return vatAmount;
     }
 
-    public void setMeasurementType(MeasurementType measurementType) {
-        this.measurementType = measurementType;
+    public void setVatAmount(Double vatAmount) {
+        this.vatAmount = vatAmount;
     }
 
     public Category getCategory() {
@@ -49,19 +57,35 @@ public class Product extends BaseEntity{
         this.category = category;
     }
 
-    public SubCategory getSubCategory() {
-        return subCategory;
+    public List<MaterialEntry> getMaterialEntry() {
+        return materialEntry;
     }
 
-    public void setSubCategory(SubCategory subCategory) {
-        this.subCategory = subCategory;
+    public void setMaterialEntry(List<MaterialEntry> materialEntry) {
+        this.materialEntry = materialEntry;
     }
 
-    public List<MealItem> getMealItem() {
-        return mealItem;
+    public List<MaterialExit> getMaterialExits() {
+        return materialExits;
     }
 
-    public void setMealItem(List<MealItem> mealItem) {
-        this.mealItem = mealItem;
+    public void setMaterialExits(List<MaterialExit> materialExits) {
+        this.materialExits = materialExits;
+    }
+
+    public MeasurementType getMeasurementType() {
+        return measurementType;
+    }
+
+    public void setMeasurementType(MeasurementType measurementType) {
+        this.measurementType = measurementType;
+    }
+
+    public List<MaterialDemand> getMaterialDemands() {
+        return materialDemands;
+    }
+
+    public void setMaterialDemands(List<MaterialDemand> materialDemands) {
+        this.materialDemands = materialDemands;
     }
 }
