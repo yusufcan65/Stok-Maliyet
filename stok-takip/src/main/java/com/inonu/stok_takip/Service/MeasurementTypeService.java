@@ -10,7 +10,6 @@ public interface MeasurementTypeService {
 
     MeasurementTypeResponse createMeasurementType(CreateMeasurementTypeRequest createMeasurementTypeRequest);
     MeasurementType getMeasurementTypeById(Long id);
-    List<MeasurementTypeResponse> getAll();
-    void delete(Long id);
-    MeasurementTypeResponse updateMeasurementType(CreateMeasurementTypeRequest createMeasurementTypeRequest);
+    List<MeasurementTypeResponse> getAllMeasurementTypes();
+    MeasurementTypeResponse deleteMeasurementType(Long id);
 }

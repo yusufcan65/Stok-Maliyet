@@ -37,19 +37,16 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
     }
 
     @Override
-    public List<MeasurementTypeResponse> getAll() {
+    public List<MeasurementTypeResponse> getAllMeasurementTypes() {
         List<MeasurementType> measurementTypes = measurementTypeRepository.findAll();
         return mapToResponseList(measurementTypes);
     }
 
     @Override
-    public void delete(Long id) {
-        measurementTypeRepository.deleteById(id);
-    }
-
-    @Override
-    public MeasurementTypeResponse updateMeasurementType(CreateMeasurementTypeRequest createMeasurementTypeRequest) {
-        return null;
+    public MeasurementTypeResponse deleteMeasurementType(Long id) {
+        MeasurementType measurementType = getMeasurementTypeById(id);
+        measurementTypeRepository.delete(measurementType);
+        return mapToResponse(measurementType);
     }
 
     private MeasurementTypeResponse mapToResponse(MeasurementType measurementType) {
