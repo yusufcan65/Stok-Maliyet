@@ -3,16 +3,18 @@ package com.inonu.stok_takip.dto.Response;
 public class ProductResponse {
     private Long id;
     private String name;
+    private Double vatAmount;
     private Long measurementTypeId;
     private Long categoryId;
 
     public ProductResponse(){}
 
-    public ProductResponse(Long id, String name, Long measurementTypeId,Long categoryId){
+    public ProductResponse(Long id, String name,Double vatAmount, Long measurementTypeId,Long categoryId){
         this.id=id;
         this.name=name;
         this.measurementTypeId=measurementTypeId;
         this.categoryId=categoryId;
+        this.vatAmount=vatAmount;
     }
 
     public Long getId() {
@@ -47,4 +49,11 @@ public class ProductResponse {
         this.categoryId = categoryId;
     }
 
+    public Double getVatAmount() {
+        return vatAmount;
+    }
+
+    public void setVatAmount(Double vatAmount) {
+        this.vatAmount = vatAmount;
+    }
 }

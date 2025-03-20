@@ -27,19 +27,19 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
         MeasurementType measurementType = new MeasurementType();
         measurementType.setName(createMeasurementTypeRequest.name());
         MeasurementType saved = measurementTypeRepository.save(measurementType);
-        return toResponse(saved);
+        return mapToResponse(saved);
     }
 
     @Override
-    public MeasurementTypeResponse getMeasurementTypeById(Long id) {
-        MeasurementType measurementType =  measurementTypeRepository.findById(id).orElseThrow(()-> new MeasurementTypeNotFoundException("Measurement type not found"+id));
-        return toResponse(measurementType);
+    public MeasurementType getMeasurementTypeById(Long id) {
+        return measurementTypeRepository.findById(id).orElseThrow(()-> new MeasurementTypeNotFoundException("Measurement type not found"+id));
+
     }
 
     @Override
     public List<MeasurementTypeResponse> getAll() {
         List<MeasurementType> measurementTypes = measurementTypeRepository.findAll();
-        return toResponseList(measurementTypes);
+        return mapToResponseList(measurementTypes);
     }
 
     @Override
@@ -52,24 +52,18 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
         return null;
     }
 
-    private MeasurementTypeResponse toResponse(MeasurementType measurementType) {
+    private MeasurementTypeResponse mapToResponse(MeasurementType measurementType) {
         MeasurementTypeResponse measurementTypeResponse = new MeasurementTypeResponse(measurementType.getId(),measurementType.getName());
         return measurementTypeResponse;
     }
 
-    private List<MeasurementTypeResponse> toResponseList(List<MeasurementType> measurementTypes) {
+    private List<MeasurementTypeResponse> mapToResponseList(List<MeasurementType> measurementTypes) {
         List<MeasurementTypeResponse> measurementTypeResponses = measurementTypes.stream()
-                .map(this::toResponse)
+                .map(this::mapToResponse)
                 .collect(Collectors.toList());
         return measurementTypeResponses;
 
     }
 
-    /* private MeasurementType toEntity(MeasurementTypeResponse measurementTypeResponse) {
-        MeasurementType measurementType = new MeasurementType();
-        measurementType.setId(measurementTypeResponse.getId());
-        measurementType.setName(measurementTypeResponse.getName());
-        return measurementType;
-    }*/
 
 }
