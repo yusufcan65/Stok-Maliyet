@@ -33,7 +33,8 @@ public class MeasurementTypeController {
     }
     @GetMapping("/all")
     public ResponseEntity<RestResponse<List<MeasurementTypeResponse>>> getAllMeasurementType(){
-        List<MeasurementTypeResponse> measurementTypeResponses = measurementTypeService.getAll();
+        List<MeasurementTypeResponse> measurementTypeResponses = measurementTypeService.getAllMeasurementTypes();
         return new ResponseEntity<>(RestResponse.of(measurementTypeResponses), HttpStatus.OK);
     }
+
 }
