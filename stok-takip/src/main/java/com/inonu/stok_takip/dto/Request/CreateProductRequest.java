@@ -2,6 +2,7 @@ package com.inonu.stok_takip.dto.Request;
 
 public record CreateProductRequest(
     String name,
-    Long measurementTypeID,
+    Double vatAmount,
+    Long measurementTypeId,
     Long categoryId
     ) {}

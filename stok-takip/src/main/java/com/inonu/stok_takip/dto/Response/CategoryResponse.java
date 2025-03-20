@@ -1,7 +1,5 @@
 package com.inonu.stok_takip.dto.Response;
 
-import java.util.List;
-
 public class CategoryResponse {
     private Long id;
     private String name;
@@ -29,4 +27,6 @@ public class CategoryResponse {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

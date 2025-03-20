@@ -1,10 +1,17 @@
 package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Repositoriy.CategoryRepository;
+import com.inonu.stok_takip.Service.CategoryService;
+import com.inonu.stok_takip.dto.Request.CreateCategoryRequest;
+import com.inonu.stok_takip.dto.Response.CategoryResponse;
+import com.inonu.stok_takip.entitiy.Category;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
-public class CategoryServiceImpl {
+public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
@@ -13,4 +20,50 @@ public class CategoryServiceImpl {
     }
 
 
+    @Override
+    public List<CategoryResponse> GetAllCategories() {
+        List<Category> categories = categoryRepository.findAll();
+        return mapToResponseList(categories);
+    }
+
+    @Override
+    public CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
+        Category category = new Category();
+        category.setName(createCategoryRequest.name());
+        Category toSave = categoryRepository.save(category);
+
+        return mapToResponse(toSave);
+    }
+
+    @Override
+    public CategoryResponse updateCategory(CreateCategoryRequest createCategoryRequest) {
+        return null;
+    }
+
+    @Override
+    public Category getCategoryById(Long categoryId) {
+        return categoryRepository.findById(categoryId).orElseThrow(()-> new RuntimeException("Category Not Found by id: " + categoryId));
+    }
+
+    @Override
+    public CategoryResponse deleteCategory(Long CategoryId) {
+        Category category = getCategoryById(CategoryId);
+        categoryRepository.delete(category);
+        return mapToResponse(category);
+    }
+
+    private CategoryResponse mapToResponse(Category category) {
+        CategoryResponse categoryResponse = new CategoryResponse(
+                category.getId(),
+                category.getName()
+        );
+        return categoryResponse;
+    }
+
+    private List<CategoryResponse> mapToResponseList(List<Category> categoryList) {
+        List<CategoryResponse> categoryResponseList = categoryList.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return  categoryResponseList;
+    }
 }

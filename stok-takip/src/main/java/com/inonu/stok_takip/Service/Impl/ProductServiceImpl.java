@@ -1,0 +1,97 @@
+package com.inonu.stok_takip.Service.Impl;
+
+import com.inonu.stok_takip.Repositoriy.ProductRepository;
+import com.inonu.stok_takip.Service.CategoryService;
+import com.inonu.stok_takip.Service.MeasurementTypeService;
+import com.inonu.stok_takip.Service.ProductService;
+import com.inonu.stok_takip.dto.Request.CreateProductRequest;
+import com.inonu.stok_takip.dto.Request.ProductUpdateRequest;
+import com.inonu.stok_takip.dto.Response.ProductResponse;
+import com.inonu.stok_takip.entitiy.Category;
+import com.inonu.stok_takip.entitiy.MeasurementType;
+import com.inonu.stok_takip.entitiy.Product;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class ProductServiceImpl implements ProductService {
+
+    private final ProductRepository productRepository;
+    private final CategoryService categoryService;
+    private final MeasurementTypeService measurementTypeService;
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryService categoryService, MeasurementTypeService measurementTypeService) {
+        this.productRepository = productRepository;
+        this.categoryService = categoryService;
+        this.measurementTypeService = measurementTypeService;
+    }
+
+    @Override
+    public List<ProductResponse> GetAllProducts() {
+        List<Product> productList =  productRepository.findAll();
+        return mapToResponseList(productList);
+    }
+
+    @Override
+    public ProductResponse createProduct(CreateProductRequest createProductRequest) {
+
+        Category category = categoryService.getCategoryById(createProductRequest.categoryId());
+        MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(createProductRequest.measurementTypeId());
+
+        Product product = mapToEntity(createProductRequest);
+        product.setCategory(category);
+        product.setMeasurementType(measurementType);
+
+        Product toSave = productRepository.save(product);
+        return mapToResponse(toSave);
+
+    }
+
+    @Override
+    public ProductResponse updateProduct(ProductUpdateRequest productUpdateRequest) {
+        Product toUpdate  = getProductById(productUpdateRequest.id());
+        toUpdate.setName(productUpdateRequest.name());
+        toUpdate.setVatAmount(productUpdateRequest.vatAmount());
+        Product updatedProduct = productRepository.save(toUpdate);
+        return mapToResponse(updatedProduct);
+    }
+
+    @Override
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId).orElseThrow(()->new RuntimeException("Product not found by id: " + productId));
+    }
+
+    @Override
+    public ProductResponse deleteProduct(Long productId) {
+        Product product = getProductById(productId);
+        productRepository.delete(product);
+        return mapToResponse(product);
+    }
+
+    private ProductResponse mapToResponse(Product product) {
+        ProductResponse productResponse = new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getVatAmount(),
+                product.getMeasurementType().getId(),
+                product.getCategory().getId()
+        );
+        return productResponse;
+    }
+    private List<ProductResponse> mapToResponseList(List<Product> productList) {
+        List<ProductResponse> productResponseList = productList.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return productResponseList;
+    }
+
+    private Product mapToEntity(CreateProductRequest request){
+        Product product = new Product();
+        product.setName(request.name());
+        product.setVatAmount(request.vatAmount());
+        return product;
+    }
+}

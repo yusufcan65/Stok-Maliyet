@@ -4,6 +4,7 @@ import com.inonu.stok_takip.Service.MeasurementTypeService;
 import com.inonu.stok_takip.dto.Request.CreateMeasurementTypeRequest;
 import com.inonu.stok_takip.dto.Response.MeasurementTypeResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
+import com.inonu.stok_takip.entitiy.MeasurementType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +27,9 @@ public class MeasurementTypeController {
         return new ResponseEntity<>(RestResponse.of(measurementTypeResponse), HttpStatus.OK);
     }
     @GetMapping("/getById/{id}")
-    public ResponseEntity<RestResponse<MeasurementTypeResponse>> getMeasurementTypeById(@PathVariable("id") Long id){
-        MeasurementTypeResponse measurementTypeResponse = measurementTypeService.getMeasurementTypeById(id);
-        return new ResponseEntity<>(RestResponse.of(measurementTypeResponse), HttpStatus.OK);
+    public ResponseEntity<RestResponse<MeasurementType>> getMeasurementTypeById(@PathVariable("id") Long id){
+        MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(id);
+        return new ResponseEntity<>(RestResponse.of(measurementType), HttpStatus.OK);
     }
     @GetMapping("/all")
     public ResponseEntity<RestResponse<List<MeasurementTypeResponse>>> getAllMeasurementType(){
