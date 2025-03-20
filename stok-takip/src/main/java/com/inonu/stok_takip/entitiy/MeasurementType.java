@@ -1,15 +1,17 @@
 package com.inonu.stok_takip.entitiy;
 
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+
+import java.util.List;
 
 @Entity
-public class MeasurementType extends BaseEntity {  // ölçü birimi
-
+public class MeasurementType extends BaseEntity {
     private String name;
 
-    @OneToOne(mappedBy = "measurementType")
-    private Product product;
+    @OneToMany(mappedBy = "measurementType")
+    private List<Product> products;
 
     public String getName() {
         return name;
@@ -17,13 +19,5 @@ public class MeasurementType extends BaseEntity {  // ölçü birimi
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 }
