@@ -5,15 +5,13 @@ import java.util.List;
 public class CategoryResponse {
     private Long id;
     private String name;
-    private List<Long> subCategoryIdList;
 
     public CategoryResponse() {
     }
 
-    public CategoryResponse(Long id, String name, List<Long> subCategoryIdList) {
+    public CategoryResponse(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.subCategoryIdList = subCategoryIdList;
     }
 
     public Long getId() {
@@ -30,13 +28,5 @@ public class CategoryResponse {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Long> getSubCategoryIdList() {
-        return subCategoryIdList;
-    }
-
-    public void setSubCategoryIdList(List<Long> subCategoryIdList) {
-        this.subCategoryIdList = subCategoryIdList;
     }
 }
