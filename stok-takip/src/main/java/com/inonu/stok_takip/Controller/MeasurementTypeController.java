@@ -26,7 +26,7 @@ public class MeasurementTypeController {
         MeasurementTypeResponse measurementTypeResponse = measurementTypeService.createMeasurementType(createMeasurementTypeRequest);
         return new ResponseEntity<>(RestResponse.of(measurementTypeResponse), HttpStatus.OK);
     }
-    @GetMapping("/getById/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RestResponse<MeasurementType>> getMeasurementTypeById(@PathVariable("id") Long id){
         MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(id);
         return new ResponseEntity<>(RestResponse.of(measurementType), HttpStatus.OK);

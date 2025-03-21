@@ -54,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
         Product toUpdate  = getProductById(productUpdateRequest.id());
         toUpdate.setName(productUpdateRequest.name());
         toUpdate.setVatAmount(productUpdateRequest.vatAmount());
+        toUpdate.setCriticalLevel(productUpdateRequest.criticalLevel());
         Product updatedProduct = productRepository.save(toUpdate);
         return mapToResponse(updatedProduct);
     }
@@ -75,6 +76,7 @@ public class ProductServiceImpl implements ProductService {
                 product.getId(),
                 product.getName(),
                 product.getVatAmount(),
+                product.getCriticalLevel(),
                 product.getMeasurementType().getId(),
                 product.getCategory().getId()
         );
@@ -92,6 +94,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setName(request.name());
         product.setVatAmount(request.vatAmount());
+        product.setCriticalLevel(request.criticalLevel());
         return product;
     }
 }
