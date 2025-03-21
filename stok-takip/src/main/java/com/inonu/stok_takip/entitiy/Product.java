@@ -12,6 +12,7 @@ public class Product extends BaseEntity{
 
     private String name;  // Malzeme adı
     private Double vatAmount; // ürün kdv miktarı
+    private Double criticalLevel; // kritik seviye
 
     @ManyToOne
     @JoinColumn(name = "category_id",nullable = false)  // malzeme kategorisi örneğin (bakliyat, temizlik, kru meyve vb.)
@@ -87,5 +88,13 @@ public class Product extends BaseEntity{
 
     public void setMaterialDemands(List<MaterialDemand> materialDemands) {
         this.materialDemands = materialDemands;
+    }
+
+    public Double getCriticalLevel() {
+        return criticalLevel;
+    }
+
+    public void setCriticalLevel(Double criticalLevel) {
+        this.criticalLevel = criticalLevel;
     }
 }

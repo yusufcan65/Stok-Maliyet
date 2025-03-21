@@ -4,17 +4,21 @@ public class ProductResponse {
     private Long id;
     private String name;
     private Double vatAmount;
+    private Double criticalLevel;
     private Long measurementTypeId;
     private Long categoryId;
 
     public ProductResponse(){}
 
-    public ProductResponse(Long id, String name,Double vatAmount, Long measurementTypeId,Long categoryId){
+    public ProductResponse(Long id, String name, Double vatAmount,
+                           Double criticalLevel,
+                           Long measurementTypeId,Long categoryId){
         this.id=id;
         this.name=name;
+        this.vatAmount=vatAmount;
+        this.criticalLevel=criticalLevel;
         this.measurementTypeId=measurementTypeId;
         this.categoryId=categoryId;
-        this.vatAmount=vatAmount;
     }
 
     public Long getId() {
@@ -56,4 +60,14 @@ public class ProductResponse {
     public void setVatAmount(Double vatAmount) {
         this.vatAmount = vatAmount;
     }
+
+    public Double getCriticalLevel() {
+        return criticalLevel;
+    }
+
+    public void setCriticalLevel(Double criticalLevel) {
+        this.criticalLevel = criticalLevel;
+    }
+
+
 }
