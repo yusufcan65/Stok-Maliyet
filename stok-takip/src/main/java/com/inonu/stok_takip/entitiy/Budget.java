@@ -1,8 +1,10 @@
 package com.inonu.stok_takip.entitiy;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Budget extends BaseEntity{
@@ -12,6 +14,9 @@ public class Budget extends BaseEntity{
     private Double remainingBudgetAmount; // kalan bütçe tutarı
     private LocalDate startDate; // bütçenin başlama tarihi
     private LocalDate endDate; // bütçenin bitiş tarihi
+
+    @OneToMany(mappedBy = "budget")
+    private List<MaterialEntry> materialEntryList;
 
     public String getBudgetName() {
         return budgetName;
@@ -51,5 +56,14 @@ public class Budget extends BaseEntity{
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+
+    public List<MaterialEntry> getMaterialEntryList() {
+        return materialEntryList;
+    }
+
+    public void setMaterialEntryList(List<MaterialEntry> materialEntryList) {
+        this.materialEntryList = materialEntryList;
     }
 }

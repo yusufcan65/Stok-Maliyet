@@ -35,7 +35,7 @@ public class MaterialEntry extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "purchaseUnit_id")
-    private PurchasedUnit purchasedUnit; //a lım yapılan birim
+    private PurchasedUnit purchasedUnit; //alım yapılan birim
 
     @ManyToOne
     @JoinColumn(name = "purchaseForm_id")
