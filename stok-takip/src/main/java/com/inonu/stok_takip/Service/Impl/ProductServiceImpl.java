@@ -86,6 +86,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductResponse> productResponseList = productList.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+
         return productResponseList;
     }
 
