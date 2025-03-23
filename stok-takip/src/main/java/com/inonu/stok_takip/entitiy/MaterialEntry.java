@@ -20,7 +20,7 @@ public class MaterialEntry extends BaseEntity {
     private String companyName; // firma adı
     private Double totalPriceIncludingVat; // kdv dahil toplam tutar
     private String workName; // işin adı
-    private String description;
+    private String description; // stoğa giriş yapılan ürün için açıklama 
 
 
 
