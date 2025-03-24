@@ -1,7 +1,7 @@
 package com.inonu.stok_takip.Controller;
 
 import com.inonu.stok_takip.Service.MeasurementTypeService;
-import com.inonu.stok_takip.dto.Request.CreateMeasurementTypeRequest;
+import com.inonu.stok_takip.dto.Request.MeasurementTypeCreateRequest;
 import com.inonu.stok_takip.dto.Response.MeasurementTypeResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.MeasurementType;
@@ -22,8 +22,8 @@ public class MeasurementTypeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<RestResponse<MeasurementTypeResponse>> createMeasurementType(@RequestBody CreateMeasurementTypeRequest createMeasurementTypeRequest){
-        MeasurementTypeResponse measurementTypeResponse = measurementTypeService.createMeasurementType(createMeasurementTypeRequest);
+    public ResponseEntity<RestResponse<MeasurementTypeResponse>> createMeasurementType(@RequestBody MeasurementTypeCreateRequest measurementTypeCreateRequest){
+        MeasurementTypeResponse measurementTypeResponse = measurementTypeService.createMeasurementType(measurementTypeCreateRequest);
         return new ResponseEntity<>(RestResponse.of(measurementTypeResponse), HttpStatus.OK);
     }
     @GetMapping("/{id}")

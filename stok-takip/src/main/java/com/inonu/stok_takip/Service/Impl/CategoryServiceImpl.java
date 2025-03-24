@@ -2,7 +2,7 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Repositoriy.CategoryRepository;
 import com.inonu.stok_takip.Service.CategoryService;
-import com.inonu.stok_takip.dto.Request.CreateCategoryRequest;
+import com.inonu.stok_takip.dto.Request.CategoryCreateRequest;
 import com.inonu.stok_takip.dto.Response.CategoryResponse;
 import com.inonu.stok_takip.entitiy.Category;
 import org.springframework.stereotype.Service;
@@ -27,16 +27,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) {
+    public CategoryResponse createCategory(CategoryCreateRequest categoryCreateRequest) {
         Category category = new Category();
-        category.setName(createCategoryRequest.name());
+        category.setName(categoryCreateRequest.name());
         Category toSave = categoryRepository.save(category);
 
         return mapToResponse(toSave);
     }
 
     @Override
-    public CategoryResponse updateCategory(CreateCategoryRequest createCategoryRequest) {
+    public CategoryResponse updateCategory(CategoryCreateRequest categoryCreateRequest) {
         return null;
     }
 

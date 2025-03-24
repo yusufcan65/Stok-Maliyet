@@ -4,7 +4,7 @@ import com.inonu.stok_takip.Repositoriy.ProductRepository;
 import com.inonu.stok_takip.Service.CategoryService;
 import com.inonu.stok_takip.Service.MeasurementTypeService;
 import com.inonu.stok_takip.Service.ProductService;
-import com.inonu.stok_takip.dto.Request.CreateProductRequest;
+import com.inonu.stok_takip.dto.Request.ProductCreateRequest;
 import com.inonu.stok_takip.dto.Request.ProductUpdateRequest;
 import com.inonu.stok_takip.dto.Response.ProductResponse;
 import com.inonu.stok_takip.entitiy.Category;
@@ -35,12 +35,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse createProduct(CreateProductRequest createProductRequest) {
+    public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
 
-        Category category = categoryService.getCategoryById(createProductRequest.categoryId());
-        MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(createProductRequest.measurementTypeId());
+        Category category = categoryService.getCategoryById(productCreateRequest.categoryId());
+        MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(productCreateRequest.measurementTypeId());
 
-        Product product = mapToEntity(createProductRequest);
+        Product product = mapToEntity(productCreateRequest);
         product.setCategory(category);
         product.setMeasurementType(measurementType);
 
@@ -90,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
         return productResponseList;
     }
 
-    private Product mapToEntity(CreateProductRequest request){
+    private Product mapToEntity(ProductCreateRequest request){
         Product product = new Product();
         product.setName(request.name());
         product.setVatAmount(request.vatAmount());
