@@ -19,10 +19,37 @@ public class BudgetResponse {
         this.endDate = endDate;
     }
 
+    public BudgetResponse() {
+    }
+
     public Long getId() { return id; }
     public String getBudgetName() { return budgetName; }
     public Double getBudgetAmount() { return budgetAmount; }
     public Double getRemainingBudgetAmount() { return remainingBudgetAmount; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setBudgetName(String budgetName) {
+        this.budgetName = budgetName;
+    }
+
+    public void setBudgetAmount(Double budgetAmount) {
+        this.budgetAmount = budgetAmount;
+    }
+
+    public void setRemainingBudgetAmount(Double remainingBudgetAmount) {
+        this.remainingBudgetAmount = remainingBudgetAmount;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 }

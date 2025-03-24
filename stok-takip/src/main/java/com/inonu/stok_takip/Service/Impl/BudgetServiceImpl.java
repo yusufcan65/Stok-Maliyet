@@ -21,29 +21,24 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public List<BudgetResponse> getAllBudgets() {
-        return budgetRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+        List<Budget> budgetList = budgetRepository.findAll();
+        return mapToResponseList(budgetList);
+        //return budgetRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     @Override
     public BudgetResponse createBudget(BudgetCreateRequest request) {
-        Budget budget = new Budget();
-        budget.setBudgetName(request.budgetName());
-        budget.setBudgetAmount(request.budgetAmount());
-        budget.setRemainingBudgetAmount(request.remainingBudgetAmount());
-        budget.setStartDate(request.startDate());
-        budget.setEndDate(request.endDate());
-        return mapToResponse(budgetRepository.save(budget));
+        Budget budget = mapToEntity(request);
+        Budget toSave = budgetRepository.save(budget);
+        return mapToResponse(toSave);
     }
 
     @Override
     public BudgetResponse updateBudget(Long id, BudgetCreateRequest request) {
         Budget budget = getBudgetById(id);
-        budget.setBudgetName(request.budgetName());
-        budget.setBudgetAmount(request.budgetAmount());
-        budget.setRemainingBudgetAmount(request.remainingBudgetAmount());
-        budget.setStartDate(request.startDate());
-        budget.setEndDate(request.endDate());
-        return mapToResponse(budgetRepository.save(budget));
+        budget = mapToEntity(request);
+        Budget toUpdate = budgetRepository.save(budget);
+        return mapToResponse(toUpdate);
     }
 
     @Override
@@ -67,5 +62,22 @@ public class BudgetServiceImpl implements BudgetService {
             budget.getStartDate(),
             budget.getEndDate()
         );
+    }
+
+    private List<BudgetResponse> mapToResponseList(List<Budget> budgets) {
+        List<BudgetResponse> budgetResponse = budgets.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+        return budgetResponse;
+    }
+
+    private Budget mapToEntity(BudgetCreateRequest request){
+        Budget budget = new Budget();
+        budget.setBudgetName(request.budgetName());
+        budget.setBudgetAmount(request.budgetAmount());
+        budget.setRemainingBudgetAmount(request.budgetAmount());
+        budget.setStartDate(request.startDate());
+        budget.setEndDate(request.endDate());
+        return budget;
     }
 }
