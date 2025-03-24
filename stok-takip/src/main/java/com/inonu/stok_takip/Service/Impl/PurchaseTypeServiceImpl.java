@@ -2,7 +2,7 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Repositoriy.PurchaseTypeRepository;
 import com.inonu.stok_takip.Service.PurchaseTypeService;
-import com.inonu.stok_takip.dto.Request.CreatePurchaseTypeRequest;
+import com.inonu.stok_takip.dto.Request.PurchaseTypeCreateRequest;
 import com.inonu.stok_takip.dto.Response.PurchaseTypeResponse;
 import com.inonu.stok_takip.entitiy.PurchaseType;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,14 @@ public class PurchaseTypeServiceImpl implements PurchaseTypeService {
     }
 
     @Override
-    public PurchaseTypeResponse create(CreatePurchaseTypeRequest request) {
+    public PurchaseTypeResponse create(PurchaseTypeCreateRequest request) {
         PurchaseType type = new PurchaseType();
         type.setName(request.name());
         return mapToResponse(repository.save(type));
     }
 
     @Override
-    public PurchaseTypeResponse update(Long id, CreatePurchaseTypeRequest request) {
+    public PurchaseTypeResponse update(Long id, PurchaseTypeCreateRequest request) {
         PurchaseType type = getById(id);
         type.setName(request.name());
         return mapToResponse(repository.save(type));

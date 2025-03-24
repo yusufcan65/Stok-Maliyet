@@ -4,7 +4,7 @@ package com.inonu.stok_takip.Service.Impl;
 import com.inonu.stok_takip.Exception.MeasurementType.MeasurementTypeNotFoundException;
 import com.inonu.stok_takip.Repositoriy.MeasurementTypeRepository;
 import com.inonu.stok_takip.Service.MeasurementTypeService;
-import com.inonu.stok_takip.dto.Request.CreateMeasurementTypeRequest;
+import com.inonu.stok_takip.dto.Request.MeasurementTypeCreateRequest;
 import com.inonu.stok_takip.dto.Response.MeasurementTypeResponse;
 import com.inonu.stok_takip.entitiy.MeasurementType;
 import org.springframework.stereotype.Service;
@@ -23,9 +23,9 @@ public class MeasurementTypeServiceImpl implements MeasurementTypeService {
 
 
     @Override
-    public MeasurementTypeResponse createMeasurementType(CreateMeasurementTypeRequest createMeasurementTypeRequest) {
+    public MeasurementTypeResponse createMeasurementType(MeasurementTypeCreateRequest measurementTypeCreateRequest) {
         MeasurementType measurementType = new MeasurementType();
-        measurementType.setName(createMeasurementTypeRequest.name());
+        measurementType.setName(measurementTypeCreateRequest.name());
         MeasurementType saved = measurementTypeRepository.save(measurementType);
         return mapToResponse(saved);
     }

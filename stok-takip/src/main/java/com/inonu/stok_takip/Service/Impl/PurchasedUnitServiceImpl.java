@@ -2,7 +2,7 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Repositoriy.PurchasedUnitRepository;
 import com.inonu.stok_takip.Service.PurchasedUnitService;
-import com.inonu.stok_takip.dto.Request.CreatePurchasedUnitRequest;
+import com.inonu.stok_takip.dto.Request.PurchasedUnitCreateRequest;
 import com.inonu.stok_takip.dto.Response.PurchasedUnitResponse;
 import com.inonu.stok_takip.entitiy.PurchasedUnit;
 import org.springframework.stereotype.Service;
@@ -25,14 +25,14 @@ public class PurchasedUnitServiceImpl implements PurchasedUnitService {
     }
 
     @Override
-    public PurchasedUnitResponse create(CreatePurchasedUnitRequest request) {
+    public PurchasedUnitResponse create(PurchasedUnitCreateRequest request) {
         PurchasedUnit unit = new PurchasedUnit();
         unit.setName(request.name());
         return mapToResponse(repository.save(unit));
     }
 
     @Override
-    public PurchasedUnitResponse update(Long id, CreatePurchasedUnitRequest request) {
+    public PurchasedUnitResponse update(Long id, PurchasedUnitCreateRequest request) {
         PurchasedUnit unit = getById(id);
         unit.setName(request.name());
         return mapToResponse(repository.save(unit));

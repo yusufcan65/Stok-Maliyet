@@ -2,7 +2,7 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Repositoriy.BudgetRepository;
 import com.inonu.stok_takip.Service.BudgetService;
-import com.inonu.stok_takip.dto.Request.CreateBudgetRequest;
+import com.inonu.stok_takip.dto.Request.BudgetCreateRequest;
 import com.inonu.stok_takip.dto.Response.BudgetResponse;
 import com.inonu.stok_takip.entitiy.Budget;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public BudgetResponse createBudget(CreateBudgetRequest request) {
+    public BudgetResponse createBudget(BudgetCreateRequest request) {
         Budget budget = new Budget();
         budget.setBudgetName(request.budgetName());
         budget.setBudgetAmount(request.budgetAmount());
@@ -36,7 +36,7 @@ public class BudgetServiceImpl implements BudgetService {
     }
 
     @Override
-    public BudgetResponse updateBudget(Long id, CreateBudgetRequest request) {
+    public BudgetResponse updateBudget(Long id, BudgetCreateRequest request) {
         Budget budget = getBudgetById(id);
         budget.setBudgetName(request.budgetName());
         budget.setBudgetAmount(request.budgetAmount());
