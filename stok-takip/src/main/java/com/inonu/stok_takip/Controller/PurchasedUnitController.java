@@ -33,7 +33,7 @@ public class PurchasedUnitController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RestResponse<PurchasedUnit>> getPurchasedUnitById(@PathVariable("id") Long purchasedUnitId) {
-        PurchasedUnit purchasedUnit = purchasedUnitService.getById(purchasedUnitId);
+        PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(purchasedUnitId);
         return new ResponseEntity<>(RestResponse.of(purchasedUnit),HttpStatus.OK);
     }
 
