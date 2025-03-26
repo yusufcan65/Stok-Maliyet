@@ -32,7 +32,7 @@ public class PurchaseTypeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RestResponse<PurchaseType>> getPurchaseTypeById(@PathVariable Long id) {
-        PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(id);
+        PurchaseType purchaseType = purchaseTypeService.getById(id);
         return new ResponseEntity<>(RestResponse.of(purchaseType),HttpStatus.OK);
     }
 
