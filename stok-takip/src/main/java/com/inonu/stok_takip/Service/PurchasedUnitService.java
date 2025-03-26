@@ -10,6 +10,6 @@ public interface PurchasedUnitService {
     List<PurchasedUnitResponse> getAll();
     PurchasedUnitResponse create(PurchasedUnitCreateRequest request);
     PurchasedUnitResponse update(Long id, PurchasedUnitCreateRequest request);
-    PurchasedUnit getById(Long id);
+    PurchasedUnit getPurchasedUnitById(Long id);
     PurchasedUnitResponse delete(Long id);
 }

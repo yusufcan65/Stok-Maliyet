@@ -19,7 +19,6 @@ public class MaterialEntry extends BaseEntity {
     private LocalDate expiryDate; // ürün son kullanma tarihi
     private String companyName; // firma adı
     private Double totalPriceIncludingVat; // kdv dahil toplam tutar
-    private String workName; // işin adı
     private String description; // stoğa giriş yapılan ürün için açıklama 
 
 
@@ -53,7 +52,6 @@ public class MaterialEntry extends BaseEntity {
     public void setQuantity(Double quantity) {
         this.quantity = quantity;
     }
-
 
     public Double getRemainingQuantity() {
         return remainingQuantity;
@@ -112,8 +110,6 @@ public class MaterialEntry extends BaseEntity {
         this.budget = budget;
     }
 
-
-
     public String getCompanyName() {
         return companyName;
     }
@@ -129,15 +125,6 @@ public class MaterialEntry extends BaseEntity {
     public void setTotalPriceIncludingVat(Double totalPriceIncludingVat) {
         this.totalPriceIncludingVat = totalPriceIncludingVat;
     }
-
-    public String getWorkName() {
-        return workName;
-    }
-
-    public void setWorkName(String workName) {
-        this.workName = workName;
-    }
-
 
     public String getDescription() {
         return description;
