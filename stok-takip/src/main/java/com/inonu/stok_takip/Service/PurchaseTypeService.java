@@ -10,6 +10,6 @@ public interface PurchaseTypeService {
     List<PurchaseTypeResponse> getAll();
     PurchaseTypeResponse create(PurchaseTypeCreateRequest request);
     PurchaseTypeResponse update(Long id, PurchaseTypeCreateRequest request);
-    PurchaseType getById(Long id);
+    PurchaseType getPurchaseTypeById(Long id);
     PurchaseTypeResponse delete(Long id);
 }

@@ -12,4 +12,5 @@ public interface BudgetService {
     BudgetResponse updateBudget(Long id, BudgetCreateRequest request);
     Budget getBudgetById(Long id);
     BudgetResponse deleteBudget(Long id);
+    BudgetResponse updateBudgetValue(Long budgetId, Double value);
 }

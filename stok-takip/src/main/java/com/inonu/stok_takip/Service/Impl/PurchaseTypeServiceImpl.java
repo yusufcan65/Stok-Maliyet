@@ -33,19 +33,19 @@ public class PurchaseTypeServiceImpl implements PurchaseTypeService {
 
     @Override
     public PurchaseTypeResponse update(Long id, PurchaseTypeCreateRequest request) {
-        PurchaseType type = getById(id);
+        PurchaseType type = getPurchaseTypeById(id);
         type.setName(request.name());
         return mapToResponse(repository.save(type));
     }
 
     @Override
-    public PurchaseType getById(Long id) {
+    public PurchaseType getPurchaseTypeById(Long id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("PurchaseType not found: " + id));
     }
 
     @Override
     public PurchaseTypeResponse delete(Long id) {
-        PurchaseType type = getById(id);
+        PurchaseType type = getPurchaseTypeById(id);
         repository.delete(type);
         return mapToResponse(type);
     }

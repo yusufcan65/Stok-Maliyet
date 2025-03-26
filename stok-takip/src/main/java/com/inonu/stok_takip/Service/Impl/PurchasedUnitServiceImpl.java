@@ -33,19 +33,19 @@ public class PurchasedUnitServiceImpl implements PurchasedUnitService {
 
     @Override
     public PurchasedUnitResponse update(Long id, PurchasedUnitCreateRequest request) {
-        PurchasedUnit unit = getById(id);
+        PurchasedUnit unit = getPurchasedUnitById(id);
         unit.setName(request.name());
         return mapToResponse(repository.save(unit));
     }
 
     @Override
-    public PurchasedUnit getById(Long id) {
+    public PurchasedUnit getPurchasedUnitById(Long id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("PurchasedUnit not found: " + id));
     }
 
     @Override
     public PurchasedUnitResponse delete(Long id) {
-        PurchasedUnit unit = getById(id);
+        PurchasedUnit unit = getPurchasedUnitById(id);
         repository.delete(unit);
         return mapToResponse(unit);
     }

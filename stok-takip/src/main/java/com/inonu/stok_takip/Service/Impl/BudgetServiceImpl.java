@@ -53,6 +53,19 @@ public class BudgetServiceImpl implements BudgetService {
         return mapToResponse(budget);
     }
 
+    // depoya malzeme girişi yapıldıktan sonra bütçede kalan tutarın güncellenmesini yapan metot
+    @Override
+    public BudgetResponse updateBudgetValue(Long budgetId, Double value) {
+
+        Budget budget = getBudgetById(budgetId);
+        Double remainingValue = budget.getRemainingBudgetAmount();
+        Double newRemainingValue = remainingValue - value;
+        budget.setRemainingBudgetAmount(newRemainingValue);
+        Budget toUpdate = budgetRepository.save(budget);
+        return mapToResponse(toUpdate);
+
+    }
+
     private BudgetResponse mapToResponse(Budget budget) {
         return new BudgetResponse(
             budget.getId(),
