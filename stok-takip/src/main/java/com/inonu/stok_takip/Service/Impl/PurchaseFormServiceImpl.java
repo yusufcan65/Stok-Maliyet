@@ -41,7 +41,8 @@ public class PurchaseFormServiceImpl implements PurchaseFormService {
 
     @Override
     public PurchaseForm getPurchaseFormById(Long id) {
-        return purchaseFormRepository.findById(id).orElseThrow(()-> new RuntimeException("Purchase Form Not Found"));
+        return purchaseFormRepository.findById(id).orElseThrow(()->
+                new RuntimeException("Purchase Form Not Found with id: " + id));
     }
 
     @Override
@@ -49,6 +50,12 @@ public class PurchaseFormServiceImpl implements PurchaseFormService {
         PurchaseForm purchaseForm = getPurchaseFormById(id);
         purchaseFormRepository.delete(purchaseForm);
         return mapToResponse(purchaseForm);
+    }
+
+    @Override
+    public PurchaseForm getPurchaseFormByName(String name) {
+        return purchaseFormRepository.findPurchaseFormByName(name).orElseThrow(()->
+                new RuntimeException("Purchase Form Not Found with Name"+name));
     }
 
     private PurchaseForm mapToEntity(PurchaseFormCreateRequest request) {

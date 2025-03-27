@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public record BudgetCreateRequest(
     String budgetName,
     Double budgetAmount,
-    Double remainingBudgetAmount,
     LocalDate startDate,
     LocalDate endDate
 ) {}
