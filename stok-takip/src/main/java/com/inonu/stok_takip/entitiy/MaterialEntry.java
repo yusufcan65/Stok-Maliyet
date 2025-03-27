@@ -34,15 +34,15 @@ public class MaterialEntry extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "purchaseUnit_id")
-    private PurchasedUnit purchasedUnit; //alım yapılan birim
+    private PurchasedUnit purchasedUnit; //alım yapılan birim  sks/ yemekhane vb.
 
     @ManyToOne
     @JoinColumn(name = "purchaseForm_id")
-    private PurchaseForm purchaseForm; // alım şekli
+    private PurchaseForm purchaseForm; // alım şekli ihale/ devir / vb.
 
     @ManyToOne
     @JoinColumn(name = "purchaseType_id")
-    private PurchaseType purchaseType; // alım türü
+    private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
 
     public Double getQuantity() {
 

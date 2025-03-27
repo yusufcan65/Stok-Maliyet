@@ -10,6 +10,7 @@ import com.inonu.stok_takip.entitiy.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         Double totalPriceIncludingVat = totalPrice + totalVat; // kdv eklenmiş hali ile toplam tutar
 
         MaterialEntry materialEntry = mapToEntity(request);
-        materialEntry.setTotalPrice(totalPriceIncludingVat);
+        materialEntry.setTotalPrice(totalPrice);
         materialEntry.setRemainingQuantity(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
         materialEntry.setProduct(product);
@@ -110,26 +111,45 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
 
 
-    public void carryOverEntriesToNextYear(DateRequest request) {
-                // Dönem içinde kalan malzemeleri al
+    @Override
+    public List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request) {
+        // Dönem içinde kalan malzemeleri al
         List<MaterialEntry> entriesToCarryOver = materialEntryRepository.findEntriesWithinPeriod(request.startDate(), request.endDate());
+
+        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormByName("Devir");
+        List<MaterialEntry> materialEntryList = new ArrayList<>();
 
         for (MaterialEntry oldEntry : entriesToCarryOver) {
             if (oldEntry.getRemainingQuantity() > 0) { // Sadece kalan miktarı olanları devret
                 MaterialEntry newEntry = new MaterialEntry();
+
+                Double totalPrice = oldEntry.getUnitPrice() * oldEntry.getRemainingQuantity();
+
                 newEntry.setProduct(oldEntry.getProduct());
+                newEntry.setQuantity(oldEntry.getRemainingQuantity());
                 newEntry.setRemainingQuantity(oldEntry.getRemainingQuantity());
+                newEntry.setExpiryDate(oldEntry.getExpiryDate());
+                newEntry.setEntryDate(LocalDate.now());
+                newEntry.setBudget(oldEntry.getBudget());
+                newEntry.setCompanyName(oldEntry.getCompanyName());
+                newEntry.setTotalPriceIncludingVat(oldEntry.getTotalPriceIncludingVat());
+                newEntry.setDescription(oldEntry.getDescription());
+                newEntry.setPurchaseType(oldEntry.getPurchaseType());
+                newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
+                newEntry.setPurchaseForm(purchaseForm);// alım şekli burada devir olacak ona göre işlem yapmamıx gerekecek
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
+                newEntry.setTotalPrice(totalPrice);
 
-                // Yeni yılın başlangıç tarihini atıyoruz (2025-2026 dönemi)
-                newEntry.setEntryDate(LocalDate.of(2025, 9, 21));
+                materialEntryList.add(newEntry);
 
+                oldEntry.setRemainingQuantity(0.0);
+
+                materialEntryRepository.save(oldEntry);
                 materialEntryRepository.save(newEntry); // Yeni kaydı oluştur
             }
         }
+        return mapToResponseList(materialEntryList);
     }
-
-
 
     private MaterialEntry mapToEntity(MaterialEntryCreateRequest request) {
         MaterialEntry materialEntry = new MaterialEntry();
@@ -150,6 +170,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 materialEntry.getExpiryDate(),
                 materialEntry.getDescription(),
                 materialEntry.getCompanyName(),
+                materialEntry.getTotalPrice(),
+                materialEntry.getTotalPriceIncludingVat(),
                 materialEntry.getProduct().getId(),
                 materialEntry.getPurchaseType().getId(),
                 materialEntry.getPurchaseForm().getId(),

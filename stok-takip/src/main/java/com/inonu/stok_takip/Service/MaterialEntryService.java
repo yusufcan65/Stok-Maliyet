@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service;
 
+import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
@@ -16,4 +17,5 @@ public interface MaterialEntryService {
     MaterialEntryResponse deleteMaterialEntry(Long id);
     List<MaterialEntry> getMaterialEntryByProductId(Long productId);
     Double updateRemainingQuantity(Long materialEntryId, Double exitQuantity);
+    List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request);
 }
