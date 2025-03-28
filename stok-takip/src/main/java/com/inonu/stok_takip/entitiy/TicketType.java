@@ -1,7 +1,9 @@
 package com.inonu.stok_takip.entitiy;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+
+import java.util.List;
 
 @Entity
 public class TicketType extends BaseEntity {
@@ -9,8 +11,8 @@ public class TicketType extends BaseEntity {
     private String name;  // fiş tipi adı  (öğrenci , akademik, vb.)
     private Double unitPrice; // örneğin öğrenci 20 tl, akademisyen 55 tl gibi
 
-    @OneToOne(mappedBy = "ticketType")
-    private TicketSalesDetail ticketSalesDetail;
+    @OneToMany(mappedBy = "ticketType")
+    private List<TicketSalesDetail> ticketSalesDetail;
 
     public String getName() {
         return name;
@@ -28,11 +30,11 @@ public class TicketType extends BaseEntity {
         this.unitPrice = unitPrice;
     }
 
-    public TicketSalesDetail getTicketSalesDetail() {
+    public List<TicketSalesDetail> getTicketSalesDetail() {
         return ticketSalesDetail;
     }
 
-    public void setTicketSalesDetail(TicketSalesDetail ticketSalesDetail) {
+    public void setTicketSalesDetail(List<TicketSalesDetail> ticketSalesDetail) {
         this.ticketSalesDetail = ticketSalesDetail;
     }
 }

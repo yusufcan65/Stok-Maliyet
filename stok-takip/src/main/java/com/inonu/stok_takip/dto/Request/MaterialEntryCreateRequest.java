@@ -4,13 +4,10 @@ import java.time.LocalDate;
 
 public record MaterialEntryCreateRequest(
     Double quantity,
-    Double remainingQuantity,
     Double unitPrice,
-    Double totalPrice,
     LocalDate entryDate,
     LocalDate expiryDate,
     String companyName,
-    Double totalPriceIncludingVat,
     String Description,
     Long productId,
     Long budgetId,

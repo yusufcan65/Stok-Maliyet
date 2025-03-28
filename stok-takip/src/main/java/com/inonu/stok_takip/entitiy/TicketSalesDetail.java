@@ -2,6 +2,7 @@ package com.inonu.stok_takip.entitiy;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
 import java.time.LocalDate;
@@ -13,7 +14,7 @@ public class TicketSalesDetail extends BaseEntity{
     private Double totalPrice; // satılan fişlerin toplam tutarı
     private LocalDate ticketDate; // fişlerin satıldığı gün
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "ticketType_id",nullable = false)
     private TicketType ticketType;
 
