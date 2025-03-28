@@ -110,7 +110,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     }
 
 
-
+    // devir işlemerini yapan metot
     @Override
     public List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request) {
         // Dönem içinde kalan malzemeleri al
@@ -136,7 +136,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setDescription(oldEntry.getDescription());
                 newEntry.setPurchaseType(oldEntry.getPurchaseType());
                 newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
-                newEntry.setPurchaseForm(purchaseForm);// alım şekli burada devir olacak ona göre işlem yapmamıx gerekecek
+                newEntry.setPurchaseForm(purchaseForm);// alım şekli burada devir olacak ona göre işlem yapmamız gerekecek ykarıda bunu hallettik
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
                 newEntry.setTotalPrice(totalPrice);
 
@@ -168,8 +168,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 materialEntry.getUnitPrice(),
                 materialEntry.getEntryDate(),
                 materialEntry.getExpiryDate(),
-                materialEntry.getDescription(),
                 materialEntry.getCompanyName(),
+                materialEntry.getDescription(),
                 materialEntry.getTotalPrice(),
                 materialEntry.getTotalPriceIncludingVat(),
                 materialEntry.getProduct().getId(),

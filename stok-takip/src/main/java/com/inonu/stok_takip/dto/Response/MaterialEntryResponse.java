@@ -9,25 +9,34 @@ public class MaterialEntryResponse {
     private LocalDate expiryDate;
     private String companyName;
     private String description;
+    private Double totalPrice;
+    private Double totalPriceIncludingVat;
     private Long productId;
+    private Long purchaseTypeId;
     private Long purchasedUnitId;
     private Long purchaseFormId;
-    private Long purchaseTypeId;
 
     public MaterialEntryResponse() {
     }
 
-    public MaterialEntryResponse(Double quantity, Double unitPrice, LocalDate entryDate, LocalDate expiryDate, String description, String companyName, Long productId, Long purchaseTypeId, Long purchaseFormId, Long purchasedUnitId) {
+    public MaterialEntryResponse(Double quantity, Double unitPrice,
+                                 LocalDate entryDate, LocalDate expiryDate,
+                                 String companyName, String description,
+                                 Double totalPrice, Double totalPriceIncludingVat,
+                                 Long productId, Long purchaseTypeId,
+                                 Long purchasedUnitId, Long purchaseFormId) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.entryDate = entryDate;
         this.expiryDate = expiryDate;
         this.companyName = companyName;
         this.description = description;
+        this.totalPrice = totalPrice;
+        this.totalPriceIncludingVat = totalPriceIncludingVat;
         this.productId = productId;
+        this.purchaseTypeId = purchaseTypeId;
         this.purchasedUnitId = purchasedUnitId;
         this.purchaseFormId = purchaseFormId;
-        this.purchaseTypeId = purchaseTypeId;
     }
 
     public Double getQuantity() {
@@ -108,5 +117,21 @@ public class MaterialEntryResponse {
 
     public void setPurchaseTypeId(Long purchaseTypeId) {
         this.purchaseTypeId = purchaseTypeId;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Double getTotalPriceIncludingVat() {
+        return totalPriceIncludingVat;
+    }
+
+    public void setTotalPriceIncludingVat(Double totalPriceIncludingVat) {
+        this.totalPriceIncludingVat = totalPriceIncludingVat;
     }
 }
