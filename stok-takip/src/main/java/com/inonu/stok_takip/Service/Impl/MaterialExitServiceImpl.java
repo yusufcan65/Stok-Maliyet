@@ -7,9 +7,12 @@ import com.inonu.stok_takip.dto.Request.MaterialExitCreateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialExitResponse;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
 import com.inonu.stok_takip.entitiy.MaterialExit;
+import com.inonu.stok_takip.entitiy.Product;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,58 +35,75 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
 
     @Override
-    public MaterialExitResponse createMaterialExit(MaterialExitCreateRequest request) {
+    public List<MaterialExitResponse> createMaterialExit(MaterialExitCreateRequest request) {
+        Map<Long, Double> productQuantities = request.productQuantities();
+        List<MaterialExitResponse> responses = new ArrayList<>();
 
-        List<MaterialEntry> materialEntries = materialEntryService.getMaterialEntryByProductId(request.productId());
+        // Tüm ürünler için stok kontrolü
+        checkProductsInStock(productQuantities);
 
-        if(materialEntries.isEmpty()){
-            throw new RuntimeException("product not found in stock");
-        }
+        // Her bir ürün için ayrı MaterialExit kaydı oluşturulacak
+        for (Map.Entry<Long, Double> entry : productQuantities.entrySet()) {
+            Long productId = entry.getKey();
+            Double quantity = entry.getValue(); // Bu üründen çıkması gereken miktar
 
-        checkProductInStock(materialEntries, request.quantity());
+            // Ürüne ait tüm malzeme girişlerini FIFO sırasına göre alıyoruz
+            List<MaterialEntry> materialEntries = materialEntryService.getMaterialEntryByProductId(productId);
 
-        Double remainingQuantityToDeduct = request.quantity();  // talep edilen ürün miktarı
-        Double totalCost = 0.0;
-        Double totalQuantity = 0.0;
+            // FIFO mantığıyla malzeme girişlerinden alacağımız miktarı belirliyoruz
+            Double remainingQuantityToDeduct = quantity; // Çıkartılacak toplam miktar
+            Double productCost = 0.0; // Bu ürünün maliyeti
+            Double productQuantity = 0.0; // Bu ürünün toplam miktarı
+            List<MaterialEntry> entriesUsedForExit = new ArrayList<>(); // Kullanılan malzeme girişlerini saklıyoruz
 
-        for (MaterialEntry materialEntry : materialEntries) {
-            if (remainingQuantityToDeduct <= 0) {
-                break; // Talep edilen tüm miktar karşılanmışsa döngüyü sonlandır
+            // FIFO sırasına göre malzeme girişleri üzerinde işlem yapıyoruz
+            for (MaterialEntry materialEntry : materialEntries) {
+                if (remainingQuantityToDeduct <= 0) {
+                    break; // Miktar sıfırlandığında işlemi bitiriyoruz
+                }
+
+                // FIFO mantığı ile ilk kaydın tamamını alıyoruz ve sonra kalan miktarı alıyoruz
+                Double deductedQuantity = Math.min(remainingQuantityToDeduct, materialEntry.getRemainingQuantity());
+                remainingQuantityToDeduct -= deductedQuantity; // Kalan miktarı güncelliyoruz
+
+                // Toplam maliyet ve toplam miktar hesaplanıyor
+                productCost += deductedQuantity * materialEntry.getUnitPrice();
+                productQuantity += deductedQuantity;
+
+                // FIFO sırasıyla tüm malzeme girişlerini ekliyoruz
+                entriesUsedForExit.add(materialEntry);
             }
 
-            Double deductedQuantity;
+            // Ortalama birim fiyat hesaplanıyor (toplam maliyet / toplam miktar)
+            Double averageUnitPrice = productQuantity > 0 ? productCost / productQuantity : 0.0;
 
-            if (remainingQuantityToDeduct >= materialEntry.getRemainingQuantity()) {
-                // Eğer talep edilen miktar, mevcut stoktan fazla ise, o kaydın tamamını alıyoruz
-                deductedQuantity = materialEntry.getRemainingQuantity();
-                remainingQuantityToDeduct -= deductedQuantity; // Geriye kalan miktarı düşüyoruz
-                materialEntryService.updateRemainingQuantity(materialEntry.getId(), deductedQuantity); // Kalan miktar güncelleniyor
-            } else {
-                // Eğer talep edilen miktar, mevcut stoktan az ise, sadece kalan miktarı alıyoruz
-                deductedQuantity = remainingQuantityToDeduct;
-                remainingQuantityToDeduct = 0.0; // Talep edilen miktar tamamlanmış oldu
-                materialEntryService.updateRemainingQuantity(materialEntry.getId(), deductedQuantity); // Kalan miktar güncelleniyor
+            // MaterialExit kaydı oluşturuluyor
+            MaterialExit materialExit = new MaterialExit();
+            materialExit.setUnitPrice(averageUnitPrice); // Ortalama birim fiyat
+            materialExit.setQuantity(productQuantity); // Çıkan toplam miktar
+            materialExit.setTotalPrice(productCost); // Toplam maliyet
+            materialExit.setExitDate(request.exitDate()); // Çıkış tarihi
+            materialExit.setRecipient(request.recipient()); // Çıkışı yapan kişi
+            materialExit.setTotalPerson(request.totalPerson()); // Toplam kişi sayısı
+            materialExit.setProduct(entriesUsedForExit.get(0).getProduct()); // Ürün bilgisi
+
+            // Malzeme çıkışı kaydediliyor
+            MaterialExit savedExit = materialExitRepository.save(materialExit);
+
+            // Her bir malzeme girişinin kalan miktarı güncelleniyor
+            for (MaterialEntry materialEntry : entriesUsedForExit) {
+                Double deductedQuantity = Math.min(materialEntry.getRemainingQuantity(), productQuantity);
+                materialEntryService.updateRemainingQuantity(materialEntry.getId(), deductedQuantity);
             }
 
-            totalCost += deductedQuantity * materialEntry.getUnitPrice(); // Toplam maliyet hesaplanıyor
-            totalQuantity += deductedQuantity; // Toplam miktar hesaplanıyor
+            // Response oluşturuluyor
+            responses.add(mapToResponse(savedExit));
         }
 
-        Double averageUnitPrice = totalCost / totalQuantity;
-
-        MaterialExit materialExit = new MaterialExit();
-        materialExit.setUnitPrice(averageUnitPrice); // burada depodan çıkan ürün birden fazla kalmede var ise alına her kalem ürünleri için birim fiyatlar hesaplanmışve ortalama birim fiyat bulunmuş
-        materialExit.setQuantity(totalQuantity); // bir ürünün depodan çıkan miktarı
-        materialExit.setTotalPrice(totalCost); // depodan çıkışı verilen ürün için toplam maliyet tutarı
-        materialExit.setExitDate(request.exitDate()); // depodan çıkan ürünün depodan çıkış tarihi
-        materialExit.setRecipient(request.recipient()); // depodan çıkışı yapan kişi
-        materialExit.setProduct(materialEntries.get(0).getProduct()); // depodan çıkışı yapılan ürün
-        materialExit.setTotalPerson(request.totalPerson());
-
-        MaterialExit toSave = materialExitRepository.save(materialExit);
-        return mapToResponse(toSave);
-
+        // Tüm çıkışları döndürüyoruz
+        return responses;
     }
+
 
     @Override
     public MaterialExitResponse updateMaterialExit(MaterialExitCreateRequest request) {
@@ -121,16 +141,28 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         return responseList;
     }
     // depodan çıkış verilirken depoda yeteri miktarda olup olmadığı kontrolü
-    private void checkProductInStock(List<MaterialEntry> materialEntries, Double requestedQuantity) {
-        double totalStockQuantity = materialEntries.stream()
-                .mapToDouble(MaterialEntry::getRemainingQuantity)
-                .sum();
+    private void checkProductsInStock(Map<Long, Double> productQuantities) {
+        List<String> insufficientProducts = new ArrayList<>();
 
-        if (totalStockQuantity < requestedQuantity) {
-            throw new RuntimeException("There is not enough product in the warehouse. Available: "
-                    + totalStockQuantity + ", Requested: " + requestedQuantity);
+        for (Map.Entry<Long, Double> entry : productQuantities.entrySet()) {
+            Long productId = entry.getKey();
+            Double requestedQuantity = entry.getValue();
+
+            List<MaterialEntry> materialEntries = materialEntryService.getMaterialEntryByProductId(productId);
+            double totalStockQuantity = materialEntries.stream()
+                    .mapToDouble(MaterialEntry::getRemainingQuantity)
+                    .sum();
+
+            if (totalStockQuantity < requestedQuantity) {
+                insufficientProducts.add("Product ID " + productId + " - Available: " + totalStockQuantity + ", Requested: " + requestedQuantity);
+            }
+        }
+
+        if (!insufficientProducts.isEmpty()) {
+            throw new RuntimeException("Insufficient stock for the following products:\n" + String.join("\n", insufficientProducts));
         }
     }
+
 
 
 }

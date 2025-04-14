@@ -14,7 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/ticketSalesDetail")
 public class TicketSalesDetailController {
-
+/*
  private final TicketSalesDetailService ticketSalesDetailService;
 
     public TicketSalesDetailController(TicketSalesDetailService ticketSalesDetailService) {
@@ -49,5 +49,5 @@ public class TicketSalesDetailController {
     public ResponseEntity<RestResponse<TicketSalesDetailResponse>> deleteTicketSalesDetail(@PathVariable Long id) {
         TicketSalesDetailResponse ticketSalesDetailResponse = ticketSalesDetailService.deleteTicketSalesDetail(id);
         return new ResponseEntity<>(RestResponse.of(ticketSalesDetailResponse), HttpStatus.OK);
-    }
+    }*/
 }

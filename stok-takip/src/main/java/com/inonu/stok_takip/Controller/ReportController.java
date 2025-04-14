@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/v1/report")
 public class ReportController {
 
-    private final ReportService reportService;
+    /*private final ReportService reportService;
 
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
@@ -51,5 +51,5 @@ public class ReportController {
         ReportResponse reportResponse = reportService.deleteReport(id);
         return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
     }
-
+*/
 }

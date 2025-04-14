@@ -1,12 +1,12 @@
 package com.inonu.stok_takip.dto.Request;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 public record MaterialExitCreateRequest(
-    Double quantity,
+    Map<Long,Double> productQuantities,
     String recipient,
     int totalPerson,
-    Long productId,
     LocalDate exitDate
 ) {
     

@@ -7,5 +7,6 @@ public record MaterialDemandCreateRequest(
     Long userId,
     String companyName,
     LocalDate requestDate,
-    Long productId
+    Long productId,
+    Long purchaseFormId
 ) {}

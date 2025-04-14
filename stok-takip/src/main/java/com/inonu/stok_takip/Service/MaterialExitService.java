@@ -9,7 +9,7 @@ import java.util.List;
 public interface MaterialExitService {
 
     List<MaterialExitResponse> getAllMaterialExits();
-    MaterialExitResponse createMaterialExit(MaterialExitCreateRequest request);
+    List<MaterialExitResponse> createMaterialExit(MaterialExitCreateRequest request);
     MaterialExitResponse updateMaterialExit(MaterialExitCreateRequest request);
     MaterialExitResponse deleteMaterialExit(Long id);
     MaterialExit getMaterialExitById(Long id);

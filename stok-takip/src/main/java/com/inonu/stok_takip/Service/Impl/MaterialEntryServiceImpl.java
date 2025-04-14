@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.MaterialEntry.StockNotAvailableException;
 import com.inonu.stok_takip.Repositoriy.MaterialEntryRepository;
 import com.inonu.stok_takip.Service.*;
 import com.inonu.stok_takip.dto.Request.DateRequest;
@@ -107,6 +108,27 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         materialEntry.setRemainingQuantity(newValue);
          materialEntryRepository.save(materialEntry);
         return newValue;
+    }
+
+    @Override
+    public void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity) {
+        List<MaterialEntry> materialEntries = getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
+
+        if (materialEntries.isEmpty()) {
+            throw new RuntimeException("Bu ürün ve satın alma formu ile ilgili stok kaydı bulunamadı.");
+        }
+
+        double totalAvailableQuantity = materialEntries.stream()
+                .mapToDouble(MaterialEntry::getRemainingQuantity)
+                .sum();
+
+        if (totalAvailableQuantity < requestedQuantity) {
+            throw new StockNotAvailableException("Stok yetersiz");
+        }
+    }
+    @Override
+    public List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId) {
+        return materialEntryRepository.getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
     }
 
 
