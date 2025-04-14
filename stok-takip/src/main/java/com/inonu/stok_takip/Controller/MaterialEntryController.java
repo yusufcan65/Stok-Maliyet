@@ -41,8 +41,8 @@ public class MaterialEntryController {
         return new ResponseEntity<>(RestResponse.of(materialEntryResponses), HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<RestResponse<MaterialEntryResponse>> updateMaterialEntry(@PathVariable Long id, @RequestBody MaterialEntryUpdateRequest request) {
+    @PutMapping("/update")
+    public ResponseEntity<RestResponse<MaterialEntryResponse>> updateMaterialEntry(@RequestBody MaterialEntryUpdateRequest request) {
         MaterialEntryResponse materialEntryResponse = materialEntryService.updateMaterialEntry(request);
         return new ResponseEntity<>(RestResponse.of(materialEntryResponse), HttpStatus.OK);
     }
