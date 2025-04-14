@@ -22,8 +22,8 @@ public class MaterialExitController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<RestResponse<MaterialExitResponse>> createMaterialExit(@RequestBody MaterialExitCreateRequest request) {
-        MaterialExitResponse materialExitResponse = materialExitService.createMaterialExit(request);
+    public ResponseEntity<RestResponse<List<MaterialExitResponse>>> createMaterialExit(@RequestBody MaterialExitCreateRequest request) {
+        List<MaterialExitResponse> materialExitResponse = materialExitService.createMaterialExit(request);
         return new ResponseEntity<>(RestResponse.of(materialExitResponse), HttpStatus.OK);
     }
 

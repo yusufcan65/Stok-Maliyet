@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.entitiy;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -11,13 +12,20 @@ import java.time.LocalDate;
 public class MaterialDemand extends BaseEntity{
 
     private Double quantity; // talep edilen malzeme miktarı
-    private Long userId; // bu veri zero trusttan çekilecek
+    private Long userId; // bu veri zero trusttan çekilecek veya bu veri kullancı tarafından girilecek çünkü bu yapıyı kullanan kişi uygulama kullanıcısı olmayabilir
+
     private String companyName; // talep edilen firmanın adı
     private LocalDate requestDate; // talep tarihi
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false) // talep edilen ürün
     private Product product;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "purchaseForm_id", nullable = false)
+    private PurchaseForm purchaseForm;
 
     public Double getQuantity() {
         return quantity;
@@ -58,5 +66,13 @@ public class MaterialDemand extends BaseEntity{
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public PurchaseForm getPurchaseForm() {
+        return purchaseForm;
+    }
+
+    public void setPurchaseForm(PurchaseForm purchaseForm) {
+        this.purchaseForm = purchaseForm;
     }
 }

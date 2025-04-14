@@ -35,10 +35,10 @@ public class MaterialDemandController {
 
     @GetMapping("/all")
     public ResponseEntity<RestResponse<List<MaterialDemandResponse>>> getAllMaterialDemandList() {
-        List<MaterialDemandResponse> materialDemandResponses = materialDemandService.getAllMaterialDemandList();
+        List<MaterialDemandResponse> materialDemandResponses = materialDemandService.getAllMaterialDemand();
         return new ResponseEntity<>(RestResponse.of(materialDemandResponses), HttpStatus.OK);
     }
-
+/*
     @PutMapping("/update/{id}")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> updateMaterialDemand(@PathVariable Long id, @RequestBody MaterialDemandCreateRequest request) {
         MaterialDemandResponse materialDemandResponse = materialDemandService.updateMaterialDemand(request);
@@ -50,5 +50,5 @@ public class MaterialDemandController {
         MaterialDemandResponse materialDemandResponse = materialDemandService.deleteMaterialDemand(id);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
-
+*/
 }

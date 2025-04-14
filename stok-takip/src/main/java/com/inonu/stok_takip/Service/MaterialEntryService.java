@@ -18,4 +18,6 @@ public interface MaterialEntryService {
     List<MaterialEntry> getMaterialEntryByProductId(Long productId);
     Double updateRemainingQuantity(Long materialEntryId, Double exitQuantity);
     List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request);
+    void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity);
+    public List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId);
 }
