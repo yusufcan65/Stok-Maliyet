@@ -49,7 +49,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     public MaterialEntryResponse createMaterialEntry(MaterialEntryCreateRequest request) {
 
         Product product = productService.getProductById(request.productId());
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormById(request.purchaseFormId());
+        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormNameById(request.purchaseFormId());
         PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(request.purchaseUnitId());
         PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(request.purchaseTypeId());
         Budget budget = budgetService.getBudgetById(request.budgetId());
@@ -60,8 +60,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
         MaterialEntry materialEntry = mapToEntity(request);
         materialEntry.setTotalPrice(totalPrice);
-        materialEntry.setRemainingQuantity(request.quantity());
-        materialEntry.setRemainingQuantityInTender(request.quantity());
+       // materialEntry.setRemainingQuantity(request.quantity());
+       // materialEntry.setRemainingQuantityInTender(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
         materialEntry.setEntrySourceType(EntrySourceType.ALIM);
         materialEntry.setProduct(product);
@@ -70,6 +70,16 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         materialEntry.setPurchasedUnit(purchasedUnit);
         materialEntry.setBudget(budget);
         budgetService.updateBudgetValue(budget.getId(),totalPriceIncludingVat);
+
+        if(purchaseForm.getName().equalsIgnoreCase("Doğrudan Alım")){
+            materialEntry.setRemainingQuantityInTender(0.0);
+            materialEntry.setRemainingQuantity(request.quantity());
+
+        }
+        else {
+            materialEntry.setRemainingQuantity(0.0);
+            materialEntry.setRemainingQuantityInTender(request.quantity());
+        }
 
         MaterialEntry toSave = materialEntryRepository.save(materialEntry);
         return mapToResponse(toSave);

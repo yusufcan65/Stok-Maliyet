@@ -60,7 +60,6 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
 
             double toDeduct = Math.min(available, remaining);
 
-            // Mevcut metodunu burada kullan
             materialEntryService.updateRemainingQuantityInTender(entry.getId(), toDeduct);
 
             remaining -= toDeduct;

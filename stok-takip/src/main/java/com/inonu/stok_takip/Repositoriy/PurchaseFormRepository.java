@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PurchaseFormRepository extends JpaRepository<PurchaseForm, Long> {
 
-    Optional<PurchaseForm> findPurchaseFormByName(String name);
+    Optional<PurchaseForm> findPurchaseNameById(Long id);
 }
