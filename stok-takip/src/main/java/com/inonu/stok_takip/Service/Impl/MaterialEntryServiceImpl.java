@@ -63,6 +63,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         materialEntry.setRemainingQuantity(request.quantity());
         materialEntry.setRemainingQuantityInTender(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
+        materialEntry.setEntrySourceType(EntrySourceType.ALIM);
         materialEntry.setProduct(product);
         materialEntry.setPurchaseForm(purchaseForm);
         materialEntry.setPurchaseType(purchaseType);
@@ -126,7 +127,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         List<MaterialEntry> materialEntries = getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
 
         if (materialEntries.isEmpty()) {
-            throw new RuntimeException("Bu ürün ve satın alma formu ile ilgili stok kaydı bulunamadı.");
+            throw new RuntimeException("Ürün stokta bulunamadı");
         }
 
         double totalAvailableQuantity = materialEntries.stream()
@@ -141,15 +142,12 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     public List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId) {
         return materialEntryRepository.getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
     }
-
-
     // devir işlemerini yapan metot
     @Override
     public List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request) {
         // Dönem içinde kalan malzemeleri al
         List<MaterialEntry> entriesToCarryOver = materialEntryRepository.findEntriesWithinPeriod(request.startDate(), request.endDate());
 
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormByName("Devir");
         List<MaterialEntry> materialEntryList = new ArrayList<>();
 
         for (MaterialEntry oldEntry : entriesToCarryOver) {
@@ -165,20 +163,22 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setEntryDate(LocalDate.now());
                 newEntry.setBudget(oldEntry.getBudget());
                 newEntry.setCompanyName(oldEntry.getCompanyName());
+                newEntry.setEntrySourceType(EntrySourceType.DEVIR);
                 newEntry.setTotalPriceIncludingVat(oldEntry.getTotalPriceIncludingVat());
                 newEntry.setDescription(oldEntry.getDescription());
                 newEntry.setPurchaseType(oldEntry.getPurchaseType());
                 newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
-                newEntry.setPurchaseForm(purchaseForm);// alım şekli burada devir olacak ona göre işlem yapmamız gerekecek ykarıda bunu hallettik
+                newEntry.setPurchaseForm(oldEntry.getPurchaseForm());// alım şekli burada devir olacak ona göre işlem yapmamız gerekecek ykarıda bunu hallettik
+                                                                   // burada ihaleleri devam eden veriler ihale devir olarak devam edecek burada bakılacak olan ksım ise
+                                                                 // ihale bitiş tarihi ve ihaleden alınan üründen kalan miktar olacak ona göre projeyi güncelleyecez
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
                 newEntry.setTotalPrice(totalPrice);
-
+                newEntry.setRemainingQuantityInTender(oldEntry.getRemainingQuantityInTender());
                 materialEntryList.add(newEntry);
-
                 oldEntry.setRemainingQuantity(0.0);
 
                 materialEntryRepository.save(oldEntry);
-                materialEntryRepository.save(newEntry); // Yeni kaydı oluştur
+                materialEntryRepository.save(newEntry);
             }
         }
         return mapToResponseList(materialEntryList);
