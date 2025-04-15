@@ -61,6 +61,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         MaterialEntry materialEntry = mapToEntity(request);
         materialEntry.setTotalPrice(totalPrice);
         materialEntry.setRemainingQuantity(request.quantity());
+        materialEntry.setRemainingQuantityInTender(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
         materialEntry.setProduct(product);
         materialEntry.setPurchaseForm(purchaseForm);
@@ -106,7 +107,17 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         Double remainingQuantity = materialEntry.getRemainingQuantity();
         Double newValue = remainingQuantity - exitQuantity;
         materialEntry.setRemainingQuantity(newValue);
-         materialEntryRepository.save(materialEntry);
+        materialEntryRepository.save(materialEntry);
+        return newValue;
+    }
+
+    @Override
+    public Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity){
+        MaterialEntry materialEntry = getMaterialEntryById(materialId);
+        Double remainingQuantityInRender = materialEntry.getRemainingQuantityInTender();
+        Double newValue = remainingQuantityInRender - exitQuantity;
+        materialEntry.setRemainingQuantityInTender(newValue);
+        materialEntryRepository.save(materialEntry);
         return newValue;
     }
 
@@ -119,7 +130,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         }
 
         double totalAvailableQuantity = materialEntries.stream()
-                .mapToDouble(MaterialEntry::getRemainingQuantity)
+                .mapToDouble(MaterialEntry::getRemainingQuantityInTender)
                 .sum();
 
         if (totalAvailableQuantity < requestedQuantity) {

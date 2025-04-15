@@ -13,6 +13,7 @@ public class MaterialEntry extends BaseEntity {
 
     private Double quantity;// giriş miktarı // adet
     private Double remainingQuantity; // stokta kalan miktar
+    private Double remainingQuantityInTender;// ihaleden kalan miktar (ihaleden sonra depoya gelen ve talep doğrultusunda kullanılan miktar)
     private Double unitPrice; // ürünün birim fiyatı
     private Double totalPrice; // alınan ürünün toplam tutarı = adet* birim fiyatı
     private LocalDate entryDate; // giriş tarihi // fatura tarihi
@@ -59,6 +60,14 @@ public class MaterialEntry extends BaseEntity {
 
     public void setRemainingQuantity(Double remainingQuantity) {
         this.remainingQuantity = remainingQuantity;
+    }
+
+    public Double getRemainingQuantityInTender() {
+        return remainingQuantityInTender;
+    }
+
+    public void setRemainingQuantityInTender(Double remainingQuantityInTender) {
+        this.remainingQuantityInTender = remainingQuantityInTender;
     }
 
     public Double getUnitPrice() {

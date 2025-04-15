@@ -24,7 +24,10 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     private final MaterialEntryService materialEntryService;
     private final PurchaseFormService purchaseFormService;
 
-    public MaterialDemandServiceImpl(MaterialDemandRepository materialDemandRepository, ProductService productService, MaterialEntryService materialEntryService, PurchaseFormService purchaseFormService) {
+    public MaterialDemandServiceImpl(MaterialDemandRepository materialDemandRepository,
+                                     ProductService productService,
+                                     MaterialEntryService materialEntryService,
+                                     PurchaseFormService purchaseFormService) {
         this.materialDemandRepository = materialDemandRepository;
         this.productService = productService;
         this.materialEntryService = materialEntryService;
@@ -52,13 +55,13 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         for (MaterialEntry entry : entries) {
             if (remaining <= 0) break;
 
-            double available = entry.getRemainingQuantity();
+            double available = entry.getRemainingQuantityInTender();
             if (available <= 0) continue;
 
             double toDeduct = Math.min(available, remaining);
 
             // Mevcut metodunu burada kullan
-            materialEntryService.updateRemainingQuantity(entry.getId(), toDeduct);
+            materialEntryService.updateRemainingQuantityInTender(entry.getId(), toDeduct);
 
             remaining -= toDeduct;
         }
@@ -71,8 +74,6 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         MaterialDemand savedDemand = materialDemandRepository.save(materialDemand);
         return mapToResponse(savedDemand);
     }
-
-
 
     @Override
     public MaterialDemand getMaterialDemandById(Long id) {
@@ -94,6 +95,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     public MaterialDemandResponse deleteMaterialDemand(Long id) {
         return null;
     }
+
     private MaterialDemandResponse mapToResponse(MaterialDemand materialDemand) {
         MaterialDemandResponse materialDemandResponse = new MaterialDemandResponse();
         materialDemandResponse.setId(materialDemand.getId());

@@ -20,4 +20,5 @@ public interface MaterialEntryService {
     List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request);
     void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity);
     List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId);
+    Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity);
 }
