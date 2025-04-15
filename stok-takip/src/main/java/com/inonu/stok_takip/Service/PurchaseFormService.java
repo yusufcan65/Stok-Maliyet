@@ -13,5 +13,5 @@ public interface PurchaseFormService {
     PurchaseFormResponse updatePurchaseForm(PurchaseFormCreateRequest request);
     PurchaseForm getPurchaseFormById(Long id);
     PurchaseFormResponse deletePurchaseForm(Long id);
-    PurchaseForm getPurchaseFormByName(String name);
+    PurchaseForm getPurchaseFormNameById(Long id);
 }
