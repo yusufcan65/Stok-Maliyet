@@ -1,9 +1,7 @@
 package com.inonu.stok_takip.entitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -20,7 +18,10 @@ public class MaterialEntry extends BaseEntity {
     private LocalDate expiryDate; // ürün son kullanma tarihi
     private String companyName; // firma adı
     private Double totalPriceIncludingVat; // kdv dahil toplam tutar
-    private String description; // stoğa giriş yapılan ürün için açıklama 
+    private String description; // stoğa giriş yapılan ürün için açıklama
+
+    @Enumerated(EnumType.STRING)
+    private EntrySourceType entrySourceType;
 
 
 
@@ -44,6 +45,13 @@ public class MaterialEntry extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "purchaseType_id")
     private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
+
+    // Yuvarlama işlemi
+    private Double roundToTwoDecimalPlaces(Double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
+
 
     public Double getQuantity() {
 
@@ -83,7 +91,7 @@ public class MaterialEntry extends BaseEntity {
     }
 
     public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
+        this.totalPrice = roundToTwoDecimalPlaces(totalPrice);
     }
 
     public LocalDate getEntryDate() {
@@ -132,7 +140,7 @@ public class MaterialEntry extends BaseEntity {
     }
 
     public void setTotalPriceIncludingVat(Double totalPriceIncludingVat) {
-        this.totalPriceIncludingVat = totalPriceIncludingVat;
+        this.totalPriceIncludingVat = roundToTwoDecimalPlaces(totalPriceIncludingVat);
     }
 
     public String getDescription() {
@@ -141,6 +149,14 @@ public class MaterialEntry extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public EntrySourceType getEntrySourceType() {
+        return entrySourceType;
+    }
+
+    public void setEntrySourceType(EntrySourceType entrySourceType) {
+        this.entrySourceType = entrySourceType;
     }
 
     public PurchasedUnit getPurchasedUnit() {
