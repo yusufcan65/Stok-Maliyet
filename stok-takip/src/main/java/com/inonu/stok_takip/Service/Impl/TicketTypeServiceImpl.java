@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.TicketType.TicketTypeNotFoundException;
 import com.inonu.stok_takip.Repositoriy.TicketTypeRepository;
 import com.inonu.stok_takip.Service.TicketTypeService;
 import com.inonu.stok_takip.dto.Request.TicketTypeCreateRequest;
@@ -36,7 +37,7 @@ public class TicketTypeServiceImpl implements TicketTypeService {
 
     @Override
     public TicketType getTicketTypeById(Long id) {
-        return ticketTypeRepository.findById(id).orElseThrow(()-> new RuntimeException("Ticket Type Not Found"));
+        return ticketTypeRepository.findById(id).orElseThrow(()-> new TicketTypeNotFoundException("Ticket Type Not Found"));
     }
 
     @Override

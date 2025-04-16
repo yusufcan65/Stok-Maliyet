@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitNotFoundException;
 import com.inonu.stok_takip.Repositoriy.PurchasedUnitRepository;
 import com.inonu.stok_takip.Service.PurchasedUnitService;
 import com.inonu.stok_takip.dto.Request.PurchasedUnitCreateRequest;
@@ -40,7 +41,7 @@ public class PurchasedUnitServiceImpl implements PurchasedUnitService {
 
     @Override
     public PurchasedUnit getPurchasedUnitById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("PurchasedUnit not found: " + id));
+        return repository.findById(id).orElseThrow(() -> new PurchasedUnitNotFoundException("PurchasedUnit not found: " + id));
     }
 
     @Override

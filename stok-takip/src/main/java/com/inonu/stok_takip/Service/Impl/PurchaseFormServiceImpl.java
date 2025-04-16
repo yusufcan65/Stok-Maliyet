@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException;
 import com.inonu.stok_takip.Repositoriy.PurchaseFormRepository;
 import com.inonu.stok_takip.Service.PurchaseFormService;
 import com.inonu.stok_takip.dto.Request.PurchaseFormCreateRequest;
@@ -42,7 +43,7 @@ public class PurchaseFormServiceImpl implements PurchaseFormService {
     @Override
     public PurchaseForm getPurchaseFormById(Long id) {
         return purchaseFormRepository.findById(id).orElseThrow(()->
-                new RuntimeException("Purchase Form Not Found with id: " + id));
+                new PurchaseFormNotFoundException("Purchase Form Not Found with id: " + id));
     }
 
     @Override
@@ -55,7 +56,7 @@ public class PurchaseFormServiceImpl implements PurchaseFormService {
     @Override
     public PurchaseForm getPurchaseFormNameById(Long id) {
         return purchaseFormRepository.findPurchaseNameById(id).orElseThrow(()->
-                new RuntimeException("Purchase Form Not Found with id"+id));
+                new PurchaseFormNotFoundException("Purchase Form Not Found with id"+id));
     }
 
     private PurchaseForm mapToEntity(PurchaseFormCreateRequest request) {

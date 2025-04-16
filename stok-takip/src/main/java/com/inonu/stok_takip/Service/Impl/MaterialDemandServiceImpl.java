@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Repositoriy.MaterialDemandRepository;
 import com.inonu.stok_takip.Service.MaterialDemandService;
 import com.inonu.stok_takip.Service.MaterialEntryService;
@@ -76,7 +77,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
 
     @Override
     public MaterialDemand getMaterialDemandById(Long id) {
-        return materialDemandRepository.findById(id).orElseThrow(()->new RuntimeException("Material demand not found"));
+        return materialDemandRepository.findById(id).orElseThrow(()->new MaterialDemandNotFoundException("Material demand not found"));
     }
 
     @Override

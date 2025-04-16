@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.Budget.BudgetNotFoundException;
 import com.inonu.stok_takip.Repositoriy.BudgetRepository;
 import com.inonu.stok_takip.Service.BudgetService;
 import com.inonu.stok_takip.dto.Request.BudgetCreateRequest;
@@ -43,7 +44,7 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public Budget getBudgetById(Long id) {
-        return budgetRepository.findById(id).orElseThrow(() -> new RuntimeException("Budget not found with id: " + id));
+        return budgetRepository.findById(id).orElseThrow(() -> new BudgetNotFoundException("Budget not found with id: " + id));
     }
 
     @Override

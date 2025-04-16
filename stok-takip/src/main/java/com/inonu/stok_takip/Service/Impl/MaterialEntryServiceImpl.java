@@ -1,5 +1,7 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
+import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
 import com.inonu.stok_takip.Exception.MaterialEntry.StockNotAvailableException;
 import com.inonu.stok_takip.Repositoriy.MaterialEntryRepository;
 import com.inonu.stok_takip.Service.*;
@@ -93,7 +95,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     @Override
     public MaterialEntry getMaterialEntryById(Long id) {
-        return materialEntryRepository.findById(id).orElseThrow(()-> new RuntimeException("Material Entry Not Found"));
+        return materialEntryRepository.findById(id).orElseThrow(()-> new MaterialEntryNotFoundException("Material Entry Not Found"));
     }
 
     @Override
@@ -137,7 +139,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         List<MaterialEntry> materialEntries = getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
 
         if (materialEntries.isEmpty()) {
-            throw new RuntimeException("Ürün stokta bulunamadı");
+            throw new ProductOutOfStockException("Ürün stokta bulunamadı");
         }
 
         double totalAvailableQuantity = materialEntries.stream()

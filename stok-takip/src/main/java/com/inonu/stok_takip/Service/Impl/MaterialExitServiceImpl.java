@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.MaterialExit.MaterialExitNotFoundException;
 import com.inonu.stok_takip.Repositoriy.MaterialExitRepository;
 import com.inonu.stok_takip.Service.MaterialEntryService;
 import com.inonu.stok_takip.Service.MaterialExitService;
@@ -120,7 +121,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
     @Override
     public MaterialExit getMaterialExitById(Long id) {
-        return materialExitRepository.findById(id).orElseThrow(()-> new RuntimeException("material exit not found with id: " + id));
+        return materialExitRepository.findById(id).orElseThrow(()-> new MaterialExitNotFoundException("Material exit not found with id: " + id));
     }
 
     private MaterialExitResponse mapToResponse(MaterialExit materialExit) {

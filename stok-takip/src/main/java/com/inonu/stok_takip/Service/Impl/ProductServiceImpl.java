@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.Product.ProductNotFoundException;
 import com.inonu.stok_takip.Repositoriy.ProductRepository;
 import com.inonu.stok_takip.Service.CategoryService;
 import com.inonu.stok_takip.Service.MeasurementTypeService;
@@ -61,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProductById(Long productId) {
-        return productRepository.findById(productId).orElseThrow(()->new RuntimeException("Product not found by id: " + productId));
+        return productRepository.findById(productId).orElseThrow(()->new ProductNotFoundException("Product not found by id: " + productId));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
 import com.inonu.stok_takip.Repositoriy.PurchaseTypeRepository;
 import com.inonu.stok_takip.Service.PurchaseTypeService;
 import com.inonu.stok_takip.dto.Request.PurchaseTypeCreateRequest;
@@ -40,7 +41,7 @@ public class PurchaseTypeServiceImpl implements PurchaseTypeService {
 
     @Override
     public PurchaseType getPurchaseTypeById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("PurchaseType not found: " + id));
+        return repository.findById(id).orElseThrow(() -> new PurchaseTypeNotFoundException("PurchaseType not found: " + id));
     }
 
     @Override
