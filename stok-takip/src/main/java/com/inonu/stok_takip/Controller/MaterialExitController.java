@@ -21,10 +21,11 @@ public class MaterialExitController {
         this.materialExitService = materialExitService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<RestResponse<List<MaterialExitResponse>>> createMaterialExit(@RequestBody MaterialExitCreateRequest request) {
-        List<MaterialExitResponse> materialExitResponse = materialExitService.createMaterialExit(request);
-        return new ResponseEntity<>(RestResponse.of(materialExitResponse), HttpStatus.OK);
+
+    @PostMapping("/exit")
+    public ResponseEntity<RestResponse<List<MaterialExitResponse>>> exitMaterialInStock(@RequestBody MaterialExitCreateRequest request){
+        List<MaterialExitResponse> materialExitResponses = materialExitService.exitMaterials(request);
+        return new ResponseEntity<>(RestResponse.of(materialExitResponses), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

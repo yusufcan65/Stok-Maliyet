@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.entitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.inonu.stok_takip.Enum.EntrySourceType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -11,7 +12,6 @@ public class MaterialEntry extends BaseEntity {
 
     private Double quantity;// giriş miktarı // adet
     private Double remainingQuantity; // stokta kalan miktar
-    private Double remainingQuantityInTender;// ihaleden kalan miktar (ihaleden sonra depoya gelen ve talep doğrultusunda kullanılan miktar)
     private Double unitPrice; // ürünün birim fiyatı
     private Double totalPrice; // alınan ürünün toplam tutarı = adet* birim fiyatı
     private LocalDate entryDate; // giriş tarihi // fatura tarihi
@@ -22,7 +22,6 @@ public class MaterialEntry extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private EntrySourceType entrySourceType;
-
 
 
     @ManyToOne
@@ -38,13 +37,14 @@ public class MaterialEntry extends BaseEntity {
     @JoinColumn(name = "purchaseUnit_id")
     private PurchasedUnit purchasedUnit; //alım yapılan birim  sks/ yemekhane vb.
 
-    @ManyToOne
-    @JoinColumn(name = "purchaseForm_id")
-    private PurchaseForm purchaseForm; // alım şekli ihale/ devir / vb.
 
     @ManyToOne
     @JoinColumn(name = "purchaseType_id")
     private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
+
+    @ManyToOne
+    @JoinColumn(name = "tender_id",nullable = true)
+    private Tender tender;
 
     // Yuvarlama işlemi
     private Double roundToTwoDecimalPlaces(Double value) {
@@ -52,9 +52,7 @@ public class MaterialEntry extends BaseEntity {
     }
 
 
-
     public Double getQuantity() {
-
         return quantity;
     }
 
@@ -70,14 +68,6 @@ public class MaterialEntry extends BaseEntity {
         this.remainingQuantity = remainingQuantity;
     }
 
-    public Double getRemainingQuantityInTender() {
-        return remainingQuantityInTender;
-    }
-
-    public void setRemainingQuantityInTender(Double remainingQuantityInTender) {
-        this.remainingQuantityInTender = remainingQuantityInTender;
-    }
-
     public Double getUnitPrice() {
         return unitPrice;
     }
@@ -91,7 +81,7 @@ public class MaterialEntry extends BaseEntity {
     }
 
     public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = roundToTwoDecimalPlaces(totalPrice);
+        this.totalPrice = totalPrice;
     }
 
     public LocalDate getEntryDate() {
@@ -110,23 +100,6 @@ public class MaterialEntry extends BaseEntity {
         this.expiryDate = expiryDate;
     }
 
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-
-    public Budget getBudget() {
-
-        return budget;
-    }
-
-    public void setBudget(Budget budget) {
-        this.budget = budget;
-    }
-
     public String getCompanyName() {
         return companyName;
     }
@@ -140,7 +113,7 @@ public class MaterialEntry extends BaseEntity {
     }
 
     public void setTotalPriceIncludingVat(Double totalPriceIncludingVat) {
-        this.totalPriceIncludingVat = roundToTwoDecimalPlaces(totalPriceIncludingVat);
+        this.totalPriceIncludingVat = totalPriceIncludingVat;
     }
 
     public String getDescription() {
@@ -159,6 +132,22 @@ public class MaterialEntry extends BaseEntity {
         this.entrySourceType = entrySourceType;
     }
 
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public Budget getBudget() {
+        return budget;
+    }
+
+    public void setBudget(Budget budget) {
+        this.budget = budget;
+    }
+
     public PurchasedUnit getPurchasedUnit() {
         return purchasedUnit;
     }
@@ -167,19 +156,19 @@ public class MaterialEntry extends BaseEntity {
         this.purchasedUnit = purchasedUnit;
     }
 
-    public PurchaseForm getPurchaseForm() {
-        return purchaseForm;
-    }
-
-    public void setPurchaseForm(PurchaseForm purchaseForm) {
-        this.purchaseForm = purchaseForm;
-    }
-
     public PurchaseType getPurchaseType() {
         return purchaseType;
     }
 
     public void setPurchaseType(PurchaseType purchaseType) {
         this.purchaseType = purchaseType;
+    }
+
+    public Tender getTender() {
+        return tender;
+    }
+
+    public void setTender(Tender tender) {
+        this.tender = tender;
     }
 }

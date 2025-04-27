@@ -1,5 +1,7 @@
 package com.inonu.stok_takip.dto.Response;
 
+import com.inonu.stok_takip.Enum.EntrySourceType;
+
 import java.time.LocalDate;
 
 public class MaterialEntryResponse {
@@ -10,11 +12,11 @@ public class MaterialEntryResponse {
     private String companyName;
     private String description;
     private Double totalPrice;
+    private EntrySourceType entrySourceType;
     private Double totalPriceIncludingVat;
     private Long productId;
     private Long purchaseTypeId;
     private Long purchasedUnitId;
-    private Long purchaseFormId;
 
     public MaterialEntryResponse() {
     }
@@ -24,7 +26,7 @@ public class MaterialEntryResponse {
                                  String companyName, String description,
                                  Double totalPrice, Double totalPriceIncludingVat,
                                  Long productId, Long purchaseTypeId,
-                                 Long purchasedUnitId, Long purchaseFormId) {
+                                 Long purchasedUnitId,EntrySourceType entrySourceType) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.entryDate = entryDate;
@@ -36,7 +38,7 @@ public class MaterialEntryResponse {
         this.productId = productId;
         this.purchaseTypeId = purchaseTypeId;
         this.purchasedUnitId = purchasedUnitId;
-        this.purchaseFormId = purchaseFormId;
+        this.entrySourceType = entrySourceType;
     }
 
     public Double getQuantity() {
@@ -103,13 +105,6 @@ public class MaterialEntryResponse {
         this.purchasedUnitId = purchasedUnitId;
     }
 
-    public Long getPurchaseFormId() {
-        return purchaseFormId;
-    }
-
-    public void setPurchaseFormId(Long purchaseFormId) {
-        this.purchaseFormId = purchaseFormId;
-    }
 
     public Long getPurchaseTypeId() {
         return purchaseTypeId;
@@ -133,5 +128,13 @@ public class MaterialEntryResponse {
 
     public void setTotalPriceIncludingVat(Double totalPriceIncludingVat) {
         this.totalPriceIncludingVat = totalPriceIncludingVat;
+    }
+
+    public EntrySourceType getEntrySourceType() {
+        return entrySourceType;
+    }
+
+    public void setEntrySourceType(EntrySourceType entrySourceType) {
+        this.entrySourceType = entrySourceType;
     }
 }

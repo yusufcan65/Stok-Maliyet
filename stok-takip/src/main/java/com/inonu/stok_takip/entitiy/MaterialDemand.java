@@ -2,9 +2,8 @@ package com.inonu.stok_takip.entitiy;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.inonu.stok_takip.Enum.DemandStatus;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
@@ -17,15 +16,28 @@ public class MaterialDemand extends BaseEntity{
     private String companyName; // talep edilen firmanın adı
     private LocalDate requestDate; // talep tarihi
 
+
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false) // talep edilen ürün
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "tender_id", nullable = false)
+    private Tender tender; // Hangi ihaleden talep yapılıyor
+
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "purchaseForm_id", nullable = false)
     private PurchaseForm purchaseForm;
+
+    @Enumerated(EnumType.STRING)
+    private DemandStatus status = DemandStatus.PENDING; // Varsayılan olarak talep bekliyor (pending) olacaktır.
+
+    private String rejectionReason;
+
 
     public Double getQuantity() {
         return quantity;
@@ -74,5 +86,29 @@ public class MaterialDemand extends BaseEntity{
 
     public void setPurchaseForm(PurchaseForm purchaseForm) {
         this.purchaseForm = purchaseForm;
+    }
+
+    public DemandStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DemandStatus status) {
+        this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public Tender getTender() {
+        return tender;
+    }
+
+    public void setTender(Tender tender) {
+        this.tender = tender;
     }
 }

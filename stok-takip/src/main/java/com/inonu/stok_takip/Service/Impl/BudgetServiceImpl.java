@@ -30,6 +30,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public BudgetResponse createBudget(BudgetCreateRequest request) {
         Budget budget = mapToEntity(request);
+        budget.setBudgetAmount(0.0);
         Budget toSave = budgetRepository.save(budget);
         return mapToResponse(toSave);
     }
@@ -59,9 +60,9 @@ public class BudgetServiceImpl implements BudgetService {
     public BudgetResponse updateBudgetValue(Long budgetId, Double value) {
 
         Budget budget = getBudgetById(budgetId);
-        Double remainingValue = budget.getRemainingBudgetAmount();
-        Double newRemainingValue = remainingValue - value;
-        budget.setRemainingBudgetAmount(newRemainingValue);
+        Double remainingValue = budget.getBudgetAmount();
+        Double newRemainingValue = remainingValue + value;
+        budget.setBudgetAmount(newRemainingValue);
         Budget toUpdate = budgetRepository.save(budget);
         return mapToResponse(toUpdate);
 
@@ -72,7 +73,6 @@ public class BudgetServiceImpl implements BudgetService {
             budget.getId(),
             budget.getBudgetName(),
             budget.getBudgetAmount(),
-            budget.getRemainingBudgetAmount(),
             budget.getStartDate(),
             budget.getEndDate()
         );
@@ -88,8 +88,6 @@ public class BudgetServiceImpl implements BudgetService {
     private Budget mapToEntity(BudgetCreateRequest request){
         Budget budget = new Budget();
         budget.setBudgetName(request.budgetName());
-        budget.setBudgetAmount(request.budgetAmount());
-        budget.setRemainingBudgetAmount(request.budgetAmount());
         budget.setStartDate(request.startDate());
         budget.setEndDate(request.endDate());
         return budget;

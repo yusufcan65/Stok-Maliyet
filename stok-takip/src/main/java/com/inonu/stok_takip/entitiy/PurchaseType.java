@@ -6,7 +6,7 @@ import jakarta.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-public class PurchaseType extends BaseEntity {  //alım şekli
+public class PurchaseType extends BaseEntity {  //alım tipi mal hizmet bakım onarım vb
 
     private String name;
 

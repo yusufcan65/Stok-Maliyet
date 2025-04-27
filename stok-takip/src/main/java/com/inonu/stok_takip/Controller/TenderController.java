@@ -1,0 +1,38 @@
+package com.inonu.stok_takip.Controller;
+
+import com.inonu.stok_takip.Service.TenderService;
+import com.inonu.stok_takip.dto.Request.TenderCreateRequest;
+import com.inonu.stok_takip.dto.Response.RestResponse;
+import com.inonu.stok_takip.dto.Response.TenderResponse;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/v1/tender")
+public class TenderController {
+
+    private final TenderService tenderService;
+
+    public TenderController(TenderService tenderService) {
+        this.tenderService = tenderService;
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<RestResponse<TenderResponse>> createTender(@RequestBody TenderCreateRequest request) {
+        TenderResponse tenderResponse = tenderService.createTender(request);
+        return new ResponseEntity<>(RestResponse.of(tenderResponse), HttpStatus.OK);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<RestResponse<List<TenderResponse>>> getAllTender() {
+        List<TenderResponse> tenderResponses = tenderService.getAllTenders();
+        return new ResponseEntity<>(RestResponse.of(tenderResponses), HttpStatus.OK);
+    }
+    @PostMapping("/increaseTender/{tenderId}")
+    public ResponseEntity<RestResponse<TenderResponse>> increaseTender(@PathVariable Long tenderId) {
+        TenderResponse tenderResponse = tenderService.increaseTenderByTwentyPercent(tenderId);
+        return new ResponseEntity<>(RestResponse.of(tenderResponse), HttpStatus.OK);
+    }
+}

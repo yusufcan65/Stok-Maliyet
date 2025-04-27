@@ -21,4 +21,10 @@ public interface MaterialEntryService {
     void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity);
     List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId);
     Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity);
+
+
+    // bundan sonrası stok çıkışı için yazılmış
+    Double getTotalRemainingQuantity(Long productId);
+    List<MaterialEntry> getEntriesByProductIdInFifo(Long productId);
 }
+

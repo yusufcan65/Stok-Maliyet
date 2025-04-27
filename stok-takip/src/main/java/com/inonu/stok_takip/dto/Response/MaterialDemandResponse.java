@@ -1,5 +1,7 @@
 package com.inonu.stok_takip.dto.Response;
 
+import com.inonu.stok_takip.Enum.DemandStatus;
+
 import java.time.LocalDate;
 
 public class MaterialDemandResponse {
@@ -9,17 +11,19 @@ public class MaterialDemandResponse {
     private String companyName;
     private LocalDate requestDate;
     private Long productId;
+    private DemandStatus demandStatus;
 
     public MaterialDemandResponse() {
     }
 
-    public MaterialDemandResponse(Long id, Double quantity, Long userId, String companyName, LocalDate requestDate, Long productId) {
+    public MaterialDemandResponse(Long id, Double quantity, Long userId, String companyName, LocalDate requestDate, Long productId,DemandStatus demandStatus) {
         this.id = id;
         this.quantity = quantity;
         this.userId = userId;
         this.companyName = companyName;
         this.requestDate = requestDate;
         this.productId = productId;
+        this.demandStatus = demandStatus;
     }
 
     public Long getId() {
@@ -68,5 +72,13 @@ public class MaterialDemandResponse {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public DemandStatus getDemandStatus() {
+        return demandStatus;
+    }
+
+    public void setDemandStatus(DemandStatus demandStatus) {
+        this.demandStatus = demandStatus;
     }
 }
