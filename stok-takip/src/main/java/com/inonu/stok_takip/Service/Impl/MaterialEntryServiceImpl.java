@@ -2,8 +2,6 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
-import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
-import com.inonu.stok_takip.Exception.MaterialEntry.StockNotAvailableException;
 import com.inonu.stok_takip.Repositoriy.MaterialEntryRepository;
 import com.inonu.stok_takip.Service.*;
 import com.inonu.stok_takip.dto.Request.DateRequest;
@@ -90,8 +88,20 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     @Override
     public MaterialEntryResponse updateMaterialEntry(MaterialEntryUpdateRequest request) {
-        return null;
+        MaterialEntry materialEntry = getMaterialEntryById(request.id());
+
+        materialEntry.setQuantity(request.quantity());
+        materialEntry.setRemainingQuantity(request.quantity());
+
+        MaterialEntry saved = materialEntryRepository.save(materialEntry);
+        return mapToResponse(saved);
     }
+
+    @Override
+    public Double getTotalRemainingQuantity(Long productId) {
+        return materialEntryRepository.sumRemainingQuantityByProductId(productId);
+    }
+
 
     @Override
     public MaterialEntry getMaterialEntryById(Long id) {
@@ -106,6 +116,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         return mapToResponse(materialEntry);
 
     }
+
     // bu metot bir üründen stokta toplamda ne kadar var kaç kalem var onu getiriyor
     @Override
     public List<MaterialEntry> getMaterialEntryByProductId(Long productId) {
@@ -124,39 +135,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         return newValue;
     }
 
-    @Override
-    public Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity){
-        MaterialEntry materialEntry = getMaterialEntryById(materialId);
-       // Double remainingQuantityInRender = materialEntry.getRemainingQuantityInTender();
-//Double newValue = remainingQuantityInRender - exitQuantity;
-        Double remainingQuantity = materialEntry.getRemainingQuantity();
-        materialEntry.setRemainingQuantity(exitQuantity + remainingQuantity);
-       /// materialEntry.setRemainingQuantityInTender(newValue);
-        materialEntryRepository.save(materialEntry);
-       // return newValue;
-        return null;
-    }
-
-    @Override
-    public void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity) {
-        List<MaterialEntry> materialEntries = getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
-
-        if (materialEntries.isEmpty()) {
-            throw new ProductOutOfStockException("Ürün stokta bulunamadı");
-        }
-
-        double totalAvailableQuantity = materialEntries.stream()
-                .mapToDouble(MaterialEntry::getRemainingQuantity)
-                .sum();
-
-        if (totalAvailableQuantity < requestedQuantity) {
-            throw new StockNotAvailableException("Stok yetersiz");
-        }
-    }
-    @Override
-    public List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId) {
-        return materialEntryRepository.getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId);
-    }
     // devir işlemerini yapan metot
     @Override
     public List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request) {
@@ -235,12 +213,5 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
 
 
-    // bundan sonrası stok çıkışı için yazılmıştır
-    @Override
-    public Double getTotalRemainingQuantity(Long productId) {
-        return materialEntryRepository.sumRemainingQuantityByProductId(productId);
-    }
-    public List<MaterialEntry> getEntriesByProductIdInFifo(Long productId) {
-        return materialEntryRepository.findByProductIdOrderByEntryDateAsc(productId);
-    }
+
 }

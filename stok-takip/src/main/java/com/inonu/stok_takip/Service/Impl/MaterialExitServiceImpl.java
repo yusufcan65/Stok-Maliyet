@@ -236,6 +236,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     }
 
     // bundan öncesi tamamen rapor ve fiş yapısını denemek için yapılmıştır
+
     @Override
     public MaterialExit getMaterialExitById(Long id) {
         return materialExitRepository.findById(id).orElseThrow(()-> new MaterialExitNotFoundException("Material exit not found with id: " + id));

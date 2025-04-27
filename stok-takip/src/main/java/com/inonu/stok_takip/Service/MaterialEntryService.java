@@ -18,13 +18,8 @@ public interface MaterialEntryService {
     List<MaterialEntry> getMaterialEntryByProductId(Long productId);
     Double updateRemainingQuantity(Long materialEntryId, Double exitQuantity);
     List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request);
-    void checkStockAvailabilityByProductAndPurchaseForm(Long productId, Long purchaseFormId, Double requestedQuantity);
-    List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId);
-    Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity);
-
 
     // bundan sonrası stok çıkışı için yazılmış
     Double getTotalRemainingQuantity(Long productId);
-    List<MaterialEntry> getEntriesByProductIdInFifo(Long productId);
 }
 
