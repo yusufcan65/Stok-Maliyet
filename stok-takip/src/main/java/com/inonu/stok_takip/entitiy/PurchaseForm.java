@@ -11,7 +11,7 @@ public class PurchaseForm extends BaseEntity{  // alım şekli
     private String name;
 
     @OneToMany(mappedBy = "purchaseForm")
-    private List<MaterialEntry> materialEntryList;
+    private List<Tender> tenders;
 
     public String getName() {
 
@@ -22,11 +22,11 @@ public class PurchaseForm extends BaseEntity{  // alım şekli
         this.name = name;
     }
 
-    public List<MaterialEntry> getMaterialEntryList() {
-        return materialEntryList;
+    public List<Tender> getTenders() {
+        return tenders;
     }
 
-    public void setMaterialEntryList(List<MaterialEntry> materialEntryList) {
-        this.materialEntryList = materialEntryList;
+    public void setTenders(List<Tender> tenders) {
+        this.tenders = tenders;
     }
 }

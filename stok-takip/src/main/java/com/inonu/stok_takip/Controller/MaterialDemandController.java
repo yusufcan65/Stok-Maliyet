@@ -1,7 +1,10 @@
 package com.inonu.stok_takip.Controller;
 
+import com.inonu.stok_takip.Enum.DemandStatus;
 import com.inonu.stok_takip.Service.MaterialDemandService;
+import com.inonu.stok_takip.dto.Request.MaterialDemandApprovedRequest;
 import com.inonu.stok_takip.dto.Request.MaterialDemandCreateRequest;
+import com.inonu.stok_takip.dto.Request.MaterialDemandUpdateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialDemandResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.MaterialDemand;
@@ -21,6 +24,23 @@ public class MaterialDemandController {
         this.materialDemandService = materialDemandService;
     }
 
+    @PostMapping("/approve")
+    public ResponseEntity<RestResponse<MaterialDemandResponse>> approveMaterialDemand(@RequestBody MaterialDemandApprovedRequest request) {
+        MaterialDemandResponse materialDemandResponse =  materialDemandService.approveAndProcessMaterialDemand(request);
+        return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
+    }
+
+
+    @PostMapping("/reject/{id}")
+    public ResponseEntity<RestResponse<MaterialDemandResponse>> updateDemandStatus(
+            @PathVariable Long id,
+            @RequestParam(required = false) String rejectionReason
+    ) {
+        MaterialDemandResponse materialDemandResponse =  materialDemandService.rejectMaterialDemand(id, rejectionReason);
+        return new ResponseEntity<>(RestResponse.of(materialDemandResponse),HttpStatus.OK);
+    }
+
+
     @PostMapping("/create")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> createMaterialDemand(@RequestBody MaterialDemandCreateRequest request) {
         MaterialDemandResponse materialDemandResponse = materialDemandService.createMaterialDemand(request);
@@ -38,9 +58,9 @@ public class MaterialDemandController {
         List<MaterialDemandResponse> materialDemandResponses = materialDemandService.getAllMaterialDemand();
         return new ResponseEntity<>(RestResponse.of(materialDemandResponses), HttpStatus.OK);
     }
-/*
-    @PutMapping("/update/{id}")
-    public ResponseEntity<RestResponse<MaterialDemandResponse>> updateMaterialDemand(@PathVariable Long id, @RequestBody MaterialDemandCreateRequest request) {
+
+    @PutMapping("/update")
+    public ResponseEntity<RestResponse<MaterialDemandResponse>> updateMaterialDemand( @RequestBody MaterialDemandUpdateRequest request) {
         MaterialDemandResponse materialDemandResponse = materialDemandService.updateMaterialDemand(request);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
@@ -50,5 +70,5 @@ public class MaterialDemandController {
         MaterialDemandResponse materialDemandResponse = materialDemandService.deleteMaterialDemand(id);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
-*/
+
 }

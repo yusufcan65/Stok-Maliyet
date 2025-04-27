@@ -2,6 +2,7 @@ package com.inonu.stok_takip.Exception;
 
 import com.inonu.stok_takip.Exception.Budget.BudgetNotFoundException;
 import com.inonu.stok_takip.Exception.Category.CategoryNotFoundException;
+import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
@@ -38,6 +39,11 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(MaterialDemandNotFoundException.class)
     public ResponseEntity<RestResponse<String>> materialDemandNotFoundException(MaterialDemandNotFoundException exception) {
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidMaterialDemandOperationException.class)
+    public ResponseEntity<RestResponse<String>> invalidMaterialDemandOperationException(InvalidMaterialDemandOperationException exception) {
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MaterialEntryNotFoundException.class)
@@ -94,4 +100,6 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<RestResponse<String>> ticketTypeNotFoundException(TicketTypeNotFoundException exception) {
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
+
+
 }

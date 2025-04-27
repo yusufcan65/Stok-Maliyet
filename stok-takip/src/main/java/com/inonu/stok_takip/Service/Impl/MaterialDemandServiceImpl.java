@@ -1,18 +1,23 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Enum.DemandStatus;
+import com.inonu.stok_takip.Enum.EntrySourceType;
+import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
+import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
+import com.inonu.stok_takip.Exception.MaterialEntry.StockNotAvailableException;
 import com.inonu.stok_takip.Repositoriy.MaterialDemandRepository;
-import com.inonu.stok_takip.Service.MaterialDemandService;
-import com.inonu.stok_takip.Service.MaterialEntryService;
-import com.inonu.stok_takip.Service.ProductService;
-import com.inonu.stok_takip.Service.PurchaseFormService;
+import com.inonu.stok_takip.Service.*;
+import com.inonu.stok_takip.dto.Request.MaterialDemandApprovedRequest;
 import com.inonu.stok_takip.dto.Request.MaterialDemandCreateRequest;
+import com.inonu.stok_takip.dto.Request.MaterialDemandUpdateRequest;
+import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialDemandResponse;
 import com.inonu.stok_takip.entitiy.MaterialDemand;
-import com.inonu.stok_takip.entitiy.MaterialEntry;
 import com.inonu.stok_takip.entitiy.Product;
-import com.inonu.stok_takip.entitiy.PurchaseForm;
+import com.inonu.stok_takip.entitiy.Tender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,58 +26,111 @@ import java.util.stream.Collectors;
 public class MaterialDemandServiceImpl implements MaterialDemandService {
 
     private final MaterialDemandRepository materialDemandRepository;
-    private final ProductService productService;
     private final MaterialEntryService materialEntryService;
-    private final PurchaseFormService purchaseFormService;
+    private final TenderService tenderService;
 
     public MaterialDemandServiceImpl(MaterialDemandRepository materialDemandRepository,
-                                     ProductService productService,
                                      MaterialEntryService materialEntryService,
-                                     PurchaseFormService purchaseFormService) {
+                                     TenderService tenderService) {
         this.materialDemandRepository = materialDemandRepository;
-        this.productService = productService;
         this.materialEntryService = materialEntryService;
-        this.purchaseFormService = purchaseFormService;
+        this.tenderService = tenderService;
     }
 
+    // bundan sonrası onaylama yapısı için eklendi
+
+ // bu metot şimdilik tamam
+    @Override
+    public void checkStockAvailabilityByProductInTender(Long productId, Double requestedQuantity) {
+        Tender tender = getByProductIdOrderedByEntryDate(productId);
+
+        if (tender == null) {
+            throw new ProductOutOfStockException("Ürün stokta bulunamadı");
+        }
+
+        if (tender.getRemainingQuantityInTender() < requestedQuantity) {
+            throw new StockNotAvailableException("Talep edilen miktar için Stok yetersiz");
+        }
+    }
+
+
+    public Tender getByProductIdOrderedByEntryDate(Long productId) {
+        return materialDemandRepository.findByProductIdOrderedByEntryDate(productId);
+
+    }
+
+
+// bundan sonrası eski yapıdaki yapı
     @Override
     public MaterialDemandResponse createMaterialDemand(MaterialDemandCreateRequest request) {
         // 1. Stok kontrolü yap
-        materialEntryService.checkStockAvailabilityByProductAndPurchaseForm(request.productId(),  request.purchaseFormId(), request.quantity());
+        checkStockAvailabilityByProductInTender(request.productId(), request.quantity());
 
-        // 2. Ürün ve PurchaseForm nesnelerini al
-        Product product = productService.getProductById(request.productId());
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormById(request.purchaseFormId());
+        Tender tender = getByProductIdOrderedByEntryDate(request.productId());
+
+        // 2. Ürün  nesnesini al
+        Product product = tender.getProduct();
 
         // 3. MaterialDemand nesnesini oluştur
         MaterialDemand materialDemand = mapToEntity(request);
         materialDemand.setProduct(product);
-        materialDemand.setPurchaseForm(purchaseForm);
+        materialDemand.setCompanyName(tender.getCompanyName());
+        materialDemand.setPurchaseForm(tender.getPurchaseForm());
+        materialDemand.setTender(tender);
+        materialDemand.setStatus(DemandStatus.PENDING); // Talep ilk başta 'pending' olarak ayarlanır
 
-        // 4. Stoktan miktar düşme işlemi (updateRemainingQuantity)
-        List<MaterialEntry> entries = materialEntryService.getByProductIdAndPurchaseFormIdOrderedByEntryDate(request.productId(), request.purchaseFormId());
-        double remaining = request.quantity();
-
-        for (MaterialEntry entry : entries) {
-            if (remaining <= 0) break;
-
-            double available = entry.getRemainingQuantityInTender();
-            if (available <= 0) continue;
-
-            double toDeduct = Math.min(available, remaining);
-
-            materialEntryService.updateRemainingQuantityInTender(entry.getId(), toDeduct);
-
-            remaining -= toDeduct;
-        }
-
-        if (remaining > 0) {
-            throw new RuntimeException("Beklenmedik hata: Tüm miktar stoktan düşülemedi.");
-        }
-
-        // 5. Kaydet ve response döndür
+        // 4. Kaydet ve response döndür
         MaterialDemand savedDemand = materialDemandRepository.save(materialDemand);
         return mapToResponse(savedDemand);
+    }
+
+    // talebin kabul edilmesi ve stoğa eklenmesi
+    @Override
+    @Transactional
+    public MaterialDemandResponse approveAndProcessMaterialDemand(MaterialDemandApprovedRequest request) {
+        MaterialDemand demand = materialDemandRepository.findById(request.materialDemandId())
+                .orElseThrow(() -> new RuntimeException("Talep bulunamadı"));
+
+        if (demand.getStatus() != DemandStatus.PENDING) {
+            throw new RuntimeException("Talep " + demand.getStatus() + " edildiğinden dolayı işlem gerçekleştirilemedi.");
+        }
+
+        // Talebi onayla ve stoğa ürünün ekle
+
+
+        MaterialEntryCreateRequest materialEntryCreateRequest = new MaterialEntryCreateRequest(
+                demand.getQuantity(), demand.getTender().getUnitPrice(),request.entryDate(),request.expiryDate(),
+                demand.getCompanyName(), request.description(), demand.getTender().getProduct().getId(),
+                request.budgetId(), EntrySourceType.IHALE,demand.getTender().getPurchasedUnit().getId(),
+                demand.getTender().getPurchaseType().getId(),demand.getTender().getId()
+        );
+
+        tenderService.updateTenderRemainingQuantity(demand.getTender().getId(), demand.getQuantity());
+
+        demand.setStatus(DemandStatus.APPROVED);
+
+        materialEntryService.createMaterialEntry(materialEntryCreateRequest);
+
+        MaterialDemand savedDemand =  materialDemandRepository.save(demand);
+
+        return mapToResponse(savedDemand);
+    }
+
+    @Override
+    @Transactional
+    public MaterialDemandResponse rejectMaterialDemand(Long id, String rejectionReason) {
+        MaterialDemand demand = materialDemandRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Talep bulunamadı"));
+
+        if (demand.getStatus() == DemandStatus.APPROVED) {
+            throw new RuntimeException("Onaylanmış talep reddedilemez.");
+        }
+
+        demand.setStatus(DemandStatus.REJECTED);
+        demand.setRejectionReason(rejectionReason);
+        MaterialDemand savedMaterialDemand = materialDemandRepository.save(demand);
+
+        return mapToResponse(savedMaterialDemand);
     }
 
     @Override
@@ -87,13 +145,40 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     }
 
     @Override
-    public MaterialDemandResponse updateMaterialDemand(MaterialDemandCreateRequest request) {
-        return null;
+    public MaterialDemandResponse updateMaterialDemand(MaterialDemandUpdateRequest request) {
+        MaterialDemand materialDemand = getMaterialDemandById(request.id());
+
+        if (materialDemand.getStatus() == DemandStatus.APPROVED) {
+            throw new InvalidMaterialDemandOperationException("Onaylanmış bir talep güncellenemez.");
+        }
+
+        if (materialDemand.getStatus() == DemandStatus.REJECTED) {
+            throw new InvalidMaterialDemandOperationException("Reddedilmiş bir talep güncellenemez.");
+        }
+
+        checkStockAvailabilityByProductInTender(materialDemand.getProduct().getId(), request.quantity());
+
+        materialDemand.setQuantity(request.quantity());
+        materialDemand.setUserId(request.userId());
+
+        MaterialDemand updatedDemand = materialDemandRepository.save(materialDemand);
+        return mapToResponse(updatedDemand);
     }
 
     @Override
     public MaterialDemandResponse deleteMaterialDemand(Long id) {
-        return null;
+        MaterialDemand materialDemand = getMaterialDemandById(id);
+
+        if (materialDemand.getStatus() == DemandStatus.APPROVED) {
+            throw new InvalidMaterialDemandOperationException("Talep zaten ONAYLANMIŞ. Bu nedenle silinemez.");
+        }
+
+        if (materialDemand.getStatus() == DemandStatus.REJECTED) {
+            throw new InvalidMaterialDemandOperationException("Talep REDDEDİLMİŞ. Bu nedenle silinemez.");
+        }
+
+        materialDemandRepository.delete(materialDemand);
+        return mapToResponse(materialDemand);
     }
 
     private MaterialDemandResponse mapToResponse(MaterialDemand materialDemand) {
@@ -104,6 +189,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         materialDemandResponse.setQuantity(materialDemand.getQuantity());
         materialDemandResponse.setRequestDate(materialDemand.getRequestDate());
         materialDemandResponse.setProductId(materialDemand.getProduct().getId());
+        materialDemandResponse.setDemandStatus(materialDemand.getStatus());
 
         return materialDemandResponse;
     }
@@ -119,7 +205,6 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         MaterialDemand materialDemand = new MaterialDemand();
         materialDemand.setQuantity(request.quantity());
         materialDemand.setRequestDate(request.requestDate());
-        materialDemand.setCompanyName(request.companyName());
         materialDemand.setUserId(request.userId());
         return materialDemand;
     }

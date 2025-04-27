@@ -1,5 +1,8 @@
 package com.inonu.stok_takip.dto.Request;
 
+import com.inonu.stok_takip.Enum.EntrySourceType;
+import jakarta.annotation.Nullable;
+
 import java.time.LocalDate;
 
 public record MaterialEntryCreateRequest(
@@ -11,7 +14,8 @@ public record MaterialEntryCreateRequest(
     String Description,
     Long productId,
     Long budgetId,
+    EntrySourceType entrySourceType,
     Long purchaseUnitId,
-    Long purchaseFormId,
-    Long purchaseTypeId
+    Long purchaseTypeId,
+    Long tenderId
 ) {}

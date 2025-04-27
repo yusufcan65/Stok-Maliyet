@@ -5,8 +5,8 @@ import java.time.LocalDate;
 public record MaterialDemandCreateRequest(
     Double quantity,
     Long userId,
-    String companyName,
+   // String companyName,
     LocalDate requestDate,
-    Long productId,
-    Long purchaseFormId
+    Long productId
+    //Long purchaseFormId
 ) {}

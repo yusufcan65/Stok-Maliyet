@@ -14,7 +14,7 @@ public class MaterialExit extends BaseEntity{
     // 2 temizlik gibi yemekte kullanılmayana ama maliyeti hesaplanan malzemelerin çıkışı
 
     private Double unitPrice;
-    private Double quantity; // çıkış miktarı kg cinsinden
+    private Double quantity;
     private Double totalPrice;
     private LocalDate exitDate;// ürünün depodan çıkış tarihi
     private String recipient; // ürünü alan birim

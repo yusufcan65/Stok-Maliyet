@@ -1,9 +1,6 @@
 package com.inonu.stok_takip.entitiy;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.List;
 
@@ -11,7 +8,7 @@ import java.util.List;
 public class Product extends BaseEntity{
 
     private String name;  // Malzeme adı
-    private Double vatAmount; // ürün kdv miktarı
+    private Double vatAmount; // ürün kdv miktarı yüzdelik bazda
     private Double criticalLevel; // kritik seviye
 
     @ManyToOne
@@ -32,6 +29,11 @@ public class Product extends BaseEntity{
 
     @OneToMany(mappedBy = "product")
     private List<MaterialDemand> materialDemands;
+
+
+
+    @Column(name = "image")
+    private byte[] image;
 
 
     public String getName() {
@@ -96,5 +98,13 @@ public class Product extends BaseEntity{
 
     public void setCriticalLevel(Double criticalLevel) {
         this.criticalLevel = criticalLevel;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }

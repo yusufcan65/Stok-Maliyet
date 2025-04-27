@@ -11,7 +11,6 @@ public class Budget extends BaseEntity{
 
     private String budgetName;  // bütçe adı ( 2025 yemek bütçesi vb.) sorulacak
     private Double budgetAmount; // bütçenin tutarı
-    private Double remainingBudgetAmount; // kalan bütçe tutarı
     private LocalDate startDate; // bütçenin başlama tarihi
     private LocalDate endDate; // bütçenin bitiş tarihi
 
@@ -32,14 +31,6 @@ public class Budget extends BaseEntity{
 
     public void setBudgetAmount(Double budgetAmount) {
         this.budgetAmount = budgetAmount;
-    }
-
-    public Double getRemainingBudgetAmount() {
-        return remainingBudgetAmount;
-    }
-
-    public void setRemainingBudgetAmount(Double remainingBudgetAmount) {
-        this.remainingBudgetAmount = remainingBudgetAmount;
     }
 
     public LocalDate getStartDate() {

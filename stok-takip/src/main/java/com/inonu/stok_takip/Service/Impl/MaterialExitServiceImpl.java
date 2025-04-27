@@ -4,6 +4,7 @@ import com.inonu.stok_takip.Exception.MaterialExit.MaterialExitNotFoundException
 import com.inonu.stok_takip.Repositoriy.MaterialExitRepository;
 import com.inonu.stok_takip.Service.MaterialEntryService;
 import com.inonu.stok_takip.Service.MaterialExitService;
+import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialExitCreateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialExitResponse;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
@@ -11,6 +12,7 @@ import com.inonu.stok_takip.entitiy.MaterialExit;
 import com.inonu.stok_takip.entitiy.Product;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +36,93 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         return mapToResponseList(materialExits);
     }
 
-
     @Override
+    public List<MaterialExitResponse> exitMaterials(MaterialExitCreateRequest request){
+        Map<Long, Double> productQuantities = request.productQuantities();
+        List<MaterialExitResponse> responses = new ArrayList<>();
+
+        checkProductsInStock(productQuantities);
+
+        for (Map.Entry<Long, Double> entry : productQuantities.entrySet()) {
+            MaterialExit materialExit = createExitForSingleProduct(entry.getKey(), entry.getValue(), request);
+            responses.add(mapToResponse(materialExit));
+        }
+
+        return responses;
+    }
+    private MaterialExit createExitForSingleProduct(Long productId, Double quantity, MaterialExitCreateRequest request) {
+        List<MaterialEntry> materialEntries = materialEntryService.getMaterialEntryByProductId(productId);
+
+        List<MaterialEntry> entriesUsedForExit = new ArrayList<>();
+        double remainingQuantityToDeduct = quantity;
+        double productCost = 0.0;
+        double productQuantity = 0.0;
+
+        for (MaterialEntry materialEntry : materialEntries) {
+            if (remainingQuantityToDeduct <= 0) {
+                break;
+            }
+
+            double deductedQuantity = Math.min(remainingQuantityToDeduct, materialEntry.getRemainingQuantity());
+            remainingQuantityToDeduct -= deductedQuantity;
+
+            productCost += deductedQuantity * materialEntry.getUnitPrice();
+            productQuantity += deductedQuantity;
+
+            entriesUsedForExit.add(materialEntry);
+        }
+
+        double averageUnitPrice = (productQuantity > 0) ? (productCost / productQuantity) : 0.0;
+
+        MaterialExit materialExit = buildMaterialExit(entriesUsedForExit.get(0).getProduct(), averageUnitPrice, productQuantity, productCost, request);
+
+        MaterialExit savedExit = materialExitRepository.save(materialExit);
+
+        updateMaterialEntriesStock(entriesUsedForExit, quantity);
+
+        return savedExit;
+    }
+
+    private MaterialExit buildMaterialExit(Product product, Double unitPrice, Double quantity,
+                                           Double totalPrice, MaterialExitCreateRequest request) {
+        MaterialExit materialExit = new MaterialExit();
+        materialExit.setProduct(product);
+        materialExit.setUnitPrice(unitPrice);
+        materialExit.setQuantity(quantity);
+        materialExit.setTotalPrice(totalPrice);
+        materialExit.setExitDate(request.exitDate());
+        materialExit.setRecipient(request.recipient());
+        materialExit.setTotalPerson(request.totalPerson());
+        return materialExit;
+    }
+    private void updateMaterialEntriesStock(List<MaterialEntry> entriesUsedForExit, double totalQuantity) {
+        double remainingToDeduct = totalQuantity;
+
+        for (MaterialEntry materialEntry : entriesUsedForExit) {
+            if (remainingToDeduct <= 0) {
+                break;
+            }
+
+            double deducted = Math.min(materialEntry.getRemainingQuantity(), remainingToDeduct);
+            materialEntryService.updateRemainingQuantity(materialEntry.getId(), deducted);
+            remainingToDeduct -= deducted;
+        }
+    }
+
+    private void checkProductsInStock(Map<Long, Double> productQuantities) {
+        for (Map.Entry<Long, Double> entry : productQuantities.entrySet()) {
+            Long productId = entry.getKey();
+            Double quantity = entry.getValue();
+
+            Double stock = materialEntryService.getTotalRemainingQuantity(productId);
+            if (stock == null || stock < quantity) {
+                throw new RuntimeException("Yetersiz stok! Ürün ID: " + productId);
+            }
+        }
+    }
+
+
+   /* @Override
     public List<MaterialExitResponse> createMaterialExit(MaterialExitCreateRequest request) {
         Map<Long, Double> productQuantities = request.productQuantities();
         List<MaterialExitResponse> responses = new ArrayList<>();
@@ -104,7 +191,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         // Tüm çıkışları döndürüyoruz
         return responses;
     }
-
+*/
 
     @Override
     public MaterialExitResponse updateMaterialExit(MaterialExitCreateRequest request) {
@@ -119,6 +206,36 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
     }
 
+
+    // bundan sonrası fiş ve rapor yapısı için eklenmiştir deneme amaçlı
+    @Override
+    public int numberMealsBetweenDates(DateRequest dateRequest){
+        return materialExitRepository.findTotalPersonsSumBetweenDates(dateRequest.startDate(), dateRequest.endDate());
+    }
+
+    @Override
+    public Double calculateTotalAmount(DateRequest dateRequest) {
+        List<MaterialExitResponse> materialExitResponses = getMaterialListBetweenDate(dateRequest);
+
+        Double totalAmount = 0.0;
+        for(MaterialExitResponse materialExitResponse : materialExitResponses){
+            totalAmount += materialExitResponse.getTotalPrice();
+        }
+        return totalAmount;
+    }
+
+    @Override
+    public List<MaterialExitResponse> getMaterialListBetweenDate(DateRequest dateRequest) {
+        List<MaterialExit> materialExits = materialExitRepository.findByMaterialDateBetween(dateRequest.startDate(), dateRequest.endDate());
+        return mapToResponseList(materialExits);
+    }
+
+    @Override
+    public Double calculateCleanMaterialPrice(DateRequest dateRequest){
+        return materialExitRepository.findTotalPriceForCleaningCategoryBetweenDates(dateRequest.startDate(), dateRequest.endDate());
+    }
+
+    // bundan öncesi tamamen rapor ve fiş yapısını denemek için yapılmıştır
     @Override
     public MaterialExit getMaterialExitById(Long id) {
         return materialExitRepository.findById(id).orElseThrow(()-> new MaterialExitNotFoundException("Material exit not found with id: " + id));
@@ -142,7 +259,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         return responseList;
     }
     // depodan çıkış verilirken depoda yeteri miktarda olup olmadığı kontrolü
-    private void checkProductsInStock(Map<Long, Double> productQuantities) {
+  /*  private void checkProductsInStock(Map<Long, Double> productQuantities) {
         List<String> insufficientProducts = new ArrayList<>();
 
         for (Map.Entry<Long, Double> entry : productQuantities.entrySet()) {
@@ -164,6 +281,6 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         }
     }
 
-
+*/
 
 }

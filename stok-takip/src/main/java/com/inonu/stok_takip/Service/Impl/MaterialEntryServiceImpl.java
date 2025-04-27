@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
 import com.inonu.stok_takip.Exception.MaterialEntry.StockNotAvailableException;
@@ -24,21 +25,20 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     private final PurchaseTypeService purchaseTypeService;
     private final ProductService productService;
     private final PurchasedUnitService purchasedUnitService;
-    private final PurchaseFormService purchaseFormService;
     private final BudgetService budgetService;
+    private final TenderService tenderService;
 
     public MaterialEntryServiceImpl(MaterialEntryRepository materialEntryRepository,
                                     PurchaseTypeService purchaseTypeService,
                                     ProductService productService,
                                     PurchasedUnitService purchasedUnitService,
-                                    PurchaseFormService purchaseFormService,
-                                    BudgetService budgetService) {
+                                    BudgetService budgetService, TenderService tenderService) {
         this.materialEntryRepository = materialEntryRepository;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
         this.purchasedUnitService = purchasedUnitService;
-        this.purchaseFormService = purchaseFormService;
         this.budgetService = budgetService;
+        this.tenderService = tenderService;
     }
 
     @Override
@@ -51,37 +51,37 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     public MaterialEntryResponse createMaterialEntry(MaterialEntryCreateRequest request) {
 
         Product product = productService.getProductById(request.productId());
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormNameById(request.purchaseFormId());
         PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(request.purchaseUnitId());
         PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(request.purchaseTypeId());
         Budget budget = budgetService.getBudgetById(request.budgetId());
 
-        Double totalPrice = request.unitPrice() * request.quantity(); // ürnün toplam fiyatı kdv dahil değil
+
+        Double totalPrice = request.unitPrice() * request.quantity(); // ürünün toplam fiyatı kdv dahil değil
         Double totalVat = totalPrice * product.getVatAmount(); // toplam fiyat üzeinden toplm kdv tutarı
         Double totalPriceIncludingVat = totalPrice + totalVat; // kdv eklenmiş hali ile toplam tutar
 
         MaterialEntry materialEntry = mapToEntity(request);
+
+        if (request.tenderId() != null) { // ihale için tender id değeri seçilen tenderden gelecek şekilde burada kontrol ediliyor
+            Tender tender = tenderService.getTenderById(request.tenderId());
+            materialEntry.setTender(tender);
+        } else {
+            materialEntry.setTender(null); // doğrudan alımda tender yoksa NULL atanır
+        }
+
+
         materialEntry.setTotalPrice(totalPrice);
-       // materialEntry.setRemainingQuantity(request.quantity());
-       // materialEntry.setRemainingQuantityInTender(request.quantity());
+        materialEntry.setRemainingQuantity(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
-        materialEntry.setEntrySourceType(EntrySourceType.ALIM);
+        materialEntry.setEntrySourceType(request.entrySourceType());
         materialEntry.setProduct(product);
-        materialEntry.setPurchaseForm(purchaseForm);
         materialEntry.setPurchaseType(purchaseType);
         materialEntry.setPurchasedUnit(purchasedUnit);
-        materialEntry.setBudget(budget);
+
         budgetService.updateBudgetValue(budget.getId(),totalPriceIncludingVat);
 
-        if(purchaseForm.getName().equalsIgnoreCase("Doğrudan Alım")){
-            materialEntry.setRemainingQuantityInTender(0.0);
-            materialEntry.setRemainingQuantity(request.quantity());
+        materialEntry.setBudget(budget);
 
-        }
-        else {
-            materialEntry.setRemainingQuantity(0.0);
-            materialEntry.setRemainingQuantityInTender(request.quantity());
-        }
 
         MaterialEntry toSave = materialEntryRepository.save(materialEntry);
         return mapToResponse(toSave);
@@ -109,7 +109,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     // bu metot bir üründen stokta toplamda ne kadar var kaç kalem var onu getiriyor
     @Override
     public List<MaterialEntry> getMaterialEntryByProductId(Long productId) {
-        List<MaterialEntry> materialEntries = materialEntryRepository.findMaterialEntryByProductId(productId);
+        List<MaterialEntry> materialEntries = materialEntryRepository.findByProductIdOrderByEntryDateAsc(productId);
         return materialEntries;
     }
 
@@ -127,11 +127,14 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     @Override
     public Double updateRemainingQuantityInTender(Long materialId, Double exitQuantity){
         MaterialEntry materialEntry = getMaterialEntryById(materialId);
-        Double remainingQuantityInRender = materialEntry.getRemainingQuantityInTender();
-        Double newValue = remainingQuantityInRender - exitQuantity;
-        materialEntry.setRemainingQuantityInTender(newValue);
+       // Double remainingQuantityInRender = materialEntry.getRemainingQuantityInTender();
+//Double newValue = remainingQuantityInRender - exitQuantity;
+        Double remainingQuantity = materialEntry.getRemainingQuantity();
+        materialEntry.setRemainingQuantity(exitQuantity + remainingQuantity);
+       /// materialEntry.setRemainingQuantityInTender(newValue);
         materialEntryRepository.save(materialEntry);
-        return newValue;
+       // return newValue;
+        return null;
     }
 
     @Override
@@ -143,7 +146,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         }
 
         double totalAvailableQuantity = materialEntries.stream()
-                .mapToDouble(MaterialEntry::getRemainingQuantityInTender)
+                .mapToDouble(MaterialEntry::getRemainingQuantity)
                 .sum();
 
         if (totalAvailableQuantity < requestedQuantity) {
@@ -152,7 +155,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     }
     @Override
     public List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(Long productId, Long purchaseFormId) {
-        return materialEntryRepository.getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId, purchaseFormId);
+        return materialEntryRepository.getByProductIdAndPurchaseFormIdOrderedByEntryDate(productId);
     }
     // devir işlemerini yapan metot
     @Override
@@ -180,12 +183,9 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setDescription(oldEntry.getDescription());
                 newEntry.setPurchaseType(oldEntry.getPurchaseType());
                 newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
-                newEntry.setPurchaseForm(oldEntry.getPurchaseForm());// alım şekli burada devir olacak ona göre işlem yapmamız gerekecek ykarıda bunu hallettik
-                                                                   // burada ihaleleri devam eden veriler ihale devir olarak devam edecek burada bakılacak olan ksım ise
-                                                                 // ihale bitiş tarihi ve ihaleden alınan üründen kalan miktar olacak ona göre projeyi güncelleyecez
+
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
                 newEntry.setTotalPrice(totalPrice);
-                newEntry.setRemainingQuantityInTender(oldEntry.getRemainingQuantityInTender());
                 materialEntryList.add(newEntry);
                 oldEntry.setRemainingQuantity(0.0);
 
@@ -219,8 +219,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 materialEntry.getTotalPriceIncludingVat(),
                 materialEntry.getProduct().getId(),
                 materialEntry.getPurchaseType().getId(),
-                materialEntry.getPurchaseForm().getId(),
-                materialEntry.getPurchasedUnit().getId()
+                materialEntry.getPurchasedUnit().getId(),
+                materialEntry.getEntrySourceType()
 
         );
         return materialEntryResponse;
@@ -233,4 +233,14 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         return materialEntryResponseList;
     }
 
+
+
+    // bundan sonrası stok çıkışı için yazılmıştır
+    @Override
+    public Double getTotalRemainingQuantity(Long productId) {
+        return materialEntryRepository.sumRemainingQuantityByProductId(productId);
+    }
+    public List<MaterialEntry> getEntriesByProductIdInFifo(Long productId) {
+        return materialEntryRepository.findByProductIdOrderByEntryDateAsc(productId);
+    }
 }

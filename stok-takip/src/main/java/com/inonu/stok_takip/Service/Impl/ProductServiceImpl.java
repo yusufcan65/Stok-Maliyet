@@ -13,6 +13,7 @@ import com.inonu.stok_takip.entitiy.MeasurementType;
 import com.inonu.stok_takip.entitiy.Product;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
         return mapToResponseList(productList);
     }
 
+
     @Override
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
 
@@ -42,6 +44,14 @@ public class ProductServiceImpl implements ProductService {
         MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(productCreateRequest.measurementTypeId());
 
         Product product = mapToEntity(productCreateRequest);
+        if (productCreateRequest.image() != null && !productCreateRequest.image().isEmpty()) {
+            try {
+                product.setImage(productCreateRequest.image().getBytes()); // DİKKAT: BURASI!
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         product.setCategory(category);
         product.setMeasurementType(measurementType);
 

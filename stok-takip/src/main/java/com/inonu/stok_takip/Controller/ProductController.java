@@ -7,6 +7,7 @@ import com.inonu.stok_takip.dto.Response.ProductResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.Product;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,10 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<RestResponse<ProductResponse>> createProduct(@RequestBody ProductCreateRequest productCreateRequest) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RestResponse<ProductResponse>> createProduct(
+            @ModelAttribute ProductCreateRequest productCreateRequest) {
+
         ProductResponse productResponse = productService.createProduct(productCreateRequest);
         return new ResponseEntity<>(RestResponse.of(productResponse), HttpStatus.OK);
     }
