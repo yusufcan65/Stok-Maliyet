@@ -32,9 +32,9 @@ public class Product extends BaseEntity{
 
 
 
-    @Column(name = "image")
+    /*@Column(name = "image")
     private byte[] image;
-
+*/
 
     public String getName() {
         return name;
@@ -99,12 +99,12 @@ public class Product extends BaseEntity{
     public void setCriticalLevel(Double criticalLevel) {
         this.criticalLevel = criticalLevel;
     }
-
+/*
     public byte[] getImage() {
         return image;
     }
 
     public void setImage(byte[] image) {
         this.image = image;
-    }
+    }*/
 }

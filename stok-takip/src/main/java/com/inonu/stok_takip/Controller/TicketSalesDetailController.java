@@ -5,16 +5,19 @@ import com.inonu.stok_takip.dto.Request.TicketSalesDetailCreateRequest;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.dto.Response.TicketSalesDetailResponse;
 import com.inonu.stok_takip.entitiy.TicketSalesDetail;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 @RestController
 @RequestMapping("/v1/ticketSalesDetail")
 public class TicketSalesDetailController {
-/*
+
  private final TicketSalesDetailService ticketSalesDetailService;
 
     public TicketSalesDetailController(TicketSalesDetailService ticketSalesDetailService) {
@@ -23,7 +26,7 @@ public class TicketSalesDetailController {
 
     @PostMapping("/create")
     public ResponseEntity<RestResponse<TicketSalesDetailResponse>> createTicketSalesDetail(@RequestBody TicketSalesDetailCreateRequest request) {
-        TicketSalesDetailResponse ticketSalesDetailResponse = ticketSalesDetailService.createTicketSalesDetail(request);
+        TicketSalesDetailResponse ticketSalesDetailResponse = ticketSalesDetailService.addTicket(request);
         return new ResponseEntity<>(RestResponse.of(ticketSalesDetailResponse), HttpStatus.OK);
     }
 
@@ -35,10 +38,31 @@ public class TicketSalesDetailController {
 
     @GetMapping("/all")
     public ResponseEntity<RestResponse<List<TicketSalesDetailResponse>>> getAllTicketSalesDetails() {
-        List<TicketSalesDetailResponse> ticketSalesDetailResponseList = ticketSalesDetailService.getAllTicketSalesDetails();
+        List<TicketSalesDetailResponse> ticketSalesDetailResponseList = ticketSalesDetailService.getAll();
         return new ResponseEntity<>(RestResponse.of(ticketSalesDetailResponseList), HttpStatus.OK);
     }
 
+    @GetMapping("/ticketByDate")
+    public ResponseEntity<RestResponse<Integer>> getTicketSalesDetailByDate(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        Integer count = ticketSalesDetailService.getTicketCountByDay(date);
+        return new ResponseEntity<>(RestResponse.of(count), HttpStatus.OK);
+    }
+    @GetMapping("/ticketCountByMonth")
+    public ResponseEntity<RestResponse<Integer>> getTicketCountByMonth(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        Integer count = ticketSalesDetailService.getTicketCountByMonth(date);
+        return new ResponseEntity<>(RestResponse.of(count), HttpStatus.OK);
+    }
+
+    @GetMapping("/ticketCountByYear")
+    public ResponseEntity<RestResponse<Integer>> getTicketCountByYear(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        Integer count = ticketSalesDetailService.getTicketCountByYear(date);
+        return new ResponseEntity<>(RestResponse.of(count), HttpStatus.OK);
+    }
+
+
+
+
+/*
     @PutMapping("/update/{id}")
     public ResponseEntity<RestResponse<TicketSalesDetailResponse>> updateTicketSalesDetail(@PathVariable Long id, @RequestBody TicketSalesDetailCreateRequest request) {
         TicketSalesDetailResponse ticketSalesDetailResponse = ticketSalesDetailService.updateTicketSalesDetail(request);

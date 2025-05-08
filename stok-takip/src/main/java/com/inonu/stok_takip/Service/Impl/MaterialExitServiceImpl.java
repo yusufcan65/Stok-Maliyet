@@ -50,6 +50,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
         return responses;
     }
+
     private MaterialExit createExitForSingleProduct(Long productId, Double quantity, MaterialExitCreateRequest request) {
         List<MaterialEntry> materialEntries = materialEntryService.getMaterialEntryByProductId(productId);
 
@@ -208,10 +209,66 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
 
     // bundan sonrası fiş ve rapor yapısı için eklenmiştir deneme amaçlı
+
+    // bir günlük toplam depodan çıkan ürünlerin toplam fiyatı temizlik malzemeleri dışında olanlar tek
     @Override
-    public int numberMealsBetweenDates(DateRequest dateRequest){
-        return materialExitRepository.findTotalPersonsSumBetweenDates(dateRequest.startDate(), dateRequest.endDate());
+    public Double getNonCleaningMaterialExitsByDate(LocalDate date) {
+
+        Double totalAmount = materialExitRepository.findNonCleaningTotalByExitDate(date);
+        if (totalAmount == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalAmount;
     }
+
+    // bir aylık toplam depodan çıkan ürünlerin toplam fiyatı
+    @Override
+    public Double getMaterialsByMonthAndYear(LocalDate monthDate) {
+        Double totalAmount = materialExitRepository.findTotalByMonth(monthDate);;
+        if (totalAmount == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalAmount;
+    }
+
+    // bir yıllık toplam depodan çıkan ürünlerin toplam fiyatı
+    @Override
+    public Double getMaterialsByYear(LocalDate yearDate) {
+        Double totalAmount = materialExitRepository.findTotalByYear(yearDate);
+        if (totalAmount == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalAmount;
+    }
+
+    // bundan öncesi ayrı
+
+    @Override
+    public Integer numberMealsInDay(LocalDate dayDate){
+        Integer totalPerson = materialExitRepository.findTotalPersonsByDay(dayDate);
+        if (totalPerson == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalPerson;
+    }
+    @Override
+    public Integer numberMealsInMonth(LocalDate monthDate){
+        Integer totalPerson = materialExitRepository.findTotalPersonsByMonth(monthDate);
+        if (totalPerson == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalPerson;
+    }
+    @Override
+    public Integer numberMealsInYear(LocalDate yearDate){
+        Integer totalPerson = materialExitRepository.findTotalPersonsByYear(yearDate);
+        if (totalPerson == null) {
+            throw new RuntimeException("material exit value is null for this day");
+        }
+        return totalPerson;
+    }
+
+
 
     @Override
     public Double calculateTotalAmount(DateRequest dateRequest) {

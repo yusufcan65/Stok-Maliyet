@@ -17,6 +17,7 @@ public class Tender extends BaseEntity { // ihalelerin eklendiği tablo
     private String companyName; // ihalenin yapıldığı firma
     private Double totalAmount; // ihale bedeli
     private boolean increased = false; // yüzde 20 arttırım yapılmış mı yapılmamış mı diye kontrol ediyoruz
+    private boolean active = true; // ihlae süresi dolan ihaleler silinirse pasife çekecek şekilde güncller  silinme olmaz çünkü ihaleden alına ürün depoda kalma durumu var
 
     @ManyToOne
     @JoinColumn(name = "product_id",nullable = false)
@@ -141,5 +142,13 @@ public class Tender extends BaseEntity { // ihalelerin eklendiği tablo
 
     public void setPurchaseType(PurchaseType purchaseType) {
         this.purchaseType = purchaseType;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

@@ -1,31 +1,30 @@
 package com.inonu.stok_takip.entitiy;
 
+import com.inonu.stok_takip.Enum.ReportType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
 import java.time.LocalDate;
 
 @Entity
 public class Report extends BaseEntity{
 
-    private String reportType; // günlük - aylık - yıllık
+
+
     private LocalDate reportCreateDate; // rapor oluşturulma tarihi
     private int ticketQuantity; // satılan toplam bilet sayısı
-    private Double totalTicketPrice; // satılan biletlerin toplam tutarı
+    private Double totalTicketPrice; // satılan biletlerin toplam tutarı  bu silinecek şimdilik
     private int totalPersonQuantity; // toplam mevcut ( yapılan yemek adedi)
     private Double totalMaterialPrice; // toplam malzeme giderleri
     private Double totalCleanPrice; // toplam temizlik malzemeleri gideri  (bu günlük raporda olmayacak)
     private Double averagePersonCost; // mevcuda göre ortalama bir tabak yemek maliyeti
-    private Double averageTicketCot; // satılan bilete göre ortalama 1 tabak yemek maliyeti
+    private Double averageTicketCost; // satılan bilete göre ortalama 1 tabak yemek maliyeti
 
 
 
-    public String getReportType() {
-        return reportType;
-    }
-
-    public void setReportType(String reportType) {
-        this.reportType = reportType;
-    }
+    @Enumerated(EnumType.STRING)
+    private ReportType reportType; // günlük - aylık - yıllık
 
     public LocalDate getReportCreateDate() {
         return reportCreateDate;
@@ -83,11 +82,19 @@ public class Report extends BaseEntity{
         this.averagePersonCost = averagePersonCost;
     }
 
-    public Double getAverageTicketCot() {
-        return averageTicketCot;
+    public Double getAverageTicketCost() {
+        return averageTicketCost;
     }
 
-    public void setAverageTicketCot(Double averageTicketCot) {
-        this.averageTicketCot = averageTicketCot;
+    public void setAverageTicketCost(Double averageTicketCost) {
+        this.averageTicketCost = averageTicketCost;
+    }
+
+    public ReportType getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(ReportType reportType) {
+        this.reportType = reportType;
     }
 }

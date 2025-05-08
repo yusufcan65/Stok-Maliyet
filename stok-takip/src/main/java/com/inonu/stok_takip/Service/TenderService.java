@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.Service;
 
 import com.inonu.stok_takip.dto.Request.TenderCreateRequest;
+import com.inonu.stok_takip.dto.Response.TenderDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderResponse;
 import com.inonu.stok_takip.entitiy.Tender;
 
@@ -15,4 +16,11 @@ public interface TenderService {
     TenderResponse increaseTenderByTwentyPercent(Long tenderId);
     TenderResponse deleteTender(Long id);
     TenderResponse updateTender(TenderCreateRequest request);
+    void handleTendersAtYearEnd();
+
+    // bu kod purchase form değerine göre tenderleri listeler
+    List<TenderResponse> getTendersByPurchaseForm(Long purchaseFormId);
+    Double calculateTotalAmountByPurchaseFormId(Long purchaseFormId);
+
+    List<TenderDetailResponse> getPurchaseFormsWithDetails();
 }

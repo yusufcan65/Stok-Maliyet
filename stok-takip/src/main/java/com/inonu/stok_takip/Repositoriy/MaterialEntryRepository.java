@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.Repositoriy;
 
 
+import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

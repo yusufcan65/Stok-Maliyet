@@ -1,7 +1,6 @@
 package com.inonu.stok_takip.dto.Request;
 
 import com.inonu.stok_takip.Enum.EntrySourceType;
-import jakarta.annotation.Nullable;
 
 import java.time.LocalDate;
 
@@ -11,7 +10,7 @@ public record MaterialEntryCreateRequest(
     LocalDate entryDate,
     LocalDate expiryDate,
     String companyName,
-    String Description,
+    String description,
     Long productId,
     Long budgetId,
     EntrySourceType entrySourceType,

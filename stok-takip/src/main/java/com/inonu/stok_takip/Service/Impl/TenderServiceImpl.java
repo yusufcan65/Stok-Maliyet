@@ -3,12 +3,18 @@ package com.inonu.stok_takip.Service.Impl;
 import com.inonu.stok_takip.Repositoriy.TenderRepository;
 import com.inonu.stok_takip.Service.*;
 import com.inonu.stok_takip.dto.Request.TenderCreateRequest;
+import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
+import com.inonu.stok_takip.dto.Response.TenderDetailResponse;
+import com.inonu.stok_takip.dto.Response.TenderProductDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderResponse;
 import com.inonu.stok_takip.entitiy.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,6 +75,78 @@ public class TenderServiceImpl implements TenderService {
         return mapToResponseList(tenders);
     }
 
+
+    // bu kod ile hangi madde ile ne kadar ürün alınmış ürün durumları nasıl kontrol ediliyor
+    @Override
+    public List<TenderResponse> getTendersByPurchaseForm(Long purchaseFormId) {
+
+        List<Tender> tenderList = tenderRepository.findByPurchaseFormId(purchaseFormId);
+
+        return mapToResponseList(tenderList);
+    }
+
+    @Override
+    public Double calculateTotalAmountByPurchaseFormId(Long purchaseFormId) {
+        List<TenderResponse> responseList = getTendersByPurchaseForm(purchaseFormId);
+
+        return responseList.stream()
+                .filter(tender -> tender.totalAmount() != null)
+                .mapToDouble(TenderResponse::totalAmount)
+                .sum();
+    }
+
+    //yıl bittiği için bütün ihaleleri silen kod yapısı  bitmemiş devam ediyor
+    @Override
+    public void handleTendersAtYearEnd() {
+        LocalDate today = LocalDate.now();
+        int currentYear = today.getYear();
+
+        List<Tender> tenders = tenderRepository.findAll();
+
+        for (Tender tender : tenders) {
+            boolean isExpired = tender.getEndDate().isBefore(today);
+            boolean isYearEnd = today.getMonth() == Month.DECEMBER && today.getDayOfMonth() == 31;
+
+            if (isExpired || isYearEnd) {
+                if (tender.isActive()) {
+                    tender.setActive(false);
+                    tenderRepository.save(tender);
+                }
+            }
+        }
+    }
+
+
+
+
+    @Override
+    public List<TenderDetailResponse> getPurchaseFormsWithDetails() {
+        return tenderRepository.findAll().stream()
+                .collect(Collectors.groupingBy(tender -> tender.getPurchaseForm().getName()))
+                .entrySet().stream()
+                .map(entry -> {
+                    String formName = entry.getKey();
+                    List<TenderProductDetailResponse> products = entry.getValue().stream().map(tender -> new TenderProductDetailResponse(
+
+                            tender.getId(),
+                            tender.getProduct().getName(),
+                            tender.getProduct().getMeasurementType().getName(),
+                            tender.getTenderQuantity(),
+                            tender.getRemainingQuantityInTender(),
+                            tender.isIncreased(),
+                            tender.getUnitPrice(),
+                            tender.getTotalAmount()
+                    )).collect(Collectors.toList());
+
+                    Double totalAmount = products.stream()
+                            .mapToDouble(TenderProductDetailResponse::totalAmount)
+                            .sum();
+
+                    return new TenderDetailResponse(formName, totalAmount, products);
+                }).collect(Collectors.toList());
+    }
+
+    //ihaleyi %20 arttıran metot
     @Transactional
     @Override
     public TenderResponse increaseTenderByTwentyPercent(Long tenderId) {
@@ -96,6 +174,12 @@ public class TenderServiceImpl implements TenderService {
     public Tender getTenderById(Long id) {
         return tenderRepository.findById(id).orElseThrow(()-> new RuntimeException("tender not found"));
     }
+
+    public List<TenderResponse> getTenderByProductId(){
+
+        return null;
+    }
+
 
     @Override
     public TenderResponse deleteTender(Long id) {

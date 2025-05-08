@@ -1,9 +1,11 @@
 package com.inonu.stok_takip.Controller;
 
+import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Service.MaterialEntryService;
 import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
+import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/materialEntry")
@@ -53,9 +56,16 @@ public class MaterialEntryController {
         return new ResponseEntity<>(RestResponse.of(materialEntryResponse), HttpStatus.OK);
     }
     // devir eden api
-    @PostMapping("/cede")
-    public ResponseEntity<RestResponse<List<MaterialEntryResponse>>> carryOverEntriesToNextYear(@RequestBody DateRequest dateRequest){
-        List<MaterialEntryResponse> materialEntryResponses = materialEntryService.carryOverEntriesToNextYear(dateRequest);
+    @PostMapping("/carry-over")
+    public ResponseEntity<RestResponse<List<MaterialEntryResponse>>> carryOverEntriesToNextYear(){
+        List<MaterialEntryResponse> materialEntryResponses = materialEntryService.carryOverEntriesToNextYear();
         return new ResponseEntity<>(RestResponse.of(materialEntryResponses), HttpStatus.OK);
     }
-}
+
+
+    @GetMapping("/getAllDetail")
+    public ResponseEntity<RestResponse<List<MaterialEntryDetailResponse>>> getAllDetail() {
+        List<MaterialEntryDetailResponse> materialEntryDetailResponses = materialEntryService.getMaterialEntryDetails();
+        return new ResponseEntity<>(RestResponse.of(materialEntryDetailResponses), HttpStatus.OK);
+    }
+ }
