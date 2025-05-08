@@ -1,38 +1,39 @@
 package com.inonu.stok_takip.Controller;
 
+import com.inonu.stok_takip.Enum.ReportType;
 import com.inonu.stok_takip.Service.ReportService;
+import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.ReportCreateRequest;
 import com.inonu.stok_takip.dto.Response.ReportResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.Report;
+import com.inonu.stok_takip.entitiy.TicketType;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/v1/report")
 public class ReportController {
 
-    /*private final ReportService reportService;
+   private final ReportService reportService;
 
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
     }
 
 
-    @PostMapping("/create")
-    public ResponseEntity<RestResponse<ReportResponse>> createReport(@RequestBody ReportCreateRequest request) {
-        ReportResponse reportResponse = reportService.createReport(request);
+    @PostMapping("/create/{reportType}")
+    public ResponseEntity<RestResponse<ReportResponse>> createReport(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, @PathVariable ReportType reportType) {
+        ReportResponse reportResponse = reportService.createReport(date,reportType);
         return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<RestResponse<Report>> getReportById(@PathVariable Long id) {
-        Report report = reportService.getReportById(id);
-        return new ResponseEntity<>(RestResponse.of(report),HttpStatus.OK);
-    }
+
 
     @GetMapping("/all")
     public ResponseEntity<RestResponse<List<ReportResponse>>> getAllReports() {
@@ -40,6 +41,19 @@ public class ReportController {
         return new ResponseEntity<>(RestResponse.of(reportResponses), HttpStatus.OK);
     }
 
+    @GetMapping("/date")
+    public ResponseEntity<RestResponse<ReportResponse>> getReportDate(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                      @RequestParam("reportType") ReportType reportType) {
+        ReportResponse reportResponse = reportService.getReportByDate(date,reportType);
+        return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
+    }
+/*
+
+    @GetMapping("/{id}")
+    public ResponseEntity<RestResponse<Report>> getReportById(@PathVariable Long id) {
+        Report report = reportService.getReportById(id);
+        return new ResponseEntity<>(RestResponse.of(report),HttpStatus.OK);
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<RestResponse<ReportResponse>> updateReport(@PathVariable Long id, @RequestBody ReportCreateRequest request) {
         ReportResponse reportResponse = reportService.updateReport(request);

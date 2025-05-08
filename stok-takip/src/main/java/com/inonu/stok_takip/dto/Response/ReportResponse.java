@@ -1,10 +1,12 @@
 package com.inonu.stok_takip.dto.Response;
 
+import com.inonu.stok_takip.Enum.ReportType;
+
 import java.time.LocalDate;
 
 public class ReportResponse {
     private Long id;
-    private String reportType;
+    private ReportType reportType;
     private LocalDate reportCreateDate;
     private int ticketQuantity;
     private Double totalTicketPrice;
@@ -12,12 +14,12 @@ public class ReportResponse {
     private Double totalMaterialPrice;
     private Double totalCleanPrice; 
     private Double averagePersonCost; 
-    private Double averageTicketCot;
+    private Double averageTicketCost;
 
     public ReportResponse() {
     }
 
-    public ReportResponse(Long id, String reportType, LocalDate reportCreateDate, int ticketQuantity, Double totalTicketPrice, int totalPersonQuantity, Double totalMaterialPrice, Double totalCleanPrice, Double averagePersonCost, Double averageTicketCot) {
+    public ReportResponse(Long id, ReportType reportType, LocalDate reportCreateDate, int ticketQuantity, Double totalTicketPrice, int totalPersonQuantity, Double totalMaterialPrice, Double totalCleanPrice, Double averagePersonCost, Double averageTicketCost) {
         this.id = id;
         this.reportType = reportType;
         this.reportCreateDate = reportCreateDate;
@@ -27,7 +29,7 @@ public class ReportResponse {
         this.totalMaterialPrice = totalMaterialPrice;
         this.totalCleanPrice = totalCleanPrice;
         this.averagePersonCost = averagePersonCost;
-        this.averageTicketCot = averageTicketCot;
+        this.averageTicketCost = averageTicketCost;
     }
 
     public Long getId() {
@@ -38,11 +40,11 @@ public class ReportResponse {
         this.id = id;
     }
 
-    public String getReportType() {
+    public ReportType getReportType() {
         return reportType;
     }
 
-    public void setReportType(String reportType) {
+    public void setReportType(ReportType reportType) {
         this.reportType = reportType;
     }
 
@@ -102,11 +104,11 @@ public class ReportResponse {
         this.averagePersonCost = averagePersonCost;
     }
 
-    public Double getAverageTicketCot() {
-        return averageTicketCot;
+    public Double getAverageTicketCost() {
+        return averageTicketCost;
     }
 
-    public void setAverageTicketCot(Double averageTicketCot) {
-        this.averageTicketCot = averageTicketCot;
+    public void setAverageTicketCost(Double averageTicketCost) {
+        this.averageTicketCost = averageTicketCost;
     }
 }

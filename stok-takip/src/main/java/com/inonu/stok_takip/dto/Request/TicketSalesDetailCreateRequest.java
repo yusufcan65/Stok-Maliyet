@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public record TicketSalesDetailCreateRequest(
     //Deneme Amaclı
     int quantity,
-    Double totalPrice,
+    //Double totalPrice,
     LocalDate ticketDate,
     Long ticketTypeId
 ) {

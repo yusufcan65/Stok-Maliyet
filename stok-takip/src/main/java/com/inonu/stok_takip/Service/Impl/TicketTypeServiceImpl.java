@@ -9,7 +9,6 @@ import com.inonu.stok_takip.dto.Response.TicketTypeResponse;
 import com.inonu.stok_takip.entitiy.TicketType;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

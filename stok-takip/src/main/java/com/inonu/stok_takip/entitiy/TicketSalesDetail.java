@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class TicketSalesDetail extends BaseEntity{
 
     private int quantity; // satılan fiş sayısı
-    private Double totalPrice; // satılan fişlerin toplam tutarı
+    //private Double totalPrice; // satılan fişlerin toplam tutarı
     private LocalDate ticketDate; // fişlerin satıldığı gün
 
     @ManyToOne
@@ -24,14 +24,6 @@ public class TicketSalesDetail extends BaseEntity{
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public Double getTotalPrice() {
-        return totalPrice;
-    }
-
-    public void setTotalPrice(Double totalPrice) {
-        this.totalPrice = totalPrice;
     }
 
     public TicketType getTicketType() {

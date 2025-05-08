@@ -4,16 +4,18 @@ import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
 import com.inonu.stok_takip.Repositoriy.MaterialEntryRepository;
 import com.inonu.stok_takip.Service.*;
-import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
+import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
+import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
 import com.inonu.stok_takip.entitiy.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +32,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                                     PurchaseTypeService purchaseTypeService,
                                     ProductService productService,
                                     PurchasedUnitService purchasedUnitService,
-                                    BudgetService budgetService, TenderService tenderService) {
+                                    BudgetService budgetService,
+                                    TenderService tenderService) {
         this.materialEntryRepository = materialEntryRepository;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
@@ -103,6 +106,88 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     }
 
 
+
+    @Override
+    public List<MaterialEntryDetailResponse> getMaterialEntryDetails() {
+        List<MaterialEntry> allEntries = materialEntryRepository.findAll();
+
+        Map<Long, List<MaterialEntry>> entriesGroupedByProductId = allEntries.stream()
+                .collect(Collectors.groupingBy(entry -> entry.getProduct().getId()));
+
+        List<MaterialEntryDetailResponse> responseList = new ArrayList<>();
+
+        for (Map.Entry<Long, List<MaterialEntry>> entry : entriesGroupedByProductId.entrySet()) {
+            List<MaterialEntry> productEntries = entry.getValue();
+            String productName = productEntries.get(0).getProduct().getName();
+            String measurementType = productEntries.get(0).getProduct().getMeasurementType().getName();
+
+            double totalDevir = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.DEVIR)
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            double totalAlim = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.ALIM)
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            double totalIhale = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            double total22f = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
+                    .filter(e -> e.getTender() != null && "22D".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            double total19a = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
+                    .filter(e -> e.getTender() != null && "19F".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            double total21d = productEntries.stream()
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
+                    .filter(e -> e.getTender() != null && "21A".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
+                    .mapToDouble(MaterialEntry::getQuantity)
+                    .sum();
+
+            // Çıkış miktarını hesapla
+            double totalCikis = productEntries.stream()
+                    .mapToDouble(e ->e.getQuantity() - e.getRemainingQuantity())
+                    .sum();
+
+
+            // Kalan miktarı hesapla
+            double kalanMiktar = productEntries.stream()
+                    .mapToDouble(e -> e.getRemainingQuantity())
+                    .sum();
+
+
+            // DTO'ya ekle
+            MaterialEntryDetailResponse response = new MaterialEntryDetailResponse(
+                    productName,
+                    measurementType,
+                    totalDevir,
+                    totalAlim,
+                    totalIhale,
+                    total22f,
+                    total19a,
+                    total21d,
+                    totalCikis,
+                    kalanMiktar
+            );
+
+            responseList.add(response);
+        }
+
+        return responseList;
+    }
+
+
+
     @Override
     public MaterialEntry getMaterialEntryById(Long id) {
         return materialEntryRepository.findById(id).orElseThrow(()-> new MaterialEntryNotFoundException("Material Entry Not Found"));
@@ -137,11 +222,16 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     // devir işlemerini yapan metot
     @Override
-    public List<MaterialEntryResponse> carryOverEntriesToNextYear(DateRequest request) {
-        // Dönem içinde kalan malzemeleri al
-        List<MaterialEntry> entriesToCarryOver = materialEntryRepository.findEntriesWithinPeriod(request.startDate(), request.endDate());
+    public List<MaterialEntryResponse> carryOverEntriesToNextYear() {
+
+        int currentYear = LocalDate.now().getYear();
+        LocalDate startDate = LocalDate.of(currentYear, 1, 1);
+        LocalDate endDate = LocalDate.of(currentYear, 12, 31);
+
+        List<MaterialEntry> entriesToCarryOver = materialEntryRepository.findEntriesWithinPeriod(startDate, endDate);
 
         List<MaterialEntry> materialEntryList = new ArrayList<>();
+        LocalDate nextYearFirstDay = LocalDate.of(currentYear + 1, 1, 1);
 
         for (MaterialEntry oldEntry : entriesToCarryOver) {
             if (oldEntry.getRemainingQuantity() > 0) { // Sadece kalan miktarı olanları devret
@@ -153,7 +243,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setQuantity(oldEntry.getRemainingQuantity());
                 newEntry.setRemainingQuantity(oldEntry.getRemainingQuantity());
                 newEntry.setExpiryDate(oldEntry.getExpiryDate());
-                newEntry.setEntryDate(LocalDate.now());
+                newEntry.setEntryDate(nextYearFirstDay);
                 newEntry.setBudget(oldEntry.getBudget());
                 newEntry.setCompanyName(oldEntry.getCompanyName());
                 newEntry.setEntrySourceType(EntrySourceType.DEVIR);
@@ -161,14 +251,16 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setDescription(oldEntry.getDescription());
                 newEntry.setPurchaseType(oldEntry.getPurchaseType());
                 newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
+                newEntry.setTender(oldEntry.getTender());
 
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
                 newEntry.setTotalPrice(totalPrice);
                 materialEntryList.add(newEntry);
                 oldEntry.setRemainingQuantity(0.0);
 
-                materialEntryRepository.save(oldEntry);
+
                 materialEntryRepository.save(newEntry);
+                materialEntryRepository.save(oldEntry);
             }
         }
         return mapToResponseList(materialEntryList);
@@ -178,7 +270,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         MaterialEntry materialEntry = new MaterialEntry();
         materialEntry.setQuantity(request.quantity());
         materialEntry.setUnitPrice(request.unitPrice());
-        materialEntry.setDescription(request.Description());
+        materialEntry.setDescription(request.description());
         materialEntry.setCompanyName(request.companyName());
         materialEntry.setExpiryDate(request.expiryDate());
         materialEntry.setEntryDate(request.entryDate());
@@ -186,6 +278,16 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     }
 
     private MaterialEntryResponse mapToResponse(MaterialEntry materialEntry) {
+        // ProductDetailResponse nesnesini oluştur
+        ProductDetailResponse productResponse = new ProductDetailResponse(
+                materialEntry.getProduct().getName(),
+                materialEntry.getProduct().getVatAmount(),
+                materialEntry.getProduct().getCriticalLevel(),
+                materialEntry.getProduct().getMeasurementType().getName(),
+                materialEntry.getProduct().getCategory().getName()
+        );
+
+        // MaterialEntryResponse nesnesini oluştur
         MaterialEntryResponse materialEntryResponse = new MaterialEntryResponse(
                 materialEntry.getQuantity(),
                 materialEntry.getUnitPrice(),
@@ -195,12 +297,12 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 materialEntry.getDescription(),
                 materialEntry.getTotalPrice(),
                 materialEntry.getTotalPriceIncludingVat(),
-                materialEntry.getProduct().getId(),
-                materialEntry.getPurchaseType().getId(),
-                materialEntry.getPurchasedUnit().getId(),
+                productResponse,
+                materialEntry.getPurchaseType().getName(),
+                materialEntry.getPurchasedUnit().getName(),
                 materialEntry.getEntrySourceType()
-
         );
+
         return materialEntryResponse;
     }
 

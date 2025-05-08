@@ -7,6 +7,6 @@ public record ProductCreateRequest(
     Double vatAmount,
     Double criticalLevel,
     Long measurementTypeId,
-    Long categoryId,
-    MultipartFile image
+    Long categoryId
+    //MultipartFile image
     ) {}

@@ -23,9 +23,9 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/create")   //, consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     public ResponseEntity<RestResponse<ProductResponse>> createProduct(
-            @ModelAttribute ProductCreateRequest productCreateRequest) {
+            @RequestBody ProductCreateRequest productCreateRequest) {
 
         ProductResponse productResponse = productService.createProduct(productCreateRequest);
         return new ResponseEntity<>(RestResponse.of(productResponse), HttpStatus.OK);

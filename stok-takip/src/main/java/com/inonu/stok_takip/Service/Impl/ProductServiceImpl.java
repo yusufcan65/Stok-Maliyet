@@ -44,13 +44,13 @@ public class ProductServiceImpl implements ProductService {
         MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(productCreateRequest.measurementTypeId());
 
         Product product = mapToEntity(productCreateRequest);
-        if (productCreateRequest.image() != null && !productCreateRequest.image().isEmpty()) {
+       /* if (productCreateRequest.image() != null && !productCreateRequest.image().isEmpty()) {
             try {
                 product.setImage(productCreateRequest.image().getBytes()); // DİKKAT: BURASI!
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
+        }*/
 
         product.setCategory(category);
         product.setMeasurementType(measurementType);

@@ -14,9 +14,9 @@ public class MaterialEntryResponse {
     private Double totalPrice;
     private EntrySourceType entrySourceType;
     private Double totalPriceIncludingVat;
-    private Long productId;
-    private Long purchaseTypeId;
-    private Long purchasedUnitId;
+    private ProductDetailResponse productResponse;
+    private String purchaseTypeName;
+    private String purchasedUnitName;
 
     public MaterialEntryResponse() {
     }
@@ -25,8 +25,8 @@ public class MaterialEntryResponse {
                                  LocalDate entryDate, LocalDate expiryDate,
                                  String companyName, String description,
                                  Double totalPrice, Double totalPriceIncludingVat,
-                                 Long productId, Long purchaseTypeId,
-                                 Long purchasedUnitId,EntrySourceType entrySourceType) {
+                                 ProductDetailResponse productResponse, String purchaseTypeName,
+                                 String purchasedUnitName, EntrySourceType entrySourceType) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.entryDate = entryDate;
@@ -35,9 +35,9 @@ public class MaterialEntryResponse {
         this.description = description;
         this.totalPrice = totalPrice;
         this.totalPriceIncludingVat = totalPriceIncludingVat;
-        this.productId = productId;
-        this.purchaseTypeId = purchaseTypeId;
-        this.purchasedUnitId = purchasedUnitId;
+        this.productResponse = productResponse;
+        this.purchaseTypeName = purchaseTypeName;
+        this.purchasedUnitName = purchasedUnitName;
         this.entrySourceType = entrySourceType;
     }
 
@@ -89,29 +89,29 @@ public class MaterialEntryResponse {
         this.description = description;
     }
 
-    public Long getProductId() {
-        return productId;
+    public ProductDetailResponse getProductResponse() {
+        return productResponse;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProductResponse(ProductDetailResponse productResponse) {
+        this.productResponse = productResponse;
     }
 
-    public Long getPurchasedUnitId() {
-        return purchasedUnitId;
+    public String getPurchasedUnitName() {
+        return purchasedUnitName;
     }
 
-    public void setPurchasedUnitId(Long purchasedUnitId) {
-        this.purchasedUnitId = purchasedUnitId;
+    public void setPurchasedUnitName(String purchasedUnitName) {
+        this.purchasedUnitName = purchasedUnitName;
     }
 
 
-    public Long getPurchaseTypeId() {
-        return purchaseTypeId;
+    public String getPurchaseTypeName() {
+        return purchaseTypeName;
     }
 
-    public void setPurchaseTypeId(Long purchaseTypeId) {
-        this.purchaseTypeId = purchaseTypeId;
+    public void setPurchaseTypeName(String purchaseTypeName) {
+        this.purchaseTypeName = purchaseTypeName;
     }
 
     public Double getTotalPrice() {
