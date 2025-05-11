@@ -53,4 +53,10 @@ public class TenderController {
         List<TenderDetailResponse> tenderDetailResponses = tenderService.getPurchaseFormsWithDetails();
         return new ResponseEntity<>(RestResponse.of(tenderDetailResponses), HttpStatus.OK);
     }
+
+    @GetMapping("/getTendersByProductsAndCompany")
+    public ResponseEntity<RestResponse<List<TenderResponse>>> getTendersByProductAndCompany(){
+        List<TenderResponse> tenderResponses = tenderService.getTenderByProductAndCompany();
+        return new ResponseEntity<>(RestResponse.of(tenderResponses),HttpStatus.OK);
+    }
 }

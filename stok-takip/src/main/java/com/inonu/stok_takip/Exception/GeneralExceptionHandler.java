@@ -14,6 +14,8 @@ import com.inonu.stok_takip.Exception.Product.ProductNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
 import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitNotFoundException;
+import com.inonu.stok_takip.Exception.Tender.TenderAlreadyIncreasedException;
+import com.inonu.stok_takip.Exception.Tender.TenderNotFoundException;
 import com.inonu.stok_takip.Exception.TicketType.TicketTypeNotFoundException;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import org.springframework.http.HttpStatus;
@@ -98,6 +100,15 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(TicketTypeNotFoundException.class)
     public ResponseEntity<RestResponse<String>> ticketTypeNotFoundException(TicketTypeNotFoundException exception) {
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TenderAlreadyIncreasedException.class)
+    public ResponseEntity<RestResponse<String>> TenderAlreadyIncreasedException(TenderAlreadyIncreasedException exception) {
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(TenderNotFoundException.class)
+    public ResponseEntity<RestResponse<String>> TenderNotFoundException(TenderNotFoundException exception){
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
