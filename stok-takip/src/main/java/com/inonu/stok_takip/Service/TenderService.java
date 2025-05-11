@@ -23,4 +23,6 @@ public interface TenderService {
     Double calculateTotalAmountByPurchaseFormId(Long purchaseFormId);
 
     List<TenderDetailResponse> getPurchaseFormsWithDetails();
+
+    List<TenderResponse> getTenderByProductAndCompany();
 }

@@ -1,9 +1,10 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.Tender.TenderAlreadyIncreasedException;
+import com.inonu.stok_takip.Exception.Tender.TenderNotFoundException;
 import com.inonu.stok_takip.Repositoriy.TenderRepository;
 import com.inonu.stok_takip.Service.*;
 import com.inonu.stok_takip.dto.Request.TenderCreateRequest;
-import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderProductDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderResponse;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -151,10 +151,10 @@ public class TenderServiceImpl implements TenderService {
     @Override
     public TenderResponse increaseTenderByTwentyPercent(Long tenderId) {
         Tender tender = tenderRepository.findById(tenderId)
-                .orElseThrow(() -> new RuntimeException("Tender not found"));
+                .orElseThrow(() -> new TenderNotFoundException("Tender not found"));
 
         if (tender.isIncreased()) {
-            throw new IllegalStateException("Bu ihale zaten %20 artırıldı!");
+            throw new TenderAlreadyIncreasedException("Bu ihale zaten %20 artırıldı!");
         }
 
         // Yüzde 20 artırımı
@@ -175,9 +175,10 @@ public class TenderServiceImpl implements TenderService {
         return tenderRepository.findById(id).orElseThrow(()-> new RuntimeException("tender not found"));
     }
 
-    public List<TenderResponse> getTenderByProductId(){
-
-        return null;
+    @Override
+    public List<TenderResponse> getTenderByProductAndCompany(){
+        List<Tender> tenders = tenderRepository.findTenderByActiveTrue();
+        return mapToResponseList(tenders);
     }
 
 
@@ -202,6 +203,8 @@ public class TenderServiceImpl implements TenderService {
                 tender.getTotalAmount(),
                 tender.getCompanyName(),
                 tender.getPurchaseForm().getId(),
+                tender.getProduct().getName(),
+                tender.getProduct().getMeasurementType().getName(),
                 tender.getProduct().getId(),
                 tender.getPurchasedUnit().getId(),
                 tender.getPurchaseType().getId()

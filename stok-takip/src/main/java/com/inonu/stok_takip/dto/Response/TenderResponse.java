@@ -12,6 +12,8 @@ public record TenderResponse (
         Double totalAmount,
         String companyName,
         Long productId,
+        String productName,
+        String measurementTypeName,
         Long purchasedUnitId,
         Long purchaseTypeId,
         Long purchaseFormId){
