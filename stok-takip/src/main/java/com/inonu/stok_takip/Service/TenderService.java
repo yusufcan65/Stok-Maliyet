@@ -13,7 +13,7 @@ public interface TenderService {
     List<TenderResponse> getAllTenders();
     TenderResponse updateTenderRemainingQuantity(Long tenderId, Double quantity);
     Tender getTenderById(Long id);
-    TenderResponse increaseTenderByTwentyPercent(Long tenderId);
+    TenderResponse increaseTenderByTwentyPercent(Long tenderId,Double increasedQuantity);
     TenderResponse deleteTender(Long id);
     TenderResponse updateTender(TenderCreateRequest request);
     void handleTendersAtYearEnd();

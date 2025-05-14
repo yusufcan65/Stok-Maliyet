@@ -3,6 +3,7 @@ package com.inonu.stok_takip.Service;
 import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.TicketSalesDetailCreateRequest;
 import com.inonu.stok_takip.dto.Response.TicketSalesDetailResponse;
+import com.inonu.stok_takip.dto.Response.TicketSalesResponse;
 import com.inonu.stok_takip.entitiy.TicketSalesDetail;
 
 import java.time.LocalDate;
@@ -12,9 +13,9 @@ public interface TicketSalesDetailService {
 
 
     List<TicketSalesDetailResponse> getAll();
-    TicketSalesDetailResponse addTicket(TicketSalesDetailCreateRequest request);
+    List<TicketSalesDetailResponse> addTicket(TicketSalesDetailCreateRequest request);
     TicketSalesDetail getTicketSalesDetailById(Long id);
-    List<TicketSalesDetailResponse> getTicketByDate(DateRequest dateRequest);
+    List<TicketSalesResponse> getTicketByDate(DateRequest dateRequest);
   //  Double calculateTicketValue(List<TicketSalesDetailResponse> ticketResponseList);
     int calculateTicketQuantity(List<TicketSalesDetailResponse> ticketResponseList);
     Integer getTicketCountByDay(LocalDate dayDate);

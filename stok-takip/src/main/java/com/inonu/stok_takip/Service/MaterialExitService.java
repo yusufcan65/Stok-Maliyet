@@ -2,6 +2,7 @@ package com.inonu.stok_takip.Service;
 
 import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialExitCreateRequest;
+import com.inonu.stok_takip.dto.Response.MaterialExitDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialExitResponse;
 import com.inonu.stok_takip.entitiy.MaterialExit;
 
@@ -30,4 +31,6 @@ public interface MaterialExitService {
     Double getNonCleaningMaterialExitsByDate(LocalDate date);
     Double getMaterialsByMonthAndYear(LocalDate monthDate);
     Double getMaterialsByYear(LocalDate yearDate);
+
+    List<MaterialExitDetailResponse> getMaterialExitBetweenDates(DateRequest dateRequest);
 }

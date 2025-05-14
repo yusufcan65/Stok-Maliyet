@@ -8,13 +8,14 @@ public record TenderResponse (
         Double remainingQuantityInTender,
         LocalDate startDate,
         LocalDate endDate,
+        Boolean increased,
         Double unitPrice,
         Double totalAmount,
         String companyName,
         Long productId,
         String productName,
         String measurementTypeName,
-        Long purchasedUnitId,
-        Long purchaseTypeId,
-        Long purchaseFormId){
+        String purchasedUnitName,
+        String purchaseTypeName,
+        String purchaseFormName){
 }

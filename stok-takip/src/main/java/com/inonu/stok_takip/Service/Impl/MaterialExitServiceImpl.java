@@ -6,7 +6,9 @@ import com.inonu.stok_takip.Service.MaterialEntryService;
 import com.inonu.stok_takip.Service.MaterialExitService;
 import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialExitCreateRequest;
+import com.inonu.stok_takip.dto.Response.MaterialExitDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialExitResponse;
+import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
 import com.inonu.stok_takip.entitiy.MaterialExit;
 import com.inonu.stok_takip.entitiy.Product;
@@ -117,7 +119,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
             Double stock = materialEntryService.getTotalRemainingQuantity(productId);
             if (stock == null || stock < quantity) {
-                throw new RuntimeException("Yetersiz stok! Ürün ID: " + productId);
+                throw new RuntimeException("Yetersiz stok! Ürün ID: ");
             }
         }
     }
@@ -268,6 +270,38 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         return totalPerson;
     }
 
+
+    @Override
+    public List<MaterialExitDetailResponse> getMaterialExitBetweenDates(DateRequest dateRequest){
+        List<MaterialExit> materialExits = materialExitRepository.findByExitDateBetween(
+                dateRequest.startDate(), dateRequest.endDate());
+
+        List<MaterialExitDetailResponse> materialExitDetailResponses = new ArrayList<>();
+
+        for (MaterialExit materialExit : materialExits) {
+            Product product = materialExit.getProduct();
+
+            ProductDetailResponse productDetailResponse = new ProductDetailResponse(
+                    product.getName(),
+                    product.getVatAmount(),
+                    product.getCriticalLevel(),
+                    product.getMeasurementType().getName(),
+                    product.getCategory().getName()
+            );
+
+            MaterialExitDetailResponse response = new MaterialExitDetailResponse(
+                    productDetailResponse,
+                    materialExit.getQuantity(),
+                    materialExit.getUnitPrice(),
+                    materialExit.getTotalPrice(),
+                    materialExit.getExitDate()
+            );
+
+            materialExitDetailResponses.add(response);
+        }
+
+        return materialExitDetailResponses;
+    }
 
 
     @Override
