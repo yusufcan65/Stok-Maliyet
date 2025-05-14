@@ -10,17 +10,22 @@ public class MaterialDemandResponse {
     private Long userId;
     private String companyName;
     private LocalDate requestDate;
+    private String rejectionReason;
+
     private Long productId;
     private DemandStatus demandStatus;
 
     public MaterialDemandResponse() {
     }
 
-    public MaterialDemandResponse(Long id, Double quantity, Long userId, String companyName, LocalDate requestDate, Long productId,DemandStatus demandStatus) {
+    public MaterialDemandResponse(Long id, Double quantity, Long userId, String companyName,
+                                  String rejectionReason,LocalDate requestDate, Long productId,
+                                  DemandStatus demandStatus) {
         this.id = id;
         this.quantity = quantity;
         this.userId = userId;
         this.companyName = companyName;
+        this.rejectionReason = rejectionReason;
         this.requestDate = requestDate;
         this.productId = productId;
         this.demandStatus = demandStatus;
@@ -80,5 +85,13 @@ public class MaterialDemandResponse {
 
     public void setDemandStatus(DemandStatus demandStatus) {
         this.demandStatus = demandStatus;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 }

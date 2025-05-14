@@ -10,6 +10,7 @@ import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
 import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
 import com.inonu.stok_takip.entitiy.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -44,7 +45,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     @Override
     public List<MaterialEntryResponse> getAllMaterialEntryList() {
-        List<MaterialEntry> materialEntryList = materialEntryRepository.findAll();
+        List<MaterialEntry> materialEntryList = materialEntryRepository.findNonZeroRemainingQuantityEntries();
         return mapToResponseList(materialEntryList);
     }
 
@@ -107,9 +108,10 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
 
 
+    // bu metot yıl içinde depoya giren tüm malzemeler ve nasıl girdikleri ile ilgili bilgileir döndürür
     @Override
     public List<MaterialEntryDetailResponse> getMaterialEntryDetails() {
-        List<MaterialEntry> allEntries = materialEntryRepository.findAll();
+        List<MaterialEntry> allEntries = materialEntryRepository.findNonZeroRemainingQuantityEntries();
 
         Map<Long, List<MaterialEntry>> entriesGroupedByProductId = allEntries.stream()
                 .collect(Collectors.groupingBy(entry -> entry.getProduct().getId()));
@@ -127,7 +129,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                     .sum();
 
             double totalAlim = productEntries.stream()
-                    .filter(e -> e.getEntrySourceType() == EntrySourceType.ALIM)
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.DOGRUDAN_TEMIN)
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
@@ -136,19 +138,19 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double total22f = productEntries.stream()
+            double total22d = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
                     .filter(e -> e.getTender() != null && "22D".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double total19a = productEntries.stream()
+            double total19f = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
                     .filter(e -> e.getTender() != null && "19F".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double total21d = productEntries.stream()
+            double total21a = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
                     .filter(e -> e.getTender() != null && "21A".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
                     .mapToDouble(MaterialEntry::getQuantity)
@@ -166,16 +168,24 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                     .sum();
 
 
+            ProductDetailResponse productDetailResponse =
+                     new ProductDetailResponse(
+                             productEntries.get(0).getProduct().getName(),
+                             productEntries.get(0).getProduct().getVatAmount(),
+                             productEntries.get(0).getProduct().getCriticalLevel(),
+                             productEntries.get(0).getProduct().getMeasurementType().getName(),
+                             productEntries.get(0).getProduct().getCategory().getName()
+                     );
+
             // DTO'ya ekle
             MaterialEntryDetailResponse response = new MaterialEntryDetailResponse(
-                    productName,
-                    measurementType,
+                    productDetailResponse,
                     totalDevir,
                     totalAlim,
                     totalIhale,
-                    total22f,
-                    total19a,
-                    total21d,
+                    total22d,
+                    total19f,
+                    total21a,
                     totalCikis,
                     kalanMiktar
             );
@@ -202,6 +212,10 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     }
 
+    private void deleteMaterial(MaterialEntry materialEntry) {
+        materialEntryRepository.delete(materialEntry);
+    }
+
     // bu metot bir üründen stokta toplamda ne kadar var kaç kalem var onu getiriyor
     @Override
     public List<MaterialEntry> getMaterialEntryByProductId(Long productId) {
@@ -220,8 +234,9 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         return newValue;
     }
 
-    // devir işlemerini yapan metot
+    // devir işlemerini yapan metot  31 aralık ta saat 23.59 da tüm kalan ürünler devir ediyor
     @Override
+    @Scheduled(cron = "59 59 23 31 12 ?")
     public List<MaterialEntryResponse> carryOverEntriesToNextYear() {
 
         int currentYear = LocalDate.now().getYear();

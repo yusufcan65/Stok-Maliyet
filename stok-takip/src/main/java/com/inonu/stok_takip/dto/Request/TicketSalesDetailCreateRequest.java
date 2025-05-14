@@ -1,13 +1,12 @@
 package com.inonu.stok_takip.dto.Request;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 public record TicketSalesDetailCreateRequest(
     //Deneme Amaclı
-    int quantity,
-    //Double totalPrice,
-    LocalDate ticketDate,
-    Long ticketTypeId
+    Map<Long, Integer> ticketMap,
+    LocalDate ticketDate
 ) {
     
 }

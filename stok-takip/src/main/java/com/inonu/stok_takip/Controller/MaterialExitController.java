@@ -1,7 +1,9 @@
 package com.inonu.stok_takip.Controller;
 
 import com.inonu.stok_takip.Service.MaterialExitService;
+import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialExitCreateRequest;
+import com.inonu.stok_takip.dto.Response.MaterialExitDetailResponse;
 import com.inonu.stok_takip.dto.Response.MaterialExitResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import com.inonu.stok_takip.entitiy.MaterialExit;
@@ -87,4 +89,14 @@ public class MaterialExitController {
         MaterialExitResponse materialExitResponse = materialExitService.deleteMaterialExit(id);
         return new ResponseEntity<>(RestResponse.of(materialExitResponse), HttpStatus.OK);
     }
-}
+
+    @GetMapping("/getMaterialExitBetweenDates")
+    public ResponseEntity<RestResponse<List<MaterialExitDetailResponse>>> getMaterialExitBetweenDates(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        DateRequest request = new DateRequest(startDate, endDate);
+        List<MaterialExitDetailResponse> responses = materialExitService.getMaterialExitBetweenDates(request);
+        return ResponseEntity.ok(RestResponse.of(responses));
+    }
+ }

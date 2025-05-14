@@ -40,8 +40,8 @@ public class TicketTypeController {
         return new ResponseEntity<>(RestResponse.of(ticketTypeResponseList), HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<RestResponse<TicketTypeResponse>> updateTicketType(@PathVariable Long id, @RequestBody TicketTypeUpdateRequest ticketTypeUpdateRequest) {
+    @PutMapping("/update")
+    public ResponseEntity<RestResponse<TicketTypeResponse>> updateTicketType(@RequestBody TicketTypeUpdateRequest ticketTypeUpdateRequest) {
         TicketTypeResponse ticketTypeResponse = ticketTypeService.updateTicketType(ticketTypeUpdateRequest);
         return new ResponseEntity<>(RestResponse.of(ticketTypeResponse), HttpStatus.OK);
     }

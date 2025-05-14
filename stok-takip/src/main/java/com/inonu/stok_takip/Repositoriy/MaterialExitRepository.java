@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Repositoriy;
 
+import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.entitiy.MaterialExit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MaterialExitRepository extends JpaRepository<MaterialExit, Long> {
+
+
+    List<MaterialExit> findByExitDateBetween(LocalDate startDate, LocalDate endDate);
 
     // günlük yapılan yemek sayısı
     @Query("SELECT SUM(DISTINCT t.totalPerson) FROM MaterialExit t WHERE t.exitDate = :date")
@@ -34,13 +38,14 @@ public interface MaterialExitRepository extends JpaRepository<MaterialExit, Long
     Double findNonCleaningTotalByExitDate(@Param("date") LocalDate date);
 
     // 2- Aylık toplam (LocalDate parametresiyle - sadece ay ve yılına bakar)
-    @Query("SELECT SUM(m.totalPrice) FROM MaterialExit m WHERE EXTRACT(MONTH FROM m.exitDate) = EXTRACT(MONTH FROM :date) AND EXTRACT(YEAR FROM m.exitDate) = EXTRACT(YEAR FROM :date)")
+    @Query(value = "SELECT SUM(m.total_price) FROM material_exit m " +
+            "WHERE EXTRACT(MONTH FROM m.exit_date) = EXTRACT(MONTH FROM CAST(:date AS DATE)) " +
+            "AND EXTRACT(YEAR FROM m.exit_date) = EXTRACT(YEAR FROM CAST(:date AS DATE))", nativeQuery = true)
     Double findTotalByMonth(@Param("date") LocalDate date);
 
     // 3- Yıllık toplam (LocalDate parametresiyle - sadece yılına bakar)
-    @Query("SELECT SUM(m.totalPrice) FROM MaterialExit m WHERE EXTRACT(YEAR FROM m.exitDate) = EXTRACT(YEAR FROM :date)")
+    @Query(value = "SELECT SUM(m.total_price) FROM material_exit m WHERE EXTRACT(YEAR FROM m.exit_date) = EXTRACT(YEAR FROM CAST(:date AS DATE))", nativeQuery = true)
     Double findTotalByYear(@Param("date") LocalDate date);
-
 
     @Query("SELECT t FROM MaterialExit t WHERE t.exitDate BETWEEN :startDate AND :endDate")
     List<MaterialExit> findByMaterialDateBetween(@Param("startDate") LocalDate startDate,

@@ -9,10 +9,12 @@ import com.inonu.stok_takip.dto.Response.TenderDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderProductDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderResponse;
 import com.inonu.stok_takip.entitiy.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,7 +73,7 @@ public class TenderServiceImpl implements TenderService {
 
     @Override
     public List<TenderResponse> getAllTenders() {
-        List<Tender> tenders = tenderRepository.findAll();
+        List<Tender> tenders = tenderRepository.findTenderByActiveTrue();
         return mapToResponseList(tenders);
     }
 
@@ -95,29 +97,28 @@ public class TenderServiceImpl implements TenderService {
                 .sum();
     }
 
-    //yıl bittiği için bütün ihaleleri silen kod yapısı  bitmemiş devam ediyor
+    //yıl bittiği için veya ihale süresi dolmuş bütün ihaleleri silen kod yapısı bu kod her saate bir tetikleniyor
     @Override
+    @Scheduled(cron = "0 0 * * * ?")
     public void handleTendersAtYearEnd() {
-        LocalDate today = LocalDate.now();
-        int currentYear = today.getYear();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
+
+        // 31 Aralık kontrolü
+        boolean isYearEnd = today.getMonthValue() == 12 && today.getDayOfMonth() == 31;
 
         List<Tender> tenders = tenderRepository.findAll();
 
         for (Tender tender : tenders) {
             boolean isExpired = tender.getEndDate().isBefore(today);
-            boolean isYearEnd = today.getMonth() == Month.DECEMBER && today.getDayOfMonth() == 31;
 
-            if (isExpired || isYearEnd) {
-                if (tender.isActive()) {
-                    tender.setActive(false);
-                    tenderRepository.save(tender);
-                }
+            // Eğer ihale süresi dolmuşsa veya yılın son günündeysek
+            if ((isExpired || isYearEnd) && tender.isActive()) {
+                tender.setActive(false);
+                tenderRepository.save(tender);
             }
         }
     }
-
-
-
 
     @Override
     public List<TenderDetailResponse> getPurchaseFormsWithDetails() {
@@ -149,19 +150,22 @@ public class TenderServiceImpl implements TenderService {
     //ihaleyi %20 arttıran metot
     @Transactional
     @Override
-    public TenderResponse increaseTenderByTwentyPercent(Long tenderId) {
+    public TenderResponse increaseTenderByTwentyPercent(Long tenderId,Double increasedQuantity) {
         Tender tender = tenderRepository.findById(tenderId)
                 .orElseThrow(() -> new TenderNotFoundException("Tender not found"));
 
         if (tender.isIncreased()) {
-            throw new TenderAlreadyIncreasedException("Bu ihale zaten %20 artırıldı!");
+            throw new TenderAlreadyIncreasedException("Bu ihale zaten artırıldı!");
         }
 
         // Yüzde 20 artırımı
-        tender.setTotalAmount(tender.getTotalAmount() * 1.2);
+        Double quantity = (increasedQuantity/100) +1 ;
+        Double increased = increasedQuantity/100;
+
+        tender.setTotalAmount(tender.getTotalAmount() * quantity);
         if (tender.getTenderQuantity() != null) {
-            Double newValue = tender.getTenderQuantity() * 0.2;
-            tender.setTenderQuantity(tender.getTenderQuantity() * 1.2);
+            Double newValue = tender.getTenderQuantity() * increased;
+            tender.setTenderQuantity(tender.getTenderQuantity() * quantity);
             tender.setRemainingQuantityInTender(tender.getRemainingQuantityInTender() + newValue);
         }
 
@@ -199,15 +203,16 @@ public class TenderServiceImpl implements TenderService {
                 tender.getRemainingQuantityInTender(),
                 tender.getStartDate(),
                 tender.getEndDate(),
+                tender.isIncreased(),
                 tender.getUnitPrice(),
                 tender.getTotalAmount(),
                 tender.getCompanyName(),
-                tender.getPurchaseForm().getId(),
+                tender.getProduct().getId(),
                 tender.getProduct().getName(),
                 tender.getProduct().getMeasurementType().getName(),
-                tender.getProduct().getId(),
-                tender.getPurchasedUnit().getId(),
-                tender.getPurchaseType().getId()
+                tender.getPurchasedUnit().getName(),
+                tender.getPurchaseType().getName(),
+                tender.getPurchaseForm().getName()
         );
         return tenderResponse;
     }

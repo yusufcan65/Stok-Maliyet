@@ -5,19 +5,19 @@ import java.time.LocalDate;
 public class TicketSalesDetailResponse {
     private Long id;
     private int quantity; 
-   // private Double totalPrice;
+    private Double totalPrice;
     private LocalDate ticketDate; 
-    private Long ticketTypeId;
+    private String ticketTypeName;
 
     public TicketSalesDetailResponse() {
     }
 
-    public TicketSalesDetailResponse(Long id, int quantity,LocalDate ticketDate, Long ticketTypeId) {
+    public TicketSalesDetailResponse(Long id, Double totalPrice,int quantity,LocalDate ticketDate, String ticketTypeName) {
         this.id = id;
         this.quantity = quantity;
-
+        this.totalPrice = totalPrice;
         this.ticketDate = ticketDate;
-        this.ticketTypeId = ticketTypeId;
+        this.ticketTypeName = ticketTypeName;
     }
 
     public Long getId() {
@@ -44,11 +44,19 @@ public class TicketSalesDetailResponse {
         this.ticketDate = ticketDate;
     }
 
-    public Long getTicketTypeId() {
-        return ticketTypeId;
+    public String getTicketTypeName() {
+        return ticketTypeName;
     }
 
-    public void setTicketTypeId(Long ticketTypeId) {
-        this.ticketTypeId = ticketTypeId;
+    public void setTicketTypeName(String ticketTypeName) {
+        this.ticketTypeName = ticketTypeName;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

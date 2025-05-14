@@ -190,6 +190,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         materialDemandResponse.setRequestDate(materialDemand.getRequestDate());
         materialDemandResponse.setProductId(materialDemand.getProduct().getId());
         materialDemandResponse.setDemandStatus(materialDemand.getStatus());
+        materialDemandResponse.setRejectionReason(materialDemand.getRejectionReason());
 
         return materialDemandResponse;
     }

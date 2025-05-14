@@ -13,6 +13,10 @@ import java.util.List;
 public interface MaterialEntryRepository extends JpaRepository<MaterialEntry, Long> {
 
 
+
+    @Query("SELECT m FROM MaterialEntry m WHERE m.remainingQuantity > 0")
+    List<MaterialEntry> findNonZeroRemainingQuantityEntries();
+
     List<MaterialEntry> findByProductIdOrderByEntryDateAsc(Long productId);
 
     // bu stok çıkışı için yazılmış

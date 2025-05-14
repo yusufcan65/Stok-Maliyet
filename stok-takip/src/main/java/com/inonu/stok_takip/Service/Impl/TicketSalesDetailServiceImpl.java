@@ -6,12 +6,16 @@ import com.inonu.stok_takip.Service.TicketTypeService;
 import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.TicketSalesDetailCreateRequest;
 import com.inonu.stok_takip.dto.Response.TicketSalesDetailResponse;
+import com.inonu.stok_takip.dto.Response.TicketSalesResponse;
 import com.inonu.stok_takip.entitiy.TicketSalesDetail;
 import com.inonu.stok_takip.entitiy.TicketType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,17 +38,34 @@ public class TicketSalesDetailServiceImpl implements TicketSalesDetailService {
     }
 
     @Override
-    public TicketSalesDetailResponse addTicket(TicketSalesDetailCreateRequest request) {
+    public List<TicketSalesDetailResponse> addTicket(TicketSalesDetailCreateRequest request) {
 
-        TicketType ticketType = ticketTypeService.getTicketTypeById(request.ticketTypeId());
-        TicketSalesDetail ticketSalesDetail = new TicketSalesDetail();
-        ticketSalesDetail.setQuantity(request.quantity());
-       // ticketSalesDetail.setTotalPrice(ticketType.getUnitPrice() * request.quantity());
-        ticketSalesDetail.setTicketDate(request.ticketDate());
-        ticketSalesDetail.setTicketType(ticketType);
+        double totalAmount = 0;
 
-        TicketSalesDetail toSave = ticketSalesDetailRepository.save(ticketSalesDetail);
-        return mapToResponse(toSave);
+        ArrayList<TicketSalesDetail> ticketSalesDetails = new ArrayList<>();
+
+        for (Map.Entry<Long, Integer> entry : request.ticketMap().entrySet()) {
+            Long ticketTypeId = entry.getKey();
+            Integer quantity = entry.getValue();
+
+            TicketType ticketType = ticketTypeService.getTicketTypeById(ticketTypeId);
+
+            TicketSalesDetail ticketSalesDetail = new TicketSalesDetail();
+            ticketSalesDetail.setQuantity(quantity);
+            ticketSalesDetail.setTotalPrice(ticketType.getUnitPrice() * quantity);
+            ticketSalesDetail.setTicketDate(request.ticketDate());
+            ticketSalesDetail.setTicketType(ticketType);
+
+            ticketSalesDetailRepository.save(ticketSalesDetail);
+            ticketSalesDetails.add(ticketSalesDetail);
+
+            totalAmount += ticketSalesDetail.getTotalPrice();
+        }
+
+        //TicketSalesDetailResponse response = new TicketSalesDetailResponse();
+        //response.setTotalPrice(totalAmount);
+
+        return mapToResponseList(ticketSalesDetails);
     }
 
     @Override
@@ -53,9 +74,32 @@ public class TicketSalesDetailServiceImpl implements TicketSalesDetailService {
     }
 
     @Override
-    public List<TicketSalesDetailResponse> getTicketByDate(DateRequest dateRequest) {
+    public List<TicketSalesResponse> getTicketByDate(DateRequest dateRequest) {
         List<TicketSalesDetail> tickets = ticketSalesDetailRepository.findBySaleDateBetween(dateRequest.startDate(), dateRequest.endDate());
-        return mapToResponseList(tickets);
+
+        Map<String, TicketSalesResponse> ticketMap = new HashMap<>();
+
+        for (TicketSalesDetail ticketSalesDetail : tickets) {
+            String ticketTypeName = ticketSalesDetail.getTicketType().getName();
+            Double totalPrice = ticketSalesDetail.getTotalPrice();
+            int quantity = ticketSalesDetail.getQuantity();
+            Double unitPrice = ticketSalesDetail.getTicketType().getUnitPrice();
+
+            if(ticketMap.containsKey(ticketTypeName)) {
+                TicketSalesResponse ticketSalesResponse = ticketMap.get(ticketTypeName);
+                ticketSalesResponse.setTotalSalesCount(ticketSalesResponse.getTotalSalesCount() + quantity);
+                ticketSalesResponse.setTotalPrice(ticketSalesResponse.getTotalPrice() + totalPrice);
+
+
+            }
+            else {
+                TicketSalesResponse response = new TicketSalesResponse(ticketTypeName,unitPrice,quantity,totalPrice);
+                ticketMap.put(ticketTypeName, response);
+            }
+
+        }
+
+        return ticketMap.values().stream().toList();
     }
 
    /* @Override
@@ -105,9 +149,10 @@ public class TicketSalesDetailServiceImpl implements TicketSalesDetailService {
     private TicketSalesDetailResponse mapToResponse (TicketSalesDetail ticketSalesDetail) {
         TicketSalesDetailResponse ticketSalesDetailResponse = new TicketSalesDetailResponse(
                 ticketSalesDetail.getId(),
+                ticketSalesDetail.getTotalPrice(),
                 ticketSalesDetail.getQuantity(),
                 ticketSalesDetail.getTicketDate(),
-                ticketSalesDetail.getTicketType().getId()
+                ticketSalesDetail.getTicketType().getName()
         );
         return ticketSalesDetailResponse;
     }

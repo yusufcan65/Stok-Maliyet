@@ -88,8 +88,8 @@ public class ProductServiceImpl implements ProductService {
                 product.getName(),
                 product.getVatAmount(),
                 product.getCriticalLevel(),
-                product.getMeasurementType().getId(),
-                product.getCategory().getId()
+                product.getMeasurementType().getName(),
+                product.getCategory().getName()
         );
         return productResponse;
     }
