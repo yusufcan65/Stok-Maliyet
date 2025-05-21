@@ -9,7 +9,7 @@ import com.inonu.stok_takip.entitiy.MaterialDemand;
 import java.util.List;
 
 public interface MaterialDemandService {
-    MaterialDemandResponse createMaterialDemand(MaterialDemandCreateRequest request);
+    MaterialDemandResponse createMaterialDemandForTender(MaterialDemandCreateRequest request);
     MaterialDemand getMaterialDemandById(Long id);
     List<MaterialDemandResponse> getAllMaterialDemand();
     MaterialDemandResponse updateMaterialDemand(MaterialDemandUpdateRequest request);

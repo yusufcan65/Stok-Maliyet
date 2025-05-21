@@ -23,18 +23,15 @@ import java.util.stream.Collectors;
 public class TenderServiceImpl implements TenderService {
 
     private final TenderRepository tenderRepository;
-    private final PurchaseFormService purchaseFormService;
     private final PurchasedUnitService purchasedUnitService;
     private final PurchaseTypeService purchaseTypeService;
     private final ProductService productService;
 
     public TenderServiceImpl(TenderRepository tenderRepository,
-                             PurchaseFormService purchaseFormService,
                              PurchasedUnitService purchasedUnitService,
                              PurchaseTypeService purchaseTypeService,
                              ProductService productService) {
         this.tenderRepository = tenderRepository;
-        this.purchaseFormService = purchaseFormService;
         this.purchasedUnitService = purchasedUnitService;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
@@ -43,7 +40,7 @@ public class TenderServiceImpl implements TenderService {
     @Override
     public TenderResponse createTender(TenderCreateRequest request) {
 
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormById(request.purchaseFormId());
+
         PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(request.purchaseTypeId());
         PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(request.purchasedUnitId());
         Product product = productService.getProductById(request.productId());
@@ -51,7 +48,6 @@ public class TenderServiceImpl implements TenderService {
         Tender tender = mapToEntity(request);
         Double totalAmount = tender.getUnitPrice() * tender.getTenderQuantity();
         tender.setTotalAmount(totalAmount);
-        tender.setPurchaseForm(purchaseForm);
         tender.setProduct(product);
         tender.setPurchaseType(purchaseType);
         tender.setPurchasedUnit(purchasedUnit);
@@ -82,25 +78,6 @@ public class TenderServiceImpl implements TenderService {
     }
 
 
-    // bu kod ile hangi madde ile ne kadar ürün alınmış ürün durumları nasıl kontrol ediliyor
-    @Override
-    public List<TenderResponse> getTendersByPurchaseForm(Long purchaseFormId) {
-
-        List<Tender> tenderList = tenderRepository.findByPurchaseFormId(purchaseFormId);
-
-        return mapToResponseList(tenderList);
-    }
-
-    @Override
-    public Double calculateTotalAmountByPurchaseFormId(Long purchaseFormId) {
-        List<TenderResponse> responseList = getTendersByPurchaseForm(purchaseFormId);
-
-        return responseList.stream()
-                .filter(tender -> tender.totalAmount() != null)
-                .mapToDouble(TenderResponse::totalAmount)
-                .sum();
-    }
-
     //yıl bittiği için veya ihale süresi dolmuş bütün ihaleleri silen kod yapısı bu kod her saate bir tetikleniyor
     @Override
     @Scheduled(cron = "0 0 * * * ?")
@@ -124,32 +101,6 @@ public class TenderServiceImpl implements TenderService {
         }
     }
 
-    @Override
-    public List<TenderDetailResponse> getPurchaseFormsWithDetails() {
-        return tenderRepository.findAll().stream()
-                .collect(Collectors.groupingBy(tender -> tender.getPurchaseForm().getName()))
-                .entrySet().stream()
-                .map(entry -> {
-                    String formName = entry.getKey();
-                    List<TenderProductDetailResponse> products = entry.getValue().stream().map(tender -> new TenderProductDetailResponse(
-
-                            tender.getId(),
-                            tender.getProduct().getName(),
-                            tender.getProduct().getMeasurementType().getName(),
-                            tender.getTenderQuantity(),
-                            tender.getRemainingQuantityInTender(),
-                            tender.isIncreased(),
-                            tender.getUnitPrice(),
-                            tender.getTotalAmount()
-                    )).collect(Collectors.toList());
-
-                    Double totalAmount = products.stream()
-                            .mapToDouble(TenderProductDetailResponse::totalAmount)
-                            .sum();
-
-                    return new TenderDetailResponse(formName, totalAmount, products);
-                }).collect(Collectors.toList());
-    }
 
     //ihaleyi %20 arttıran metot
     @Transactional
@@ -190,16 +141,6 @@ public class TenderServiceImpl implements TenderService {
     }
 
 
-    @Override
-    public TenderResponse deleteTender(Long id) {
-        return null;
-    }
-
-    @Override
-    public TenderResponse updateTender(TenderCreateRequest request) {
-        return null;
-    }
-
     private TenderResponse mapToResponse(Tender tender) {
         TenderResponse tenderResponse = new TenderResponse(
                 tender.getId(),
@@ -217,7 +158,7 @@ public class TenderServiceImpl implements TenderService {
                 tender.getProduct().getMeasurementType().getName(),
                 tender.getPurchasedUnit().getName(),
                 tender.getPurchaseType().getName(),
-                tender.getPurchaseForm().getName()
+                tender.getTenderType().getDescription()
         );
         return tenderResponse;
     }

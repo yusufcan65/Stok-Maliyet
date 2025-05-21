@@ -18,5 +18,5 @@ public record TenderResponse (
         String measurementTypeName,
         String purchasedUnitName,
         String purchaseTypeName,
-        String purchaseFormName){
+        String tenderType){
 }

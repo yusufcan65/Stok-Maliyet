@@ -10,10 +10,7 @@ public record TenderCreateRequest(
         Double unitPrice,
         String companyName,
         Long purchasedUnitId,
-        Long purchaseTypeId,
-        Long purchaseFormId,
-        String description,
-        Long budgetId
+        Long purchaseTypeId
 
 ) {
 }

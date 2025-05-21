@@ -8,4 +8,5 @@ import java.util.List;
 public interface DirectProcurementRepository extends JpaRepository<DirectProcurement, Long> {
 
     List<DirectProcurement> findByRemainingQuantityGreaterThan(Double quantity);
+    List<DirectProcurement> findDirectProcurementByActiveTrue();
 }

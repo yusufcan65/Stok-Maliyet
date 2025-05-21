@@ -279,6 +279,11 @@ public class ReportServiceImpl implements ReportService {
                 .orElseThrow(()-> new ReportDataNotFoundException("Report not found"));
         return mapToResponse(report);
     }
+    @Override
+    public List<ReportResponse> getReportsBetweenDate(LocalDate startDate, LocalDate endDate){
+        List<Report> reports = reportRepository.findByReportCreateDateBetween(startDate,endDate);
+        return mapToResponseList(reports);
+    }
 
     private ReportResponse mapToResponse(Report report){
         ReportResponse response = new ReportResponse();

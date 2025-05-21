@@ -47,5 +47,11 @@ public class ReportController {
         ReportResponse reportResponse = reportService.getReportByDate(date,reportType);
         return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
     }
+    @GetMapping("/betweenDate")
+    public ResponseEntity<RestResponse<List<ReportResponse>>> getReportsBetweenDates(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                                                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate) {
+        List<ReportResponse> reportResponses = reportService.getReportsBetweenDate(startDate,endDate);
+        return new ResponseEntity<>(RestResponse.of(reportResponses), HttpStatus.OK);
+    }
 
 }
