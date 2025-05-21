@@ -7,28 +7,28 @@ import java.time.LocalDate;
 public class MaterialDemandResponse {
     private Long id;
     private Double quantity;
-    private Long userId;
+    private String userName;
     private String companyName;
     private LocalDate requestDate;
     private String rejectionReason;
-
     private Long productId;
     private DemandStatus demandStatus;
 
     public MaterialDemandResponse() {
     }
 
-    public MaterialDemandResponse(Long id, Double quantity, Long userId, String companyName,
-                                  String rejectionReason,LocalDate requestDate, Long productId,
-                                  DemandStatus demandStatus) {
+    public MaterialDemandResponse(Long id, Double quantity, String companyName,
+                                  String rejectionReason,LocalDate requestDate,
+                                  Long productId, DemandStatus demandStatus,
+                                  String userName) {
         this.id = id;
         this.quantity = quantity;
-        this.userId = userId;
         this.companyName = companyName;
         this.rejectionReason = rejectionReason;
         this.requestDate = requestDate;
         this.productId = productId;
         this.demandStatus = demandStatus;
+        this.userName = userName;
     }
 
     public Long getId() {
@@ -47,13 +47,6 @@ public class MaterialDemandResponse {
         this.quantity = quantity;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 
     public String getCompanyName() {
         return companyName;
@@ -93,5 +86,13 @@ public class MaterialDemandResponse {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

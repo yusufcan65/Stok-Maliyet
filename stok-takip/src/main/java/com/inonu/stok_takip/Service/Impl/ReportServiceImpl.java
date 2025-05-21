@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Enum.ReportType;
+import com.inonu.stok_takip.Exception.Report.ReportDataNotFoundException;
 import com.inonu.stok_takip.Repositoriy.ReportRepository;
 import com.inonu.stok_takip.Service.MaterialExitService;
 import com.inonu.stok_takip.Service.ReportService;
@@ -9,6 +10,7 @@ import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Response.ReportResponse;
 import com.inonu.stok_takip.dto.Response.TicketSalesDetailResponse;
 import com.inonu.stok_takip.entitiy.Report;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,6 +40,8 @@ public class ReportServiceImpl implements ReportService {
         switch (reportType){
             case DAILY:
                 return calculateDailyReport(date);
+                case WEEKLY:
+                    return  calculateWeeklyReport(date);
             case MONTHLY:
                 return calculateMonthlyReport(date);
             case YEARLY:
@@ -55,29 +59,79 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public ReportResponse calculateDailyReport(LocalDate date){
-
+    public ReportResponse calculateDailyReport(LocalDate date) {
         Integer totalPerson = materialExitService.numberMealsInDay(date);
-        Integer ticketQuantity = ticketSalesDetailService.getTicketCountByDay(date); // girilen güne ait toplam fiş sayısını verir
+        Integer ticketQuantity = ticketSalesDetailService.getTicketCountByDay(date);
         Double totalAmount = materialExitService.getNonCleaningMaterialExitsByDate(date);
+        Double totalTicketAmount = ticketSalesDetailService.getTicketAmountByDay(date);
+
+        if (totalPerson == null || totalPerson == 0) {
+            throw new ReportDataNotFoundException("Daily Report Error: Total person is null or zero for date " + date);
+        }
+        if (ticketQuantity == null || ticketQuantity == 0) {
+            throw new ReportDataNotFoundException("Daily Report Error: Ticket quantity is null or zero for date " + date);
+        }
+        if (totalAmount == null || totalAmount == 0) {
+            throw new ReportDataNotFoundException("Daily Report Error: Total amount is null or zero for date " + date);
+        }
+
         Double personCost = totalAmount / totalPerson;
         Double ticketCost = totalAmount / ticketQuantity;
+        int leftoverMealCount = totalPerson - ticketQuantity;
 
         Report report = new Report();
-        report.setReportType(ReportType.DAILY);// rapor tipi günlük veya aylık
-        report.setTicketQuantity(ticketQuantity); // satılan fiş sayısı
-        report.setReportCreateDate(LocalDate.now()); // raporun oluşturulma tarihi
-        report.setTotalPersonQuantity(totalPerson); // yapılan yemek sayısı veya toplam mevcut
-        report.setTotalMaterialPrice(totalAmount);  // toplam harcanan malzeme tutarı
-        report.setTotalCleanPrice(0.0); // kullanılan temizlik malzemelerinin toplam tutarı  -- bu sadece aylık raporda yer alacak günlük bazda alındığında 0 olarak otomatik kayıt edilecek
-        report.setAveragePersonCost(personCost);  //  mevcuda göre 1 porsiyon yemek maliyeti
-        report.setAverageTicketCost(ticketCost); // SATILAN FİŞ SAYISINA GÖRE 1 PORSİYON YEMEK MALİYETİ
+        report.setReportType(ReportType.DAILY);
+        report.setTicketQuantity(ticketQuantity);
+        report.setReportCreateDate(LocalDate.now());
+        report.setTotalPersonQuantity(totalPerson);
+        report.setTotalMaterialPrice(totalAmount);
+        report.setTotalCleanPrice(0.0);
+        report.setAveragePersonCost(personCost);
+        report.setAverageTicketCost(ticketCost);
+        report.setLeftoverMealCount(leftoverMealCount);
+        report.setTotalTicketPrice(totalTicketAmount);
 
+        Report savedReport = reportRepository.save(report);
+        return mapToResponse(savedReport);
+    }
+    
+    @Override
+    public ReportResponse calculateWeeklyReport(LocalDate date){
+
+        Integer totalPerson = materialExitService.numberMealsInWeek(date);
+        Integer ticketCount = ticketSalesDetailService.getTicketCountByWeek(date);
+        Double totalMaterialPrice = materialExitService.getMaterialsByWeek(date);
+        Double totalTicketPrice = ticketSalesDetailService.getTicketAmountByWeek(date);
+
+        if (totalPerson == null || totalPerson == 0) {
+            throw new ReportDataNotFoundException("Weekly Report Error: Total person is null or zero for week of date " + date);
+        }
+        if (ticketCount == null || ticketCount == 0) {
+            throw new ReportDataNotFoundException("Weekly Report Error: Ticket quantity is null or zero for week of date " + date);
+        }
+        if (totalMaterialPrice == null || totalMaterialPrice == 0) {
+            throw new ReportDataNotFoundException("Weekly Report Error: Total amount is null or zero for week of date " + date);
+        }
+        Double personCost = totalMaterialPrice / totalPerson;
+        Double ticketCost = totalMaterialPrice / ticketCount;
+        int leftoverMealCount = totalPerson - ticketCount;
+
+
+        Report report = new Report();
+        report.setReportType(ReportType.WEEKLY);
+        report.setTicketQuantity(ticketCount);
+        report.setReportCreateDate(LocalDate.now());
+        report.setTotalPersonQuantity(totalPerson);
+        report.setTotalMaterialPrice(totalMaterialPrice);
+        report.setTotalCleanPrice(0.0);
+        report.setLeftoverMealCount(leftoverMealCount);
+        report.setAveragePersonCost(personCost);
+        report.setAverageTicketCost(ticketCost);
+        report.setTotalTicketPrice(totalTicketPrice);
         Report savedReport = reportRepository.save(report);
 
 
         return mapToResponse(savedReport);
-
     }
 
     @Override
@@ -85,19 +139,33 @@ public class ReportServiceImpl implements ReportService {
         Integer totalPerson = materialExitService.numberMealsInMonth(date);
         Integer ticketCount = ticketSalesDetailService.getTicketCountByMonth(date);
         Double totalMaterialPrice = materialExitService.getMaterialsByMonthAndYear(date);
+        Double totalTicketPrice = ticketSalesDetailService.getTicketAmountByMonth(date);
+
+        if (totalPerson == null || totalPerson == 0) {
+            throw new ReportDataNotFoundException("Monthly Report Error: Total person is null or zero for month of date " + date);
+        }
+        if (ticketCount == null || ticketCount == 0) {
+            throw new ReportDataNotFoundException("Monthly Report Error: Ticket quantity is null or zero for month of date " + date);
+        }
+        if (totalMaterialPrice == null || totalMaterialPrice == 0) {
+            throw new ReportDataNotFoundException("Monthly Report Error: Total amount is null or zero for month of date " + date);
+        }
         Double personCost = totalMaterialPrice / totalPerson;
         Double ticketCost = totalMaterialPrice / ticketCount;
+        int leftoverMealCount = totalPerson - ticketCount;
 
 
         Report report = new Report();
         report.setReportType(ReportType.MONTHLY);
         report.setTicketQuantity(ticketCount);
-        report.setReportCreateDate(LocalDate.now());
+        report.setReportCreateDate(LocalDate.now().minusDays(1));
         report.setTotalPersonQuantity(totalPerson);
         report.setTotalMaterialPrice(totalMaterialPrice);
         report.setTotalCleanPrice(0.0);
+        report.setLeftoverMealCount(leftoverMealCount);
         report.setAveragePersonCost(personCost);
         report.setAverageTicketCost(ticketCost);
+        report.setTotalTicketPrice(totalTicketPrice);
 
         Report savedReport = reportRepository.save(report);
 
@@ -110,8 +178,21 @@ public class ReportServiceImpl implements ReportService {
         Integer totalPerson = materialExitService.numberMealsInYear(date);
         Integer ticketCount = ticketSalesDetailService.getTicketCountByYear(date);
         Double totalMaterialPrice = materialExitService.getMaterialsByYear(date);
+        Double totalTicketAmount = ticketSalesDetailService.getTicketAmountByYear(date);
+
+        if (totalPerson == null || totalPerson == 0) {
+            throw new ReportDataNotFoundException("Yearly Report Error: Total person is null or zero for year of date " + date);
+        }
+        if (ticketCount == null || ticketCount == 0) {
+            throw new ReportDataNotFoundException("Yearly Report Error: Ticket quantity is null or zero for year of date " + date);
+        }
+        if (totalMaterialPrice == null || totalMaterialPrice == 0) {
+            throw new ReportDataNotFoundException("Yearly Report Error: Total amount is null or zero for year of date " + date);
+        }
+
         Double personCost = totalMaterialPrice / totalPerson;
         Double ticketCost = totalMaterialPrice / ticketCount;
+        int leftoverMealCount = totalPerson - ticketCount;
 
 
         Report report = new Report();
@@ -121,8 +202,10 @@ public class ReportServiceImpl implements ReportService {
         report.setTotalPersonQuantity(totalPerson);
         report.setTotalMaterialPrice(totalMaterialPrice);
         report.setTotalCleanPrice(0.0);
+        report.setLeftoverMealCount(leftoverMealCount);
         report.setAveragePersonCost(personCost);
         report.setAverageTicketCost(ticketCost);
+        report.setTotalTicketPrice(totalTicketAmount);
 
         Report savedReport = reportRepository.save(report);
 
@@ -130,9 +213,70 @@ public class ReportServiceImpl implements ReportService {
     }
 
 
+
+    @Scheduled(cron = "50 44 13 * * *")  // Her gün 23:59'da çalışır
+    public void generateDailyReport() {
+        LocalDate reportDate = LocalDate.now().minusDays(1);  // Bir önceki günün tarihi
+        try {
+            calculateDailyReport(reportDate);
+
+        } catch (ReportDataNotFoundException e) {
+            System.out.println("DAİLY report not generated: " + e.getMessage());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Her pazar saat 23.59'de çalışır (haftalık rapor)
+    @Scheduled(cron = "50 59 23 * * MON")
+    public void generateWeeklyReport() {
+        LocalDate reportDate = LocalDate.now().minusWeeks(1);
+        try {
+            calculateWeeklyReport(reportDate);
+
+        } catch (ReportDataNotFoundException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Her ayın son günü  saat 23:59'de çalışır
+    @Scheduled(cron = "50 59 23 L * *")
+    public void generateMonthlyReport() {
+        LocalDate reportDate = LocalDate.now().minusMonths(1);
+        try {
+            calculateMonthlyReport(reportDate);
+
+        } catch (ReportDataNotFoundException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Her yılın 31 Aralık günü saat 23:59'de çalışır
+    @Scheduled(cron = "59 58 23 31 12 *")
+    public void generateYearlyReport() {
+        LocalDate reportDate = LocalDate.now();
+        try {
+            calculateYearlyReport(reportDate);
+
+        } catch (ReportDataNotFoundException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
     @Override
     public ReportResponse getReportByDate(LocalDate date,ReportType reportType){
-        Report report = reportRepository.findByReportCreateDateAndReportType(date,reportType).orElseThrow(()->new RuntimeException("Report not found"));
+        Report report = reportRepository.findByReportCreateDateAndReportType(date,reportType)
+                .orElseThrow(()-> new ReportDataNotFoundException("Report not found"));
         return mapToResponse(report);
     }
 
@@ -144,10 +288,10 @@ public class ReportServiceImpl implements ReportService {
         response.setTicketQuantity(report.getTicketQuantity());
         response.setReportCreateDate(report.getReportCreateDate());
         response.setAverageTicketCost(report.getAverageTicketCost());
-        response.setTotalCleanPrice(report.getTotalCleanPrice());
         response.setTotalPersonQuantity(report.getTotalPersonQuantity());
         response.setTotalMaterialPrice(report.getTotalMaterialPrice());
         response.setTotalTicketPrice(report.getTotalTicketPrice());
+        response.setLeftoverMealCount(report.getLeftoverMealCount());
 
 
         return response;

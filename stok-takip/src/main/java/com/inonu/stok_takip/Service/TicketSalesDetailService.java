@@ -19,7 +19,14 @@ public interface TicketSalesDetailService {
   //  Double calculateTicketValue(List<TicketSalesDetailResponse> ticketResponseList);
     int calculateTicketQuantity(List<TicketSalesDetailResponse> ticketResponseList);
     Integer getTicketCountByDay(LocalDate dayDate);
+    Integer getTicketCountByWeek(LocalDate dayDate);
     Integer getTicketCountByMonth(LocalDate monthDate);
     Integer getTicketCountByYear(LocalDate yearDate);
+
+    // bundan sonrası bilet tutarları
+    Double getTicketAmountByDay(LocalDate dayDate);
+    Double getTicketAmountByWeek(LocalDate weekDate);
+    Double getTicketAmountByMonth(LocalDate monthDate);
+    Double getTicketAmountByYear(LocalDate yearDate);
 
 }

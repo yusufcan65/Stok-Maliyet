@@ -12,8 +12,10 @@ import com.inonu.stok_takip.Exception.MaterialExit.MaterialExitNotFoundException
 import com.inonu.stok_takip.Exception.MeasurementType.MeasurementTypeNotFoundException;
 import com.inonu.stok_takip.Exception.Product.ProductNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException;
+import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeAlreadyExistsException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
 import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitNotFoundException;
+import com.inonu.stok_takip.Exception.Report.ReportDataNotFoundException;
 import com.inonu.stok_takip.Exception.Tender.TenderAlreadyIncreasedException;
 import com.inonu.stok_takip.Exception.Tender.TenderNotFoundException;
 import com.inonu.stok_takip.Exception.TicketType.TicketTypeNotFoundException;
@@ -112,5 +114,14 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(PurchaseTypeAlreadyExistsException.class)
+    public ResponseEntity<RestResponse<String>> PurchaseTypeAlreadyExistsException(PurchaseTypeAlreadyExistsException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(ReportDataNotFoundException.class)
+    public ResponseEntity<RestResponse<String>> reportDataNotFoundException(ReportDataNotFoundException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
 
 }

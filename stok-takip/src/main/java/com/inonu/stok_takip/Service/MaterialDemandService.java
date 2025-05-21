@@ -16,8 +16,6 @@ public interface MaterialDemandService {
     MaterialDemandResponse deleteMaterialDemand(Long id);
     MaterialDemandResponse rejectMaterialDemand(Long id, String rejectionReason);
     MaterialDemandResponse approveAndProcessMaterialDemand(MaterialDemandApprovedRequest request);
-
-    // bundan sonrası değişikliklerden sonra ihale materialEntryden ayrıldıktan sonra eklendi
-
+    MaterialDemandResponse createMaterialDemandForDirectProcurement(MaterialDemandCreateRequest request);
     void checkStockAvailabilityByProductInTender(Long productId, Double requestedQuantity);
 }

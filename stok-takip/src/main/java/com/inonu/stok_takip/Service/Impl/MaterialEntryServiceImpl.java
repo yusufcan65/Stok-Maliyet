@@ -6,15 +6,14 @@ import com.inonu.stok_takip.Repositoriy.MaterialEntryRepository;
 import com.inonu.stok_takip.Service.*;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
-import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
-import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
-import com.inonu.stok_takip.dto.Response.ProductDetailResponse;
+import com.inonu.stok_takip.dto.Response.*;
 import com.inonu.stok_takip.entitiy.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,21 +25,26 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     private final PurchaseTypeService purchaseTypeService;
     private final ProductService productService;
     private final PurchasedUnitService purchasedUnitService;
+    private final PurchaseFormService purchaseFormService;
     private final BudgetService budgetService;
     private final TenderService tenderService;
+    private final DirectProcurementService directProcurementService;
+
 
     public MaterialEntryServiceImpl(MaterialEntryRepository materialEntryRepository,
                                     PurchaseTypeService purchaseTypeService,
                                     ProductService productService,
-                                    PurchasedUnitService purchasedUnitService,
+                                    PurchasedUnitService purchasedUnitService, PurchaseFormService purchaseFormService,
                                     BudgetService budgetService,
-                                    TenderService tenderService) {
+                                    TenderService tenderService, DirectProcurementService directProcurementService) {
         this.materialEntryRepository = materialEntryRepository;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
         this.purchasedUnitService = purchasedUnitService;
+        this.purchaseFormService = purchaseFormService;
         this.budgetService = budgetService;
         this.tenderService = tenderService;
+        this.directProcurementService = directProcurementService;
     }
 
     @Override
@@ -56,29 +60,38 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(request.purchaseUnitId());
         PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(request.purchaseTypeId());
         Budget budget = budgetService.getBudgetById(request.budgetId());
+        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormById(request.purchaseFormId());
 
 
         Double totalPrice = request.unitPrice() * request.quantity(); // ürünün toplam fiyatı kdv dahil değil
         Double totalVat = totalPrice * product.getVatAmount(); // toplam fiyat üzeinden toplm kdv tutarı
         Double totalPriceIncludingVat = totalPrice + totalVat; // kdv eklenmiş hali ile toplam tutar
+        Double unitPriceIncludingVat = totalPriceIncludingVat / request.quantity();
 
         MaterialEntry materialEntry = mapToEntity(request);
 
         if (request.tenderId() != null) { // ihale için tender id değeri seçilen tenderden gelecek şekilde burada kontrol ediliyor
             Tender tender = tenderService.getTenderById(request.tenderId());
             materialEntry.setTender(tender);
-        } else {
-            materialEntry.setTender(null); // doğrudan alımda tender yoksa NULL atanır
+        } else if (request.directProcurementId() != null){
+            DirectProcurement directProcurement = directProcurementService.getDirectProcurementById(request.directProcurementId());
+            materialEntry.setDirectProcurement(directProcurement);
+             // doğrudan alımda tender yoksa NULL atanır
+        }else {
+            materialEntry.setTender(null);
+            materialEntry.setDirectProcurement(null);
         }
 
 
         materialEntry.setTotalPrice(totalPrice);
+        materialEntry.setUnitPriceIncludingVat(unitPriceIncludingVat);
         materialEntry.setRemainingQuantity(request.quantity());
         materialEntry.setTotalPriceIncludingVat(totalPriceIncludingVat);
         materialEntry.setEntrySourceType(request.entrySourceType());
         materialEntry.setProduct(product);
         materialEntry.setPurchaseType(purchaseType);
         materialEntry.setPurchasedUnit(purchasedUnit);
+        materialEntry.setPurchaseForm(purchaseForm);
 
         budgetService.updateBudgetValue(budget.getId(),totalPriceIncludingVat);
 
@@ -106,6 +119,67 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         return materialEntryRepository.sumRemainingQuantityByProductId(productId);
     }
 
+    // bu metot dashboardda bulunan verielri gönderiyor
+    @Override
+    public List<GroupMaterialEntryResponse> getGroupedMaterialEntries() {
+        List<MaterialEntry> entries = materialEntryRepository.findAllExcludingEntrySourceType(EntrySourceType.DEVIR);
+
+        Map<String, Map<Long, List<MaterialEntry>>> grouped = entries.stream()
+                .collect(Collectors.groupingBy(
+                        e -> e.getPurchaseForm().getName(),
+                        Collectors.groupingBy(e -> e.getProduct().getId())
+                ));
+
+        List<GroupMaterialEntryResponse> result = new ArrayList<>();
+
+        for (Map.Entry<String, Map<Long, List<MaterialEntry>>> purchaseFormEntry : grouped.entrySet()) {
+            String purchaseFormName = purchaseFormEntry.getKey();
+            List<MaterialEntryProductResponse> products = new ArrayList<>();
+            double totalFormAmount = 0;
+
+            for (List<MaterialEntry> productEntries : purchaseFormEntry.getValue().values()) {
+                MaterialEntry sample = productEntries.get(0);
+                double totalQuantity = productEntries.stream().mapToDouble(MaterialEntry::getQuantity).sum();
+                double totalPrice = productEntries.stream().mapToDouble(MaterialEntry::getTotalPrice).sum();
+                double averagePrice = totalQuantity != 0 ? totalPrice / totalQuantity : 0;
+                LocalDate lastDate = productEntries.stream()
+                        .map(MaterialEntry::getEntryDate)
+                        .max(Comparator.naturalOrder())
+                        .orElse(null);
+
+                MaterialEntryProductDetailResponse detail = new MaterialEntryProductDetailResponse(
+                        sample.getProduct().getCriticalLevel(),
+                        lastDate,
+                        sample.getProduct().getVatAmount(),
+                        productEntries.size(),
+                        totalPrice
+                );
+
+                MaterialEntryProductResponse productDTO = new MaterialEntryProductResponse(
+                        sample.getProduct().getName(),
+                        sample.getProduct().getCategory().getName(),
+                        sample.getProduct().getMeasurementType().getName(),
+                        averagePrice,
+                        totalQuantity,
+                        detail
+                );
+
+                products.add(productDTO);
+                totalFormAmount += totalPrice;
+            }
+
+            GroupMaterialEntryResponse dto = new GroupMaterialEntryResponse(
+                    purchaseFormName,
+                    totalFormAmount,
+                    products
+            );
+
+            result.add(dto);
+        }
+
+        return result;
+    }
+
 
 
     // bu metot yıl içinde depoya giren tüm malzemeler ve nasıl girdikleri ile ilgili bilgileir döndürür
@@ -128,18 +202,13 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double totalAlim = productEntries.stream()
-                    .filter(e -> e.getEntrySourceType() == EntrySourceType.DOGRUDAN_TEMIN)
-                    .mapToDouble(MaterialEntry::getQuantity)
-                    .sum();
-
             double totalIhale = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
             double total22d = productEntries.stream()
-                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
+                    .filter(e -> e.getEntrySourceType() == EntrySourceType.DOGRUDAN_TEMIN)
                     .filter(e -> e.getTender() != null && "22D".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
@@ -181,7 +250,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
             MaterialEntryDetailResponse response = new MaterialEntryDetailResponse(
                     productDetailResponse,
                     totalDevir,
-                    totalAlim,
                     totalIhale,
                     total22d,
                     total19f,
@@ -194,6 +262,27 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         }
 
         return responseList;
+    }
+
+    // burada yıl içinde hangi bütçeden ne kadar harcanmş gruplayan kod yapısı
+    @Override
+    public List<MaterialEntrySpendResponse> getTotalSpentGroupedByBudget() {
+        List<MaterialEntry> entries = materialEntryRepository.findAll();
+
+        int currentYear = LocalDate.now().getYear();
+
+        Map<String, Double> spendingMap = entries.stream()
+                .filter(me -> me.getEntrySourceType() != null && !me.getEntrySourceType().equals(EntrySourceType.DEVIR))
+                .filter(me -> me.getEntryDate() != null && me.getEntryDate().getYear() == currentYear)
+                .filter(me -> me.getBudget() != null && me.getBudget().getBudgetName() != null)
+                .collect(Collectors.groupingBy(
+                        me -> me.getBudget().getBudgetName(),
+                        Collectors.summingDouble(me -> me.getTotalPrice() != null ? me.getTotalPrice() : 0.0)
+                ));
+
+        return spendingMap.entrySet().stream()
+                .map(entry -> new MaterialEntrySpendResponse(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
     }
 
 
@@ -221,6 +310,24 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     public List<MaterialEntry> getMaterialEntryByProductId(Long productId) {
         List<MaterialEntry> materialEntries = materialEntryRepository.findByProductIdOrderByEntryDateAsc(productId);
         return materialEntries;
+    }
+
+    @Override
+    public List<MaterialEntryProductsForMaterialExitResponse> getMaterialEntriesForExit() {
+        return materialEntryRepository.findAll().stream()
+                .collect(Collectors.groupingBy(
+                        me -> me.getProduct(),
+                        Collectors.summingDouble(me -> me.getRemainingQuantity())
+                ))
+                .entrySet().stream()
+                .map(entry -> new MaterialEntryProductsForMaterialExitResponse(
+                        entry.getKey().getId(),
+                        entry.getKey().getName(),
+                        entry.getKey().getCategory().getName(),
+                        entry.getKey().getMeasurementType().getName(),
+                        entry.getValue()
+                ))
+                .collect(Collectors.toList());
     }
 
     // depodan ürün çıkışı olduktan sonra depodaki kalan ürün miktarını günceller
@@ -269,6 +376,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setTender(oldEntry.getTender());
 
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
+                newEntry.setUnitPriceIncludingVat(oldEntry.getUnitPriceIncludingVat());
                 newEntry.setTotalPrice(totalPrice);
                 materialEntryList.add(newEntry);
                 oldEntry.setRemainingQuantity(0.0);
@@ -327,8 +435,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 .collect(Collectors.toList());
         return materialEntryResponseList;
     }
-
-
 
 
 }

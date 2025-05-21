@@ -1,12 +1,9 @@
 package com.inonu.stok_takip.Controller;
 
 import com.inonu.stok_takip.Service.PurchaseTypeService;
-import com.inonu.stok_takip.dto.Request.PurchaseFormCreateRequest;
 import com.inonu.stok_takip.dto.Request.PurchaseTypeCreateRequest;
-import com.inonu.stok_takip.dto.Response.PurchaseFormResponse;
 import com.inonu.stok_takip.dto.Response.PurchaseTypeResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
-import com.inonu.stok_takip.entitiy.PurchaseForm;
 import com.inonu.stok_takip.entitiy.PurchaseType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

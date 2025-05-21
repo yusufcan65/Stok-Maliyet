@@ -20,6 +20,7 @@ public class Report extends BaseEntity{
     private Double totalCleanPrice; // toplam temizlik malzemeleri gideri  (bu günlük raporda olmayacak)
     private Double averagePersonCost; // mevcuda göre ortalama bir tabak yemek maliyeti
     private Double averageTicketCost; // satılan bilete göre ortalama 1 tabak yemek maliyeti
+    private int leftoverMealCount; // artan yemek sayısı
 
 
 
@@ -96,5 +97,13 @@ public class Report extends BaseEntity{
 
     public void setReportType(ReportType reportType) {
         this.reportType = reportType;
+    }
+
+    public int getLeftoverMealCount() {
+        return leftoverMealCount;
+    }
+
+    public void setLeftoverMealCount(int leftoverMealCount) {
+        this.leftoverMealCount = leftoverMealCount;
     }
 }

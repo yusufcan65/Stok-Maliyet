@@ -12,6 +12,7 @@ public interface ReportService {
     ReportResponse createReport(LocalDate date,ReportType reportType);
     List<ReportResponse> getAllReports();
     ReportResponse calculateDailyReport(LocalDate date);
+    ReportResponse calculateWeeklyReport(LocalDate date);
     ReportResponse calculateMonthlyReport(LocalDate date);
     ReportResponse calculateYearlyReport(LocalDate date);
     ReportResponse getReportByDate(LocalDate date,ReportType reportType);

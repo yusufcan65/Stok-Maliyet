@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class MaterialDemand extends BaseEntity{
 
     private Double quantity; // talep edilen malzeme miktarı
-    private Long userId; // bu veri zero trusttan çekilecek veya bu veri kullancı tarafından girilecek çünkü bu yapıyı kullanan kişi uygulama kullanıcısı olmayabilir
+    private String userName;
 
     private String companyName; // talep edilen firmanın adı
     private LocalDate requestDate; // talep tarihi
@@ -24,8 +24,14 @@ public class MaterialDemand extends BaseEntity{
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "tender_id", nullable = false)
+    @JoinColumn(name = "tender_id", nullable = true)
     private Tender tender; // Hangi ihaleden talep yapılıyor
+
+    @ManyToOne
+    @JoinColumn(name = "directProcurement_id", nullable = true)
+    private DirectProcurement directProcurement; // Hangi Doğrudan teminden talep yapılıyor
+
+
 
 
     @JsonIgnore
@@ -47,12 +53,12 @@ public class MaterialDemand extends BaseEntity{
         this.quantity = quantity;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getCompanyName() {
@@ -110,5 +116,13 @@ public class MaterialDemand extends BaseEntity{
 
     public void setTender(Tender tender) {
         this.tender = tender;
+    }
+
+    public DirectProcurement getDirectProcurement() {
+        return directProcurement;
+    }
+
+    public void setDirectProcurement(DirectProcurement directProcurement) {
+        this.directProcurement = directProcurement;
     }
 }

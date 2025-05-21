@@ -18,6 +18,7 @@ public class MaterialEntry extends BaseEntity {
     private LocalDate expiryDate; // ürün son kullanma tarihi
     private String companyName; // firma adı
     private Double totalPriceIncludingVat; // kdv dahil toplam tutar
+    private Double unitPriceIncludingVat;
     private String description; // stoğa giriş yapılan ürün için açıklama
 
     @Enumerated(EnumType.STRING)
@@ -43,8 +44,18 @@ public class MaterialEntry extends BaseEntity {
     private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
 
     @ManyToOne
+    @JoinColumn(name = "purchaseForm_id")
+    private PurchaseForm purchaseForm; // alım şekli 22d/21a-19f
+
+    @ManyToOne
     @JoinColumn(name = "tender_id",nullable = true)
     private Tender tender;
+
+    @ManyToOne
+    @JoinColumn(name = "direct_procurement_id",nullable = true)
+    private DirectProcurement directProcurement;
+
+
 
     // Yuvarlama işlemi
     private Double roundToTwoDecimalPlaces(Double value) {
@@ -170,5 +181,29 @@ public class MaterialEntry extends BaseEntity {
 
     public void setTender(Tender tender) {
         this.tender = tender;
+    }
+
+    public Double getUnitPriceIncludingVat() {
+        return unitPriceIncludingVat;
+    }
+
+    public void setUnitPriceIncludingVat(Double unitPriceIncludingVat) {
+        this.unitPriceIncludingVat = unitPriceIncludingVat;
+    }
+
+    public DirectProcurement getDirectProcurement() {
+        return directProcurement;
+    }
+
+    public void setDirectProcurement(DirectProcurement directProcurement) {
+        this.directProcurement = directProcurement;
+    }
+
+    public PurchaseForm getPurchaseForm() {
+        return purchaseForm;
+    }
+
+    public void setPurchaseForm(PurchaseForm purchaseForm) {
+        this.purchaseForm = purchaseForm;
     }
 }

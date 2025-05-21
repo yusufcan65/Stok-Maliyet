@@ -20,6 +20,7 @@ public interface MaterialExitService {
     // bundan sonrası rapor ve fiş yapısını kntrol etmek ve denemek için eklnmiştir
     List<MaterialExitResponse> getMaterialListBetweenDate(DateRequest dateRequest);
     Integer numberMealsInDay(LocalDate dayDate);
+    Integer numberMealsInWeek(LocalDate weekDate);
     Integer numberMealsInMonth(LocalDate monthDate);
     Integer numberMealsInYear(LocalDate yearDate);
     Double calculateTotalAmount(DateRequest dateRequest);
@@ -29,6 +30,7 @@ public interface MaterialExitService {
 
 
     Double getNonCleaningMaterialExitsByDate(LocalDate date);
+    Double getMaterialsByWeek(LocalDate weekDate);
     Double getMaterialsByMonthAndYear(LocalDate monthDate);
     Double getMaterialsByYear(LocalDate yearDate);
 

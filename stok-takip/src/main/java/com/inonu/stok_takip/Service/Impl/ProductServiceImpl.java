@@ -44,14 +44,9 @@ public class ProductServiceImpl implements ProductService {
         MeasurementType measurementType = measurementTypeService.getMeasurementTypeById(productCreateRequest.measurementTypeId());
 
         Product product = mapToEntity(productCreateRequest);
-       /* if (productCreateRequest.image() != null && !productCreateRequest.image().isEmpty()) {
-            try {
-                product.setImage(productCreateRequest.image().getBytes()); // DİKKAT: BURASI!
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }*/
+        Double VatAmount = productCreateRequest.vatAmount() / 100;
 
+        product.setVatAmount(VatAmount);
         product.setCategory(category);
         product.setMeasurementType(measurementType);
 
@@ -104,7 +99,6 @@ public class ProductServiceImpl implements ProductService {
     private Product mapToEntity(ProductCreateRequest request){
         Product product = new Product();
         product.setName(request.name());
-        product.setVatAmount(request.vatAmount());
         product.setCriticalLevel(request.criticalLevel());
         return product;
     }

@@ -29,4 +29,12 @@ public interface MaterialEntryRepository extends JpaRepository<MaterialEntry, Lo
     @Query("SELECT m FROM MaterialEntry m WHERE m.product.id = :productId  ORDER BY m.entryDate ASC")
     List<MaterialEntry> getByProductIdAndPurchaseFormIdOrderedByEntryDate(@Param("productId") Long productId);
 
+
+    // dashboard verileri için
+    @Query("SELECT m FROM MaterialEntry m " +
+            "JOIN FETCH m.product p " +
+            "JOIN FETCH m.purchaseForm pf " +
+            "WHERE m.entrySourceType <> :excludedType")
+    List<MaterialEntry> findAllExcludingEntrySourceType(@Param("excludedType") EntrySourceType excludedType);
+
 }

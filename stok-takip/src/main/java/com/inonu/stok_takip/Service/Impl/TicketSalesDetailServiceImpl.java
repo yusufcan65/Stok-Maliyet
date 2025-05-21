@@ -124,24 +124,69 @@ public class TicketSalesDetailServiceImpl implements TicketSalesDetailService {
     public Integer getTicketCountByDay(LocalDate dayDate) {
         Integer ticketCount = ticketSalesDetailRepository.findTotalTicketSalesByDate(dayDate);
         if (ticketCount == null) {
-            throw new RuntimeException("ticketCount is zero for a day");
+            return 0;
         }
         return ticketCount;
 
     }
     @Override
+    public Integer getTicketCountByWeek(LocalDate weekDate){
+        Integer ticketCount = ticketSalesDetailRepository.findTotalTicketSalesByWeek(weekDate);
+        if (ticketCount == null) {
+            return 0;
+        }
+        return ticketCount;
+    }
+    @Override
     public Integer getTicketCountByMonth(LocalDate monthDate) {
         Integer ticketCount = ticketSalesDetailRepository.findTotalTicketSalesByMonth(monthDate);
         if(ticketCount == null){
-            throw new RuntimeException("ticketCount is zero for a month");
+            return 0;
+        }
+        return ticketCount;
+    }
+    @Override
+    public Integer getTicketCountByYear(LocalDate yearDate) {
+        Integer ticketCount = ticketSalesDetailRepository.findTotalTicketSalesByYear(yearDate);
+        if(ticketCount == null){
+            return 0;
         }
         return ticketCount;
     }
 
-    public Integer getTicketCountByYear(LocalDate yearDate) {
-        Integer ticketCount = ticketSalesDetailRepository.findTotalTicketSalesByYear(yearDate);
+    @Override
+    public Double getTicketAmountByDay(LocalDate dayDate){
+        Double ticketCount = ticketSalesDetailRepository.findTotalTicketSalesAmountByDate(dayDate);
+
         if(ticketCount == null){
-            throw new RuntimeException("ticketCount is zero for a year");
+            return null;
+        }
+        return ticketCount;
+    }
+    @Override
+    public Double getTicketAmountByWeek(LocalDate weekDate){
+        Double ticketCount = ticketSalesDetailRepository.findTotalTicketSalesAmountByWeek(weekDate);
+
+        if(ticketCount == null){
+            return null;
+        }
+        return ticketCount;
+    }
+    @Override
+    public Double getTicketAmountByMonth(LocalDate monthDate){
+        Double ticketCount = ticketSalesDetailRepository.findTotalTicketSalesAmountByMonth(monthDate);
+
+        if(ticketCount == null){
+            return null;
+        }
+        return ticketCount;
+    }
+
+    @Override
+    public Double getTicketAmountByYear(LocalDate yearDate){
+        Double ticketCount = ticketSalesDetailRepository.findTotalTicketSalesAmountByYear(yearDate);
+        if(ticketCount == null){
+            return null;
         }
         return ticketCount;
     }

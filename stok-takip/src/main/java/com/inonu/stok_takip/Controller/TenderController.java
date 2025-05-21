@@ -31,6 +31,14 @@ public class TenderController {
         List<TenderResponse> tenderResponses = tenderService.getAllTenders();
         return new ResponseEntity<>(RestResponse.of(tenderResponses), HttpStatus.OK);
     }
+
+    @GetMapping("/activeTender")
+    public ResponseEntity<RestResponse<List<TenderResponse>>> getActiveTender() {
+        List<TenderResponse> tenderResponses = tenderService.getAllActiveTenders();
+        return new ResponseEntity<>(RestResponse.of(tenderResponses), HttpStatus.OK);
+    }
+
+
     @PostMapping("/increaseTender/{tenderId}/{increasedQuantity}")
     public ResponseEntity<RestResponse<TenderResponse>> increaseTender(@PathVariable Long tenderId, @PathVariable Double increasedQuantity) {
         TenderResponse tenderResponse = tenderService.increaseTenderByTwentyPercent(tenderId,increasedQuantity);

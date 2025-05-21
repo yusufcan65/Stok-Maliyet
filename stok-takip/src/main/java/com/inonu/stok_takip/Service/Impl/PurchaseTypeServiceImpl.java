@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeAlreadyExistsException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
 import com.inonu.stok_takip.Repositoriy.PurchaseTypeRepository;
 import com.inonu.stok_takip.Service.PurchaseTypeService;
@@ -15,9 +16,11 @@ import java.util.stream.Collectors;
 public class PurchaseTypeServiceImpl implements PurchaseTypeService {
 
     private final PurchaseTypeRepository repository;
+    private final PurchaseTypeRepository purchaseTypeRepository;
 
-    public PurchaseTypeServiceImpl(PurchaseTypeRepository repository) {
+    public PurchaseTypeServiceImpl(PurchaseTypeRepository repository, PurchaseTypeRepository purchaseTypeRepository) {
         this.repository = repository;
+        this.purchaseTypeRepository = purchaseTypeRepository;
     }
 
     @Override
@@ -27,6 +30,12 @@ public class PurchaseTypeServiceImpl implements PurchaseTypeService {
 
     @Override
     public PurchaseTypeResponse create(PurchaseTypeCreateRequest request) {
+
+        PurchaseType existing = getPurchaseTypeByName(request.name());
+        if (existing != null) {
+            throw new PurchaseTypeAlreadyExistsException("Bu isimde bir alım türü zaten mevcut: " + request.name());
+        }
+
         PurchaseType type = new PurchaseType();
         type.setName(request.name());
         return mapToResponse(repository.save(type));
@@ -42,6 +51,10 @@ public class PurchaseTypeServiceImpl implements PurchaseTypeService {
     @Override
     public PurchaseType getPurchaseTypeById(Long id) {
         return repository.findById(id).orElseThrow(() -> new PurchaseTypeNotFoundException("PurchaseType not found: " + id));
+    }
+
+    private PurchaseType getPurchaseTypeByName(String name) {
+        return purchaseTypeRepository.findByName(name);
     }
 
     @Override

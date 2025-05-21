@@ -19,6 +19,7 @@ public class MaterialExit extends BaseEntity{
     private LocalDate exitDate;// ürünün depodan çıkış tarihi
     private String recipient; // ürünü alan birim
     private int totalPerson; // mevcud sayısı
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "product_id",nullable = false)
@@ -79,5 +80,13 @@ public class MaterialExit extends BaseEntity{
 
     public void setTotalPerson(int totalPerson) {
         this.totalPerson = totalPerson;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

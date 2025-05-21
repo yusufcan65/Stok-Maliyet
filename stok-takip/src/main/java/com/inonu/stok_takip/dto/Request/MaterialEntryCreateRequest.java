@@ -16,5 +16,7 @@ public record MaterialEntryCreateRequest(
     EntrySourceType entrySourceType,
     Long purchaseUnitId,
     Long purchaseTypeId,
-    Long tenderId
+    Long tenderId,
+    Long directProcurementId,
+    Long purchaseFormId
 ) {}
