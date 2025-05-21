@@ -1,14 +1,9 @@
 package com.inonu.stok_takip.Controller;
 
-import com.inonu.stok_takip.Service.ProductService;
 import com.inonu.stok_takip.Service.PurchaseFormService;
-import com.inonu.stok_takip.dto.Request.ProductCreateRequest;
-import com.inonu.stok_takip.dto.Request.ProductUpdateRequest;
 import com.inonu.stok_takip.dto.Request.PurchaseFormCreateRequest;
-import com.inonu.stok_takip.dto.Response.ProductResponse;
 import com.inonu.stok_takip.dto.Response.PurchaseFormResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
-import com.inonu.stok_takip.entitiy.Product;
 import com.inonu.stok_takip.entitiy.PurchaseForm;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +39,9 @@ public class PurchaseFormController {
         return new ResponseEntity<>(RestResponse.of(purchaseFormResponseList), HttpStatus.OK);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<RestResponse<PurchaseFormResponse>> updatePurchaseForm(@RequestBody PurchaseFormCreateRequest request) {
-        PurchaseFormResponse purchaseFormResponse = purchaseFormService.updatePurchaseForm(request);
+    @PutMapping("/update/{id}")
+    public ResponseEntity<RestResponse<PurchaseFormResponse>> updatePurchaseForm(@PathVariable Long id,@RequestBody PurchaseFormCreateRequest request) {
+        PurchaseFormResponse purchaseFormResponse = purchaseFormService.updatePurchaseForm(id,request);
         return new ResponseEntity<>(RestResponse.of(purchaseFormResponse), HttpStatus.OK);
     }
 

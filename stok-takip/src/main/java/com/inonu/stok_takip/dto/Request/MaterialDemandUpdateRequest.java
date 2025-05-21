@@ -5,6 +5,6 @@ import java.time.LocalDate;
 public record MaterialDemandUpdateRequest(
         Long id,
         Double quantity,
-        Long userId
+        String userName
 ) {
 }

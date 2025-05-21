@@ -2,13 +2,12 @@ package com.inonu.stok_takip.dto.Response;
 
 import java.time.LocalDate;
 
-public record TenderResponse (
+public record DirectProcurementResponse(
         Long id,
-        Double tenderQuantity,
-        Double remainingQuantityInTender,
+        Double quantity,
+        Double remainingQuantity,
         LocalDate startDate,
         LocalDate endDate,
-        Boolean increased,
         Boolean active,
         Double unitPrice,
         Double totalAmount,
@@ -18,5 +17,6 @@ public record TenderResponse (
         String measurementTypeName,
         String purchasedUnitName,
         String purchaseTypeName,
-        String purchaseFormName){
+        String purchaseFormName
+) {
 }

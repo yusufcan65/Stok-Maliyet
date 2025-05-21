@@ -11,7 +11,9 @@ public record TenderCreateRequest(
         String companyName,
         Long purchasedUnitId,
         Long purchaseTypeId,
-        Long purchaseFormId
+        Long purchaseFormId,
+        String description,
+        Long budgetId
 
 ) {
 }

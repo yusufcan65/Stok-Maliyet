@@ -1,6 +1,5 @@
 package com.inonu.stok_takip.Controller;
 
-import com.inonu.stok_takip.Enum.DemandStatus;
 import com.inonu.stok_takip.Service.MaterialDemandService;
 import com.inonu.stok_takip.dto.Request.MaterialDemandApprovedRequest;
 import com.inonu.stok_takip.dto.Request.MaterialDemandCreateRequest;
@@ -24,13 +23,14 @@ public class MaterialDemandController {
         this.materialDemandService = materialDemandService;
     }
 
+    // talep onaylama metodu
     @PostMapping("/approve")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> approveMaterialDemand(@RequestBody MaterialDemandApprovedRequest request) {
         MaterialDemandResponse materialDemandResponse =  materialDemandService.approveAndProcessMaterialDemand(request);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
 
-
+    // talep reddetme metodu
     @PostMapping("/reject/{id}")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> updateDemandStatus(
             @PathVariable Long id,
@@ -40,10 +40,16 @@ public class MaterialDemandController {
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse),HttpStatus.OK);
     }
 
-
+    // İhaleden talep olulturma metodu
     @PostMapping("/create")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> createMaterialDemand(@RequestBody MaterialDemandCreateRequest request) {
         MaterialDemandResponse materialDemandResponse = materialDemandService.createMaterialDemand(request);
+        return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
+    }
+    // doğrudan teminden talep oluşturma metodu
+    @PostMapping("/create/directProcurement")
+    public ResponseEntity<RestResponse<MaterialDemandResponse>> createDirectProcurement(@RequestBody MaterialDemandCreateRequest request) {
+        MaterialDemandResponse materialDemandResponse = materialDemandService.createMaterialDemandForDirectProcurement(request);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
 

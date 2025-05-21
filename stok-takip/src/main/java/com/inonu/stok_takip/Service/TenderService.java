@@ -11,6 +11,7 @@ public interface TenderService {
 
     TenderResponse createTender(TenderCreateRequest request);
     List<TenderResponse> getAllTenders();
+    List<TenderResponse> getAllActiveTenders();
     TenderResponse updateTenderRemainingQuantity(Long tenderId, Double quantity);
     Tender getTenderById(Long id);
     TenderResponse increaseTenderByTwentyPercent(Long tenderId,Double increasedQuantity);

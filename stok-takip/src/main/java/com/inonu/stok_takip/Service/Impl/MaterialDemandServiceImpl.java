@@ -13,6 +13,7 @@ import com.inonu.stok_takip.dto.Request.MaterialDemandCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialDemandUpdateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Response.MaterialDemandResponse;
+import com.inonu.stok_takip.entitiy.DirectProcurement;
 import com.inonu.stok_takip.entitiy.MaterialDemand;
 import com.inonu.stok_takip.entitiy.Product;
 import com.inonu.stok_takip.entitiy.Tender;
@@ -28,18 +29,19 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     private final MaterialDemandRepository materialDemandRepository;
     private final MaterialEntryService materialEntryService;
     private final TenderService tenderService;
+    private final DirectProcurementService directProcurementService;
 
     public MaterialDemandServiceImpl(MaterialDemandRepository materialDemandRepository,
                                      MaterialEntryService materialEntryService,
-                                     TenderService tenderService) {
+                                     TenderService tenderService, DirectProcurementService directProcurementService) {
         this.materialDemandRepository = materialDemandRepository;
         this.materialEntryService = materialEntryService;
         this.tenderService = tenderService;
+        this.directProcurementService = directProcurementService;
     }
 
     // bundan sonrası onaylama yapısı için eklendi
 
- // bu metot şimdilik tamam
     @Override
     public void checkStockAvailabilityByProductInTender(Long productId, Double requestedQuantity) {
         Tender tender = getByProductIdOrderedByEntryDate(productId);
@@ -60,13 +62,13 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     }
 
 
-// bundan sonrası eski yapıdaki yapı
+    // bundan sonrası eski yapıdaki yapı
     @Override
     public MaterialDemandResponse createMaterialDemand(MaterialDemandCreateRequest request) {
         // 1. Stok kontrolü yap
-        checkStockAvailabilityByProductInTender(request.productId(), request.quantity());
+        //checkStockAvailabilityByProductInTender(request.productId(), request.quantity());
 
-        Tender tender = getByProductIdOrderedByEntryDate(request.productId());
+        Tender tender = tenderService.getTenderById(request.tenderId());
 
         // 2. Ürün  nesnesini al
         Product product = tender.getProduct();
@@ -84,12 +86,34 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         return mapToResponse(savedDemand);
     }
 
+    @Override
+    public MaterialDemandResponse createMaterialDemandForDirectProcurement(MaterialDemandCreateRequest request) {
+
+        DirectProcurement directProcurement = directProcurementService.getDirectProcurementById(request.directProcurementId());
+
+
+
+        Product product = directProcurement.getProduct();
+        MaterialDemand materialDemand = mapToEntity(request);
+        materialDemand.setProduct(product);
+        materialDemand.setCompanyName(directProcurement.getCompanyName());
+        materialDemand.setPurchaseForm(directProcurement.getPurchaseForm());
+        materialDemand.setDirectProcurement(directProcurement);
+        materialDemand.setStatus(DemandStatus.PENDING);
+       // materialDemand.setTender(null);  düşünülebilir
+
+        MaterialDemand savedDemand = materialDemandRepository.save(materialDemand);
+        return mapToResponse(savedDemand);
+
+    }
+
     // talebin kabul edilmesi ve stoğa eklenmesi
     @Override
     @Transactional
     public MaterialDemandResponse approveAndProcessMaterialDemand(MaterialDemandApprovedRequest request) {
+
         MaterialDemand demand = materialDemandRepository.findById(request.materialDemandId())
-                .orElseThrow(() -> new RuntimeException("Talep bulunamadı"));
+                .orElseThrow(() -> new MaterialDemandNotFoundException("Talep bulunamadı"));
 
         if (demand.getStatus() != DemandStatus.PENDING) {
             throw new RuntimeException("Talep " + demand.getStatus() + " edildiğinden dolayı işlem gerçekleştirilemedi.");
@@ -97,19 +121,38 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
 
         // Talebi onayla ve stoğa ürünün ekle
 
+        if(demand.getTender() != null){
 
         MaterialEntryCreateRequest materialEntryCreateRequest = new MaterialEntryCreateRequest(
                 demand.getQuantity(), demand.getTender().getUnitPrice(),request.entryDate(),request.expiryDate(),
                 demand.getCompanyName(), request.description(), demand.getTender().getProduct().getId(),
                 request.budgetId(), EntrySourceType.IHALE,demand.getTender().getPurchasedUnit().getId(),
-                demand.getTender().getPurchaseType().getId(),demand.getTender().getId()
-        );
+                demand.getTender().getPurchaseType().getId(),demand.getTender().getId(),null,
+                demand.getTender().getPurchaseForm().getId());
 
-        tenderService.updateTenderRemainingQuantity(demand.getTender().getId(), demand.getQuantity());
 
-        demand.setStatus(DemandStatus.APPROVED);
 
-        materialEntryService.createMaterialEntry(materialEntryCreateRequest);
+            tenderService.updateTenderRemainingQuantity(demand.getTender().getId(), demand.getQuantity());
+            demand.setStatus(DemandStatus.APPROVED);
+            materialEntryService.createMaterialEntry(materialEntryCreateRequest);
+
+        }
+        else{
+            MaterialEntryCreateRequest materialEntryCreateRequest = new MaterialEntryCreateRequest(
+                    demand.getQuantity(), demand.getDirectProcurement().getUnitPrice(),request.entryDate(),request.expiryDate(),
+                    demand.getCompanyName(), request.description(), demand.getDirectProcurement().getProduct().getId(),
+                    request.budgetId(), EntrySourceType.DOGRUDAN_TEMIN,demand.getDirectProcurement().getPurchasedUnit().getId(),
+                    demand.getDirectProcurement().getPurchaseType().getId(),null,demand.getDirectProcurement().getId(),
+                    demand.getDirectProcurement().getPurchaseForm().getId());
+
+            System.out.println("direct procurement id: " + demand.getDirectProcurement().getId());
+
+            directProcurementService.updateRemainingQuantity(demand.getDirectProcurement().getId(), demand.getQuantity());
+            demand.setStatus(DemandStatus.APPROVED);
+            materialEntryService.createMaterialEntry(materialEntryCreateRequest);
+        }
+
+
 
         MaterialDemand savedDemand =  materialDemandRepository.save(demand);
 
@@ -159,7 +202,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         checkStockAvailabilityByProductInTender(materialDemand.getProduct().getId(), request.quantity());
 
         materialDemand.setQuantity(request.quantity());
-        materialDemand.setUserId(request.userId());
+        materialDemand.setUserName(request.userName());
 
         MaterialDemand updatedDemand = materialDemandRepository.save(materialDemand);
         return mapToResponse(updatedDemand);
@@ -185,7 +228,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         MaterialDemandResponse materialDemandResponse = new MaterialDemandResponse();
         materialDemandResponse.setId(materialDemand.getId());
         materialDemandResponse.setCompanyName(materialDemand.getCompanyName());
-        materialDemandResponse.setUserId(materialDemand.getUserId());
+        materialDemandResponse.setUserName(materialDemand.getUserName());
         materialDemandResponse.setQuantity(materialDemand.getQuantity());
         materialDemandResponse.setRequestDate(materialDemand.getRequestDate());
         materialDemandResponse.setProductId(materialDemand.getProduct().getId());
@@ -206,7 +249,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         MaterialDemand materialDemand = new MaterialDemand();
         materialDemand.setQuantity(request.quantity());
         materialDemand.setRequestDate(request.requestDate());
-        materialDemand.setUserId(request.userId());
+        materialDemand.setUserName(request.userName());
         return materialDemand;
     }
 }

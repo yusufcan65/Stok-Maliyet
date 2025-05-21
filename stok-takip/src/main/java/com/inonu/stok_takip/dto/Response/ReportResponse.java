@@ -12,14 +12,17 @@ public class ReportResponse {
     private Double totalTicketPrice;
     private int totalPersonQuantity; 
     private Double totalMaterialPrice;
-    private Double totalCleanPrice; 
     private Double averagePersonCost; 
     private Double averageTicketCost;
+    private int leftoverMealCount;
 
     public ReportResponse() {
     }
 
-    public ReportResponse(Long id, ReportType reportType, LocalDate reportCreateDate, int ticketQuantity, Double totalTicketPrice, int totalPersonQuantity, Double totalMaterialPrice, Double totalCleanPrice, Double averagePersonCost, Double averageTicketCost) {
+    public ReportResponse(Long id, ReportType reportType, LocalDate reportCreateDate,
+                          int ticketQuantity, Double totalTicketPrice, int totalPersonQuantity,
+                          Double totalMaterialPrice, Double averagePersonCost, Double averageTicketCost,
+                            int leftoverMealCount) {
         this.id = id;
         this.reportType = reportType;
         this.reportCreateDate = reportCreateDate;
@@ -27,9 +30,9 @@ public class ReportResponse {
         this.totalTicketPrice = totalTicketPrice;
         this.totalPersonQuantity = totalPersonQuantity;
         this.totalMaterialPrice = totalMaterialPrice;
-        this.totalCleanPrice = totalCleanPrice;
         this.averagePersonCost = averagePersonCost;
         this.averageTicketCost = averageTicketCost;
+        this.leftoverMealCount = leftoverMealCount;
     }
 
     public Long getId() {
@@ -88,14 +91,6 @@ public class ReportResponse {
         this.totalMaterialPrice = totalMaterialPrice;
     }
 
-    public Double getTotalCleanPrice() {
-        return totalCleanPrice;
-    }
-
-    public void setTotalCleanPrice(Double totalCleanPrice) {
-        this.totalCleanPrice = totalCleanPrice;
-    }
-
     public Double getAveragePersonCost() {
         return averagePersonCost;
     }
@@ -110,5 +105,13 @@ public class ReportResponse {
 
     public void setAverageTicketCost(Double averageTicketCost) {
         this.averageTicketCost = averageTicketCost;
+    }
+
+    public int getLeftoverMealCount() {
+        return leftoverMealCount;
+    }
+
+    public void setLeftoverMealCount(int leftoverMealCount) {
+        this.leftoverMealCount = leftoverMealCount;
     }
 }

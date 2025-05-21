@@ -56,7 +56,6 @@ public class TenderServiceImpl implements TenderService {
         tender.setPurchaseType(purchaseType);
         tender.setPurchasedUnit(purchasedUnit);
         tender.setRemainingQuantityInTender(tender.getTenderQuantity());
-        tender.setTotalAmount(totalAmount);
 
         Tender savedTender = tenderRepository.save(tender);
 
@@ -72,8 +71,13 @@ public class TenderServiceImpl implements TenderService {
     }
 
     @Override
-    public List<TenderResponse> getAllTenders() {
+    public List<TenderResponse> getAllActiveTenders() {
         List<Tender> tenders = tenderRepository.findTenderByActiveTrue();
+        return mapToResponseList(tenders);
+    }
+    @Override
+    public List<TenderResponse> getAllTenders(){
+        List<Tender> tenders = tenderRepository.findAll();
         return mapToResponseList(tenders);
     }
 
@@ -204,6 +208,7 @@ public class TenderServiceImpl implements TenderService {
                 tender.getStartDate(),
                 tender.getEndDate(),
                 tender.isIncreased(),
+                tender.isActive(),
                 tender.getUnitPrice(),
                 tender.getTotalAmount(),
                 tender.getCompanyName(),

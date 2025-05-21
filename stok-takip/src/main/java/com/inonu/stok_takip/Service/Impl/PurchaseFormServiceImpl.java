@@ -4,8 +4,11 @@ import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException
 import com.inonu.stok_takip.Repositoriy.PurchaseFormRepository;
 import com.inonu.stok_takip.Service.PurchaseFormService;
 import com.inonu.stok_takip.dto.Request.PurchaseFormCreateRequest;
+import com.inonu.stok_takip.dto.Request.PurchaseTypeCreateRequest;
 import com.inonu.stok_takip.dto.Response.PurchaseFormResponse;
+import com.inonu.stok_takip.dto.Response.PurchaseTypeResponse;
 import com.inonu.stok_takip.entitiy.PurchaseForm;
+import com.inonu.stok_takip.entitiy.PurchaseType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +39,10 @@ public class PurchaseFormServiceImpl implements PurchaseFormService {
     }
 
     @Override
-    public PurchaseFormResponse updatePurchaseForm(PurchaseFormCreateRequest request) {
-        return null;
+    public PurchaseFormResponse updatePurchaseForm(Long id, PurchaseFormCreateRequest request) {
+        PurchaseForm form = getPurchaseFormById(id);
+        form.setName(request.name());
+        return mapToResponse(purchaseFormRepository.save(form));
     }
 
     @Override

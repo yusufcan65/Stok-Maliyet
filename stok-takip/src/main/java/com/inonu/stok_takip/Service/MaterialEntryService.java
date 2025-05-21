@@ -1,15 +1,11 @@
 package com.inonu.stok_takip.Service;
 
-import com.inonu.stok_takip.Enum.EntrySourceType;
-import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
-import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
-import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
+import com.inonu.stok_takip.dto.Response.*;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
 
 import java.util.List;
-import java.util.Map;
 
 public interface MaterialEntryService {
 
@@ -26,5 +22,9 @@ public interface MaterialEntryService {
     Double getTotalRemainingQuantity(Long productId);
 
     List<MaterialEntryDetailResponse> getMaterialEntryDetails();
+
+    List<GroupMaterialEntryResponse> getGroupedMaterialEntries();
+    List<MaterialEntrySpendResponse> getTotalSpentGroupedByBudget();
+    List<MaterialEntryProductsForMaterialExitResponse> getMaterialEntriesForExit();
 }
 

@@ -1,20 +1,15 @@
 package com.inonu.stok_takip.Controller;
 
-import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Service.MaterialEntryService;
-import com.inonu.stok_takip.dto.Request.DateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryCreateRequest;
 import com.inonu.stok_takip.dto.Request.MaterialEntryUpdateRequest;
-import com.inonu.stok_takip.dto.Response.MaterialEntryDetailResponse;
-import com.inonu.stok_takip.dto.Response.MaterialEntryResponse;
-import com.inonu.stok_takip.dto.Response.RestResponse;
+import com.inonu.stok_takip.dto.Response.*;
 import com.inonu.stok_takip.entitiy.MaterialEntry;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/materialEntry")
@@ -55,7 +50,7 @@ public class MaterialEntryController {
         MaterialEntryResponse materialEntryResponse = materialEntryService.deleteMaterialEntry(id);
         return new ResponseEntity<>(RestResponse.of(materialEntryResponse), HttpStatus.OK);
     }
-    // devir eden api
+    // devir işlemi yapan api
     @PostMapping("/carry-over")
     public ResponseEntity<RestResponse<List<MaterialEntryResponse>>> carryOverEntriesToNextYear(){
         List<MaterialEntryResponse> materialEntryResponses = materialEntryService.carryOverEntriesToNextYear();
@@ -63,9 +58,30 @@ public class MaterialEntryController {
     }
 
 
+    //bu metot yıl içinde depoya giren tüm malzemeler ve nasıl girdikleri ile ilgili bilgileir döndürür
     @GetMapping("/getAllDetail")
     public ResponseEntity<RestResponse<List<MaterialEntryDetailResponse>>> getAllDetail() {
         List<MaterialEntryDetailResponse> materialEntryDetailResponses = materialEntryService.getMaterialEntryDetails();
         return new ResponseEntity<>(RestResponse.of(materialEntryDetailResponses), HttpStatus.OK);
+    }
+
+    // anasayfada yer alan malzemelerr buradan gönderiliyor
+    @GetMapping("/getAllProductDetail")
+    public ResponseEntity<RestResponse<List<GroupMaterialEntryResponse>>> getGroupedMaterialEntries( ){
+        List<GroupMaterialEntryResponse> groupedMaterialEntryResponses = materialEntryService.getGroupedMaterialEntries();
+        return new ResponseEntity<>(RestResponse.of(groupedMaterialEntryResponses), HttpStatus.OK);
+    }
+    // bütçelere göre gruplama
+    @GetMapping("/getBudgetsGroup")
+    public ResponseEntity<RestResponse<List<MaterialEntrySpendResponse>>> getSpendsInYear(){
+        List<MaterialEntrySpendResponse> materialEntrySpendResponses = materialEntryService.getTotalSpentGroupedByBudget();
+        return new ResponseEntity<>(RestResponse.of(materialEntrySpendResponses), HttpStatus.OK);
+    }
+
+    // malzeme çıkışı yapılacağı zaman depoda yer alan ürünleri ve ne kadar kaldığını sunar
+    @GetMapping("/getMaterialsByMaterialExit")
+    public ResponseEntity<RestResponse<List<MaterialEntryProductsForMaterialExitResponse>>> getMaterialsByMaterialExit(){
+        List<MaterialEntryProductsForMaterialExitResponse> materialEntryProductsForMaterialExitResponses = materialEntryService.getMaterialEntriesForExit();
+        return new ResponseEntity<>(RestResponse.of(materialEntryProductsForMaterialExitResponses), HttpStatus.OK);
     }
  }

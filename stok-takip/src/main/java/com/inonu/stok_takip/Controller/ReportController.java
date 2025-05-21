@@ -47,23 +47,5 @@ public class ReportController {
         ReportResponse reportResponse = reportService.getReportByDate(date,reportType);
         return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
     }
-/*
 
-    @GetMapping("/{id}")
-    public ResponseEntity<RestResponse<Report>> getReportById(@PathVariable Long id) {
-        Report report = reportService.getReportById(id);
-        return new ResponseEntity<>(RestResponse.of(report),HttpStatus.OK);
-    }
-    @PutMapping("/update/{id}")
-    public ResponseEntity<RestResponse<ReportResponse>> updateReport(@PathVariable Long id, @RequestBody ReportCreateRequest request) {
-        ReportResponse reportResponse = reportService.updateReport(request);
-        return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
-    }
-
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<RestResponse<ReportResponse>> deleteReport(@PathVariable Long id) {
-        ReportResponse reportResponse = reportService.deleteReport(id);
-        return new ResponseEntity<>(RestResponse.of(reportResponse), HttpStatus.OK);
-    }
-*/
 }

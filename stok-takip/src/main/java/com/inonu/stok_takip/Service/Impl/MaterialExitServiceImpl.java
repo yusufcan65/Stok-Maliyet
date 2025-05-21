@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.MaterialExit.InsufficientStockException;
 import com.inonu.stok_takip.Exception.MaterialExit.MaterialExitNotFoundException;
 import com.inonu.stok_takip.Repositoriy.MaterialExitRepository;
 import com.inonu.stok_takip.Service.MaterialEntryService;
@@ -69,7 +70,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
             double deductedQuantity = Math.min(remainingQuantityToDeduct, materialEntry.getRemainingQuantity());
             remainingQuantityToDeduct -= deductedQuantity;
 
-            productCost += deductedQuantity * materialEntry.getUnitPrice();
+            productCost += deductedQuantity * materialEntry.getUnitPriceIncludingVat();
             productQuantity += deductedQuantity;
 
             entriesUsedForExit.add(materialEntry);
@@ -96,6 +97,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         materialExit.setExitDate(request.exitDate());
         materialExit.setRecipient(request.recipient());
         materialExit.setTotalPerson(request.totalPerson());
+        materialExit.setDescription(request.description());
         return materialExit;
     }
     private void updateMaterialEntriesStock(List<MaterialEntry> entriesUsedForExit, double totalQuantity) {
@@ -119,7 +121,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
             Double stock = materialEntryService.getTotalRemainingQuantity(productId);
             if (stock == null || stock < quantity) {
-                throw new RuntimeException("Yetersiz stok! Ürün ID: ");
+                throw new InsufficientStockException("Stok yetersiz ");
             }
         }
     }
@@ -218,7 +220,16 @@ public class MaterialExitServiceImpl implements MaterialExitService {
 
         Double totalAmount = materialExitRepository.findNonCleaningTotalByExitDate(date);
         if (totalAmount == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return null;
+        }
+        return totalAmount;
+    }
+
+    //bir haftalık depodan çıkan toplam mazlzeme tutarları
+    public Double getMaterialsByWeek(LocalDate date){
+        Double totalAmount = materialExitRepository.findTotalByWeek(date);
+        if (totalAmount == null) {
+            return null;
         }
         return totalAmount;
     }
@@ -228,7 +239,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     public Double getMaterialsByMonthAndYear(LocalDate monthDate) {
         Double totalAmount = materialExitRepository.findTotalByMonth(monthDate);;
         if (totalAmount == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return null;
         }
         return totalAmount;
     }
@@ -238,7 +249,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     public Double getMaterialsByYear(LocalDate yearDate) {
         Double totalAmount = materialExitRepository.findTotalByYear(yearDate);
         if (totalAmount == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return null;
         }
         return totalAmount;
     }
@@ -249,7 +260,15 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     public Integer numberMealsInDay(LocalDate dayDate){
         Integer totalPerson = materialExitRepository.findTotalPersonsByDay(dayDate);
         if (totalPerson == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return 0;
+        }
+        return totalPerson;
+    }
+    @Override
+    public Integer numberMealsInWeek(LocalDate weekDate){
+        Integer totalPerson = materialExitRepository.findTotalPersonsByWeek(weekDate);
+        if (totalPerson == null) {
+            return 0;
         }
         return totalPerson;
     }
@@ -257,7 +276,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     public Integer numberMealsInMonth(LocalDate monthDate){
         Integer totalPerson = materialExitRepository.findTotalPersonsByMonth(monthDate);
         if (totalPerson == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return 0;
         }
         return totalPerson;
     }
@@ -265,7 +284,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
     public Integer numberMealsInYear(LocalDate yearDate){
         Integer totalPerson = materialExitRepository.findTotalPersonsByYear(yearDate);
         if (totalPerson == null) {
-            throw new RuntimeException("material exit value is null for this day");
+            return 0;
         }
         return totalPerson;
     }
@@ -337,6 +356,7 @@ public class MaterialExitServiceImpl implements MaterialExitService {
         MaterialExitResponse response = new MaterialExitResponse(
                 materialExit.getUnitPrice(),
                 materialExit.getQuantity(),
+                materialExit.getDescription(),
                 materialExit.getTotalPrice(),
                 materialExit.getExitDate(),
                 materialExit.getRecipient(),

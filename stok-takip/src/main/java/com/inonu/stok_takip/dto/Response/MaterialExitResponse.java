@@ -9,17 +9,19 @@ public class MaterialExitResponse {
     private LocalDate exitDate;
     private String recipient;
     private Long productId;
+    private String description;
 
     public MaterialExitResponse() {
     }
 
-    public MaterialExitResponse(Double unitPrice, Double quantity, Double totalPrice, LocalDate exitDate, String recipient, Long productId) {
+    public MaterialExitResponse(Double unitPrice, Double quantity, String description, Double totalPrice, LocalDate exitDate, String recipient, Long productId) {
         this.unitPrice = unitPrice;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
         this.exitDate = exitDate;
         this.recipient = recipient;
         this.productId = productId;
+        this.description = description;
     }
 
     public Double getUnitPrice() {
@@ -68,5 +70,13 @@ public class MaterialExitResponse {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

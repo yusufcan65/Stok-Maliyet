@@ -10,7 +10,7 @@ public interface PurchaseFormService {
 
     List<PurchaseFormResponse> getAllPurchaseForm();
     PurchaseFormResponse createPurchaseForm(PurchaseFormCreateRequest request);
-    PurchaseFormResponse updatePurchaseForm(PurchaseFormCreateRequest request);
+    PurchaseFormResponse updatePurchaseForm(Long id, PurchaseFormCreateRequest request);
     PurchaseForm getPurchaseFormById(Long id);
     PurchaseFormResponse deletePurchaseForm(Long id);
     PurchaseForm getPurchaseFormNameById(Long id);
