@@ -25,7 +25,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     private final PurchaseTypeService purchaseTypeService;
     private final ProductService productService;
     private final PurchasedUnitService purchasedUnitService;
-    private final PurchaseFormService purchaseFormService;
     private final BudgetService budgetService;
     private final TenderService tenderService;
     private final DirectProcurementService directProcurementService;
@@ -34,14 +33,13 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
     public MaterialEntryServiceImpl(MaterialEntryRepository materialEntryRepository,
                                     PurchaseTypeService purchaseTypeService,
                                     ProductService productService,
-                                    PurchasedUnitService purchasedUnitService, PurchaseFormService purchaseFormService,
+                                    PurchasedUnitService purchasedUnitService,
                                     BudgetService budgetService,
                                     TenderService tenderService, DirectProcurementService directProcurementService) {
         this.materialEntryRepository = materialEntryRepository;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
         this.purchasedUnitService = purchasedUnitService;
-        this.purchaseFormService = purchaseFormService;
         this.budgetService = budgetService;
         this.tenderService = tenderService;
         this.directProcurementService = directProcurementService;
@@ -60,7 +58,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         PurchasedUnit purchasedUnit = purchasedUnitService.getPurchasedUnitById(request.purchaseUnitId());
         PurchaseType purchaseType = purchaseTypeService.getPurchaseTypeById(request.purchaseTypeId());
         Budget budget = budgetService.getBudgetById(request.budgetId());
-        PurchaseForm purchaseForm = purchaseFormService.getPurchaseFormById(request.purchaseFormId());
 
 
         Double totalPrice = request.unitPrice() * request.quantity(); // ürünün toplam fiyatı kdv dahil değil
@@ -91,7 +88,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
         materialEntry.setProduct(product);
         materialEntry.setPurchaseType(purchaseType);
         materialEntry.setPurchasedUnit(purchasedUnit);
-        materialEntry.setPurchaseForm(purchaseForm);
+        materialEntry.setTenderType(request.tenderType());
 
         budgetService.updateBudgetValue(budget.getId(),totalPriceIncludingVat);
 
@@ -126,18 +123,18 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
         Map<String, Map<Long, List<MaterialEntry>>> grouped = entries.stream()
                 .collect(Collectors.groupingBy(
-                        e -> e.getPurchaseForm().getName(),
+                        e -> e.getTenderType().getDescription(),
                         Collectors.groupingBy(e -> e.getProduct().getId())
                 ));
 
         List<GroupMaterialEntryResponse> result = new ArrayList<>();
 
-        for (Map.Entry<String, Map<Long, List<MaterialEntry>>> purchaseFormEntry : grouped.entrySet()) {
-            String purchaseFormName = purchaseFormEntry.getKey();
+        for (Map.Entry<String, Map<Long, List<MaterialEntry>>> TenderTypeEntry : grouped.entrySet()) {
+            String tenderTypeName = TenderTypeEntry.getKey();
             List<MaterialEntryProductResponse> products = new ArrayList<>();
             double totalFormAmount = 0;
 
-            for (List<MaterialEntry> productEntries : purchaseFormEntry.getValue().values()) {
+            for (List<MaterialEntry> productEntries : TenderTypeEntry.getValue().values()) {
                 MaterialEntry sample = productEntries.get(0);
                 double totalQuantity = productEntries.stream().mapToDouble(MaterialEntry::getQuantity).sum();
                 double totalPrice = productEntries.stream().mapToDouble(MaterialEntry::getTotalPrice).sum();
@@ -169,7 +166,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
             }
 
             GroupMaterialEntryResponse dto = new GroupMaterialEntryResponse(
-                    purchaseFormName,
+                    tenderTypeName,
                     totalFormAmount,
                     products
             );
@@ -179,7 +176,6 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
         return result;
     }
-
 
 
     // bu metot yıl içinde depoya giren tüm malzemeler ve nasıl girdikleri ile ilgili bilgileir döndürür
@@ -194,45 +190,31 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
         for (Map.Entry<Long, List<MaterialEntry>> entry : entriesGroupedByProductId.entrySet()) {
             List<MaterialEntry> productEntries = entry.getValue();
-            String productName = productEntries.get(0).getProduct().getName();
-            String measurementType = productEntries.get(0).getProduct().getMeasurementType().getName();
 
-            double totalDevir = productEntries.stream()
+            double totalCarryOver = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.DEVIR)
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double totalIhale = productEntries.stream()
+            double totalTender = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double total22d = productEntries.stream()
+            double totalDirectProcurement = productEntries.stream()
                     .filter(e -> e.getEntrySourceType() == EntrySourceType.DOGRUDAN_TEMIN)
-                    .filter(e -> e.getTender() != null && "22D".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
                     .mapToDouble(MaterialEntry::getQuantity)
                     .sum();
 
-            double total19f = productEntries.stream()
-                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
-                    .filter(e -> e.getTender() != null && "19F".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
-                    .mapToDouble(MaterialEntry::getQuantity)
-                    .sum();
-
-            double total21a = productEntries.stream()
-                    .filter(e -> e.getEntrySourceType() == EntrySourceType.IHALE)
-                    .filter(e -> e.getTender() != null && "21A".equalsIgnoreCase(e.getTender().getPurchaseForm().getName()))
-                    .mapToDouble(MaterialEntry::getQuantity)
-                    .sum();
 
             // Çıkış miktarını hesapla
-            double totalCikis = productEntries.stream()
+            double totalExit = productEntries.stream()
                     .mapToDouble(e ->e.getQuantity() - e.getRemainingQuantity())
                     .sum();
 
 
             // Kalan miktarı hesapla
-            double kalanMiktar = productEntries.stream()
+            double remainingQuantity = productEntries.stream()
                     .mapToDouble(e -> e.getRemainingQuantity())
                     .sum();
 
@@ -249,13 +231,11 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
             // DTO'ya ekle
             MaterialEntryDetailResponse response = new MaterialEntryDetailResponse(
                     productDetailResponse,
-                    totalDevir,
-                    totalIhale,
-                    total22d,
-                    total19f,
-                    total21a,
-                    totalCikis,
-                    kalanMiktar
+                    totalCarryOver,
+                    totalTender,
+                    totalDirectProcurement,
+                    totalExit,
+                    remainingQuantity
             );
 
             responseList.add(response);
@@ -423,7 +403,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 productResponse,
                 materialEntry.getPurchaseType().getName(),
                 materialEntry.getPurchasedUnit().getName(),
-                materialEntry.getEntrySourceType()
+                materialEntry.getEntrySourceType(),
+                materialEntry.getTenderType().getDescription()
         );
 
         return materialEntryResponse;

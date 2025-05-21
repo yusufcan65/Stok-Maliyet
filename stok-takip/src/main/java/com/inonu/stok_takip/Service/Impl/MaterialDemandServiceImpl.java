@@ -2,6 +2,7 @@ package com.inonu.stok_takip.Service.Impl;
 
 import com.inonu.stok_takip.Enum.DemandStatus;
 import com.inonu.stok_takip.Enum.EntrySourceType;
+import com.inonu.stok_takip.Enum.TenderType;
 import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
@@ -55,33 +56,26 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
         }
     }
 
-
     public Tender getByProductIdOrderedByEntryDate(Long productId) {
         return materialDemandRepository.findByProductIdOrderedByEntryDate(productId);
 
     }
 
-
     // bundan sonrası eski yapıdaki yapı
     @Override
-    public MaterialDemandResponse createMaterialDemand(MaterialDemandCreateRequest request) {
-        // 1. Stok kontrolü yap
-        //checkStockAvailabilityByProductInTender(request.productId(), request.quantity());
+    public MaterialDemandResponse createMaterialDemandForTender(MaterialDemandCreateRequest request) {
 
         Tender tender = tenderService.getTenderById(request.tenderId());
 
-        // 2. Ürün  nesnesini al
         Product product = tender.getProduct();
 
-        // 3. MaterialDemand nesnesini oluştur
         MaterialDemand materialDemand = mapToEntity(request);
         materialDemand.setProduct(product);
         materialDemand.setCompanyName(tender.getCompanyName());
-        materialDemand.setPurchaseForm(tender.getPurchaseForm());
+        materialDemand.setTenderType(TenderType.OPEN_TENDER);
         materialDemand.setTender(tender);
-        materialDemand.setStatus(DemandStatus.PENDING); // Talep ilk başta 'pending' olarak ayarlanır
+        materialDemand.setStatus(DemandStatus.PENDING);
 
-        // 4. Kaydet ve response döndür
         MaterialDemand savedDemand = materialDemandRepository.save(materialDemand);
         return mapToResponse(savedDemand);
     }
@@ -91,16 +85,13 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
 
         DirectProcurement directProcurement = directProcurementService.getDirectProcurementById(request.directProcurementId());
 
-
-
         Product product = directProcurement.getProduct();
         MaterialDemand materialDemand = mapToEntity(request);
         materialDemand.setProduct(product);
         materialDemand.setCompanyName(directProcurement.getCompanyName());
-        materialDemand.setPurchaseForm(directProcurement.getPurchaseForm());
         materialDemand.setDirectProcurement(directProcurement);
+        materialDemand.setTenderType(TenderType.DIRECT_PROCUREMENT);
         materialDemand.setStatus(DemandStatus.PENDING);
-       // materialDemand.setTender(null);  düşünülebilir
 
         MaterialDemand savedDemand = materialDemandRepository.save(materialDemand);
         return mapToResponse(savedDemand);
@@ -128,7 +119,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
                 demand.getCompanyName(), request.description(), demand.getTender().getProduct().getId(),
                 request.budgetId(), EntrySourceType.IHALE,demand.getTender().getPurchasedUnit().getId(),
                 demand.getTender().getPurchaseType().getId(),demand.getTender().getId(),null,
-                demand.getTender().getPurchaseForm().getId());
+                demand.getTenderType());
 
 
 
@@ -143,7 +134,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
                     demand.getCompanyName(), request.description(), demand.getDirectProcurement().getProduct().getId(),
                     request.budgetId(), EntrySourceType.DOGRUDAN_TEMIN,demand.getDirectProcurement().getPurchasedUnit().getId(),
                     demand.getDirectProcurement().getPurchaseType().getId(),null,demand.getDirectProcurement().getId(),
-                    demand.getDirectProcurement().getPurchaseForm().getId());
+                    demand.getTenderType());
 
             System.out.println("direct procurement id: " + demand.getDirectProcurement().getId());
 
@@ -227,6 +218,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     private MaterialDemandResponse mapToResponse(MaterialDemand materialDemand) {
         MaterialDemandResponse materialDemandResponse = new MaterialDemandResponse();
         materialDemandResponse.setId(materialDemand.getId());
+        materialDemandResponse.setProductName(materialDemand.getProduct().getName());
         materialDemandResponse.setCompanyName(materialDemand.getCompanyName());
         materialDemandResponse.setUserName(materialDemand.getUserName());
         materialDemandResponse.setQuantity(materialDemand.getQuantity());

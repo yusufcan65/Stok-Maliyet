@@ -2,6 +2,7 @@ package com.inonu.stok_takip.entitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inonu.stok_takip.Enum.EntrySourceType;
+import com.inonu.stok_takip.Enum.TenderType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -43,9 +44,11 @@ public class MaterialEntry extends BaseEntity {
     @JoinColumn(name = "purchaseType_id")
     private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
 
-    @ManyToOne
-    @JoinColumn(name = "purchaseForm_id")
-    private PurchaseForm purchaseForm; // alım şekli 22d/21a-19f
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tender_type")
+    private TenderType tenderType;
+
 
     @ManyToOne
     @JoinColumn(name = "tender_id",nullable = true)
@@ -199,11 +202,12 @@ public class MaterialEntry extends BaseEntity {
         this.directProcurement = directProcurement;
     }
 
-    public PurchaseForm getPurchaseForm() {
-        return purchaseForm;
+
+    public TenderType getTenderType() {
+        return tenderType;
     }
 
-    public void setPurchaseForm(PurchaseForm purchaseForm) {
-        this.purchaseForm = purchaseForm;
+    public void setTenderType(TenderType tenderType) {
+        this.tenderType = tenderType;
     }
 }

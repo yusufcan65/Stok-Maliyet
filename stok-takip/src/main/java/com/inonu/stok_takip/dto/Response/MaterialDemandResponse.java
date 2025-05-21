@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 public class MaterialDemandResponse {
     private Long id;
+    private String productName;
     private Double quantity;
     private String userName;
     private String companyName;
@@ -20,7 +21,7 @@ public class MaterialDemandResponse {
     public MaterialDemandResponse(Long id, Double quantity, String companyName,
                                   String rejectionReason,LocalDate requestDate,
                                   Long productId, DemandStatus demandStatus,
-                                  String userName) {
+                                  String userName, String productName) {
         this.id = id;
         this.quantity = quantity;
         this.companyName = companyName;
@@ -29,6 +30,7 @@ public class MaterialDemandResponse {
         this.productId = productId;
         this.demandStatus = demandStatus;
         this.userName = userName;
+        this.productName = productName;
     }
 
     public Long getId() {
@@ -94,5 +96,13 @@ public class MaterialDemandResponse {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 }

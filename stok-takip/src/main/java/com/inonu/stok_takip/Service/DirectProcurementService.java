@@ -8,10 +8,13 @@ import java.util.List;
 
 public interface DirectProcurementService {
 
-    DirectProcurement createDirectProcurement(DirectProcurementCreateRequest request);
+    DirectProcurementResponse createDirectProcurement(DirectProcurementCreateRequest request);
     List<DirectProcurementResponse> getAllDirectProcurements();
     DirectProcurement getDirectProcurementById(Long id);
     DirectProcurementResponse updateRemainingQuantity(Long directProcurementId, Double quantity);
     List<DirectProcurementResponse> getDirectProcurementsByProductAndCompany();
+    DirectProcurementResponse increaseDirectProcurementByTwentyPercent(Long directProcurementId, Double increasedQuantity);
+    void handleDirectProcurementsAtYearEnd();
+    List<DirectProcurementResponse> getAllActiveDirectProcurements();
 
 }

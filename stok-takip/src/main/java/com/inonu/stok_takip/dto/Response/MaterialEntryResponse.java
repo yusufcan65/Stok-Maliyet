@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.dto.Response;
 
 import com.inonu.stok_takip.Enum.EntrySourceType;
+import com.inonu.stok_takip.Enum.TenderType;
 
 import java.time.LocalDate;
 
@@ -17,6 +18,8 @@ public class MaterialEntryResponse {
     private ProductDetailResponse productResponse;
     private String purchaseTypeName;
     private String purchasedUnitName;
+    private String tenderType;
+
 
     public MaterialEntryResponse() {
     }
@@ -26,7 +29,8 @@ public class MaterialEntryResponse {
                                  String companyName, String description,
                                  Double totalPrice, Double totalPriceIncludingVat,
                                  ProductDetailResponse productResponse, String purchaseTypeName,
-                                 String purchasedUnitName, EntrySourceType entrySourceType) {
+                                 String purchasedUnitName, EntrySourceType entrySourceType,
+                                 String tenderType) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.entryDate = entryDate;
@@ -39,6 +43,7 @@ public class MaterialEntryResponse {
         this.purchaseTypeName = purchaseTypeName;
         this.purchasedUnitName = purchasedUnitName;
         this.entrySourceType = entrySourceType;
+        this.tenderType = tenderType;
     }
 
     public Double getQuantity() {
@@ -136,5 +141,13 @@ public class MaterialEntryResponse {
 
     public void setEntrySourceType(EntrySourceType entrySourceType) {
         this.entrySourceType = entrySourceType;
+    }
+
+    public String getTenderType() {
+        return tenderType;
+    }
+
+    public void setTenderType(String tenderType) {
+        this.tenderType = tenderType;
     }
 }

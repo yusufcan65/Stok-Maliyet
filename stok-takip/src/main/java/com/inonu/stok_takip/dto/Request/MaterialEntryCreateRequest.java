@@ -1,6 +1,7 @@
 package com.inonu.stok_takip.dto.Request;
 
 import com.inonu.stok_takip.Enum.EntrySourceType;
+import com.inonu.stok_takip.Enum.TenderType;
 
 import java.time.LocalDate;
 
@@ -18,5 +19,5 @@ public record MaterialEntryCreateRequest(
     Long purchaseTypeId,
     Long tenderId,
     Long directProcurementId,
-    Long purchaseFormId
+    TenderType tenderType
 ) {}

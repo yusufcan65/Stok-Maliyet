@@ -1,10 +1,8 @@
 package com.inonu.stok_takip.entitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import com.inonu.stok_takip.Enum.TenderType;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,6 +18,15 @@ public class DirectProcurement extends BaseEntity{ // dpğrudan Temin tablosu
     private String companyName; // doğrudan teminin yapıldığı firma
     private Double totalAmount; // doğrudan temin bedeli
     private boolean active = true; // doğrudan temin süresi dolan ihaleler silinirse pasife çekecek şekilde güncller  silinme olmaz çünkü ihaleden alına ürün depoda kalma durumu var
+    private boolean increased = false;
+
+    public boolean isIncreased() {
+        return increased;
+    }
+
+    public void setIncreased(boolean increased) {
+        this.increased = increased;
+    }
 
     @ManyToOne
     @JoinColumn(name = "product_id",nullable = false)
@@ -35,12 +42,13 @@ public class DirectProcurement extends BaseEntity{ // dpğrudan Temin tablosu
     @JoinColumn(name = "purchaseType_id")
     private PurchaseType purchaseType; // alım türü  mal/ hizmet /bakım
 
-    @ManyToOne
-    @JoinColumn(name = "purchaseForm_id")
-    private PurchaseForm purchaseForm; // alım şekli ihale/ devir / vb. 22A - 21D -19F VB.
-
     @OneToMany(mappedBy = "directProcurement")
     private List<MaterialEntry> materialEntries;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tender_type")
+    private TenderType tenderType;
+
 
     public Double getQuantity() {
         return Quantity;
@@ -130,13 +138,6 @@ public class DirectProcurement extends BaseEntity{ // dpğrudan Temin tablosu
         this.purchaseType = purchaseType;
     }
 
-    public PurchaseForm getPurchaseForm() {
-        return purchaseForm;
-    }
-
-    public void setPurchaseForm(PurchaseForm purchaseForm) {
-        this.purchaseForm = purchaseForm;
-    }
 
     public List<MaterialEntry> getMaterialEntries() {
         return materialEntries;
@@ -144,5 +145,13 @@ public class DirectProcurement extends BaseEntity{ // dpğrudan Temin tablosu
 
     public void setMaterialEntries(List<MaterialEntry> materialEntries) {
         this.materialEntries = materialEntries;
+    }
+
+    public TenderType getTenderType() {
+        return tenderType;
+    }
+
+    public void setTenderType(TenderType tenderType) {
+        this.tenderType = tenderType;
     }
 }

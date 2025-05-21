@@ -30,6 +30,7 @@ public class MaterialDemandController {
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
 
+
     // talep reddetme metodu
     @PostMapping("/reject/{id}")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> updateDemandStatus(
@@ -43,7 +44,7 @@ public class MaterialDemandController {
     // İhaleden talep olulturma metodu
     @PostMapping("/create")
     public ResponseEntity<RestResponse<MaterialDemandResponse>> createMaterialDemand(@RequestBody MaterialDemandCreateRequest request) {
-        MaterialDemandResponse materialDemandResponse = materialDemandService.createMaterialDemand(request);
+        MaterialDemandResponse materialDemandResponse = materialDemandService.createMaterialDemandForTender(request);
         return new ResponseEntity<>(RestResponse.of(materialDemandResponse), HttpStatus.OK);
     }
     // doğrudan teminden talep oluşturma metodu

@@ -2,6 +2,8 @@ package com.inonu.stok_takip.Exception;
 
 import com.inonu.stok_takip.Exception.Budget.BudgetNotFoundException;
 import com.inonu.stok_takip.Exception.Category.CategoryNotFoundException;
+import com.inonu.stok_takip.Exception.DirectProcurement.DirectProcurementAlreadyIncreasedException;
+import com.inonu.stok_takip.Exception.DirectProcurement.DirectProcurementNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
@@ -122,6 +124,15 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ReportDataNotFoundException.class)
     public ResponseEntity<RestResponse<String>> reportDataNotFoundException(ReportDataNotFoundException exception){
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DirectProcurementNotFoundException.class)
+    public ResponseEntity<RestResponse<String>> directProcurementNotFoundException(DirectProcurementNotFoundException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(DirectProcurementAlreadyIncreasedException.class)
+    public ResponseEntity<RestResponse<String>> directProcurementAlreadyIncreasedException(DirectProcurementAlreadyIncreasedException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
 }

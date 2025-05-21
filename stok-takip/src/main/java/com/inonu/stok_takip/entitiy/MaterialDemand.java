@@ -3,6 +3,7 @@ package com.inonu.stok_takip.entitiy;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.inonu.stok_takip.Enum.DemandStatus;
+import com.inonu.stok_takip.Enum.TenderType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -32,12 +33,10 @@ public class MaterialDemand extends BaseEntity{
     private DirectProcurement directProcurement; // Hangi Doğrudan teminden talep yapılıyor
 
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tender_type")
+    private TenderType tenderType;
 
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "purchaseForm_id", nullable = false)
-    private PurchaseForm purchaseForm;
 
     @Enumerated(EnumType.STRING)
     private DemandStatus status = DemandStatus.PENDING; // Varsayılan olarak talep bekliyor (pending) olacaktır.
@@ -86,13 +85,6 @@ public class MaterialDemand extends BaseEntity{
         this.product = product;
     }
 
-    public PurchaseForm getPurchaseForm() {
-        return purchaseForm;
-    }
-
-    public void setPurchaseForm(PurchaseForm purchaseForm) {
-        this.purchaseForm = purchaseForm;
-    }
 
     public DemandStatus getStatus() {
         return status;
@@ -124,5 +116,13 @@ public class MaterialDemand extends BaseEntity{
 
     public void setDirectProcurement(DirectProcurement directProcurement) {
         this.directProcurement = directProcurement;
+    }
+
+    public TenderType getTenderType() {
+        return tenderType;
+    }
+
+    public void setTenderType(TenderType tenderType) {
+        this.tenderType = tenderType;
     }
 }
