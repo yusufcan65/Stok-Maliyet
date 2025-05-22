@@ -131,7 +131,7 @@ public class TenderServiceImpl implements TenderService {
 
     @Override
     public Tender getTenderById(Long id) {
-        return tenderRepository.findById(id).orElseThrow(()-> new RuntimeException("tender not found"));
+        return tenderRepository.findById(id).orElseThrow(()-> new TenderNotFoundException("tender not found"));
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.Category.CategoryAlreadyExistsException;
+import com.inonu.stok_takip.Exception.Category.CategoryNotFoundException;
+import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitAlreadyExistsException;
 import com.inonu.stok_takip.Repositoriy.CategoryRepository;
 import com.inonu.stok_takip.Service.CategoryService;
 import com.inonu.stok_takip.dto.Request.CategoryCreateRequest;
@@ -27,11 +30,21 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryResponse createCategory(CategoryCreateRequest categoryCreateRequest) {
+
+        Category existing = getCategoryByName(categoryCreateRequest.name());
+        if (existing != null) {
+            throw new CategoryAlreadyExistsException("Bu isimde bir Kategori zaten mevcut: " + categoryCreateRequest.name());
+        }
+
         Category category = new Category();
         category.setName(categoryCreateRequest.name());
         Category toSave = categoryRepository.save(category);
 
         return mapToResponse(toSave);
+    }
+
+    private Category getCategoryByName(String name) {
+        return categoryRepository.findByName(name);
     }
 
     @Override
@@ -41,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryById(Long categoryId) {
-        return categoryRepository.findById(categoryId).orElseThrow(()-> new RuntimeException("Category Not Found by id: " + categoryId));
+        return categoryRepository.findById(categoryId).orElseThrow(()-> new CategoryNotFoundException("Category Not Found by id: " + categoryId));
     }
 
     @Override
