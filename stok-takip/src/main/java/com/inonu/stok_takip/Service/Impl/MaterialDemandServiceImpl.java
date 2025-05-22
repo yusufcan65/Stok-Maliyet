@@ -3,6 +3,7 @@ package com.inonu.stok_takip.Service.Impl;
 import com.inonu.stok_takip.Enum.DemandStatus;
 import com.inonu.stok_takip.Enum.EntrySourceType;
 import com.inonu.stok_takip.Enum.TenderType;
+import com.inonu.stok_takip.Exception.MaterialDemand.DemandAlreadyApprovedException;
 import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.ProductOutOfStockException;
@@ -107,7 +108,7 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
                 .orElseThrow(() -> new MaterialDemandNotFoundException("Talep bulunamadı"));
 
         if (demand.getStatus() != DemandStatus.PENDING) {
-            throw new RuntimeException("Talep " + demand.getStatus() + " edildiğinden dolayı işlem gerçekleştirilemedi.");
+            throw new DemandAlreadyApprovedException("Talep " + demand.getStatus() + " edildiğinden dolayı işlem gerçekleştirilemedi.");
         }
 
         // Talebi onayla ve stoğa ürünün ekle
@@ -136,7 +137,6 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
                     demand.getDirectProcurement().getPurchaseType().getId(),null,demand.getDirectProcurement().getId(),
                     demand.getTenderType());
 
-            System.out.println("direct procurement id: " + demand.getDirectProcurement().getId());
 
             directProcurementService.updateRemainingQuantity(demand.getDirectProcurement().getId(), demand.getQuantity());
             demand.setStatus(DemandStatus.APPROVED);
@@ -154,10 +154,10 @@ public class MaterialDemandServiceImpl implements MaterialDemandService {
     @Transactional
     public MaterialDemandResponse rejectMaterialDemand(Long id, String rejectionReason) {
         MaterialDemand demand = materialDemandRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Talep bulunamadı"));
+                .orElseThrow(() -> new MaterialDemandNotFoundException("Talep bulunamadı"));
 
         if (demand.getStatus() == DemandStatus.APPROVED) {
-            throw new RuntimeException("Onaylanmış talep reddedilemez.");
+            throw new DemandAlreadyApprovedException("Onaylanmış talep reddedilemez.");
         }
 
         demand.setStatus(DemandStatus.REJECTED);

@@ -2,12 +2,8 @@ package com.inonu.stok_takip.Controller;
 
 import com.inonu.stok_takip.Enum.ReportType;
 import com.inonu.stok_takip.Service.ReportService;
-import com.inonu.stok_takip.dto.Request.DateRequest;
-import com.inonu.stok_takip.dto.Request.ReportCreateRequest;
 import com.inonu.stok_takip.dto.Response.ReportResponse;
 import com.inonu.stok_takip.dto.Response.RestResponse;
-import com.inonu.stok_takip.entitiy.Report;
-import com.inonu.stok_takip.entitiy.TicketType;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

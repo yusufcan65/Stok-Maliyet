@@ -1,9 +1,11 @@
 package com.inonu.stok_takip.Exception;
 
 import com.inonu.stok_takip.Exception.Budget.BudgetNotFoundException;
+import com.inonu.stok_takip.Exception.Category.CategoryAlreadyExistsException;
 import com.inonu.stok_takip.Exception.Category.CategoryNotFoundException;
 import com.inonu.stok_takip.Exception.DirectProcurement.DirectProcurementAlreadyIncreasedException;
 import com.inonu.stok_takip.Exception.DirectProcurement.DirectProcurementNotFoundException;
+import com.inonu.stok_takip.Exception.MaterialDemand.DemandAlreadyApprovedException;
 import com.inonu.stok_takip.Exception.MaterialDemand.InvalidMaterialDemandOperationException;
 import com.inonu.stok_takip.Exception.MaterialDemand.MaterialDemandNotFoundException;
 import com.inonu.stok_takip.Exception.MaterialEntry.MaterialEntryNotFoundException;
@@ -16,10 +18,12 @@ import com.inonu.stok_takip.Exception.Product.ProductNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeAlreadyExistsException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
+import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitAlreadyExistsException;
 import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitNotFoundException;
 import com.inonu.stok_takip.Exception.Report.ReportDataNotFoundException;
 import com.inonu.stok_takip.Exception.Tender.TenderAlreadyIncreasedException;
 import com.inonu.stok_takip.Exception.Tender.TenderNotFoundException;
+import com.inonu.stok_takip.Exception.TicketSalesDetails.TicketDetailsNotFoundException;
 import com.inonu.stok_takip.Exception.TicketType.TicketTypeNotFoundException;
 import com.inonu.stok_takip.dto.Response.RestResponse;
 import org.springframework.http.HttpStatus;
@@ -133,6 +137,22 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DirectProcurementAlreadyIncreasedException.class)
     public ResponseEntity<RestResponse<String>> directProcurementAlreadyIncreasedException(DirectProcurementAlreadyIncreasedException exception){
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(PurchasedUnitAlreadyExistsException.class)
+    public ResponseEntity<RestResponse<String>> purchaseTypeAlreadyExistsException(PurchasedUnitAlreadyExistsException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<RestResponse<String>> categoryAlreadyExistsException(CategoryAlreadyExistsException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(DemandAlreadyApprovedException.class)
+    public ResponseEntity<RestResponse<String>> demandAlreadyApprovedException(DemandAlreadyApprovedException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(TicketDetailsNotFoundException.class)
+    public ResponseEntity<RestResponse<String>> ticketDetailsNotFoundException(TicketDetailsNotFoundException exception){
+        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Exception.TicketSalesDetails.TicketDetailsNotFoundException;
 import com.inonu.stok_takip.Repositoriy.TicketSalesDetailRepository;
 import com.inonu.stok_takip.Service.TicketSalesDetailService;
 import com.inonu.stok_takip.Service.TicketTypeService;
@@ -70,7 +71,7 @@ public class TicketSalesDetailServiceImpl implements TicketSalesDetailService {
 
     @Override
     public TicketSalesDetail getTicketSalesDetailById(Long id) {
-        return ticketSalesDetailRepository.findById(id).orElseThrow(()-> new RuntimeException("ticketSalesDetail not found"));
+        return ticketSalesDetailRepository.findById(id).orElseThrow(()-> new TicketDetailsNotFoundException("ticketSalesDetail not found"));
     }
 
     @Override
