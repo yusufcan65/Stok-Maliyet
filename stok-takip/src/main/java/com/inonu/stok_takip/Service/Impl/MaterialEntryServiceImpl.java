@@ -35,7 +35,8 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                                     ProductService productService,
                                     PurchasedUnitService purchasedUnitService,
                                     BudgetService budgetService,
-                                    TenderService tenderService, DirectProcurementService directProcurementService) {
+                                    TenderService tenderService,
+                                    DirectProcurementService directProcurementService) {
         this.materialEntryRepository = materialEntryRepository;
         this.purchaseTypeService = purchaseTypeService;
         this.productService = productService;
