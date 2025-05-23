@@ -323,7 +323,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
 
     // devir işlemerini yapan metot  31 aralık ta saat 23.59 da tüm kalan ürünler devir ediyor
     @Override
-    @Scheduled(cron = "59 59 23 31 12 ?")
+    @Scheduled(cron = "50 50 23 31 12 ?")
     public List<MaterialEntryResponse> carryOverEntriesToNextYear() {
 
         int currentYear = LocalDate.now().getYear();
@@ -354,6 +354,7 @@ public class MaterialEntryServiceImpl implements MaterialEntryService {
                 newEntry.setPurchaseType(oldEntry.getPurchaseType());
                 newEntry.setPurchasedUnit(oldEntry.getPurchasedUnit());
                 newEntry.setTender(oldEntry.getTender());
+                newEntry.setTenderType(oldEntry.getTenderType());
 
                 newEntry.setUnitPrice(oldEntry.getUnitPrice());
                 newEntry.setUnitPriceIncludingVat(oldEntry.getUnitPriceIncludingVat());
