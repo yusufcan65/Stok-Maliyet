@@ -15,7 +15,6 @@ import com.inonu.stok_takip.Exception.MaterialExit.InsufficientStockException;
 import com.inonu.stok_takip.Exception.MaterialExit.MaterialExitNotFoundException;
 import com.inonu.stok_takip.Exception.MeasurementType.MeasurementTypeNotFoundException;
 import com.inonu.stok_takip.Exception.Product.ProductNotFoundException;
-import com.inonu.stok_takip.Exception.PurchaseForm.PurchaseFormNotFoundException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeAlreadyExistsException;
 import com.inonu.stok_takip.Exception.PurchaseType.PurchaseTypeNotFoundException;
 import com.inonu.stok_takip.Exception.PurchasedUnit.PurchasedUnitAlreadyExistsException;
@@ -93,11 +92,6 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(PurchasedUnitNotFoundException.class)
     public ResponseEntity<RestResponse<String>> purchasedUnitNotFoundException(PurchasedUnitNotFoundException exception) {
-        return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(PurchaseFormNotFoundException.class)
-    public ResponseEntity<RestResponse<String>> purchaseFormNotFoundException(PurchaseFormNotFoundException exception) {
         return new ResponseEntity<>(RestResponse.error(exception.getMessage()), HttpStatus.NOT_FOUND);
     }
 
