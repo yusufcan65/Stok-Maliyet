@@ -1,21 +1,25 @@
 package com.inonu.stok_takip.Service.Impl;
 
+import com.inonu.stok_takip.Enum.TenderType;
 import com.inonu.stok_takip.Exception.Tender.TenderAlreadyIncreasedException;
 import com.inonu.stok_takip.Exception.Tender.TenderNotFoundException;
 import com.inonu.stok_takip.Repositoriy.TenderRepository;
-import com.inonu.stok_takip.Service.*;
+import com.inonu.stok_takip.Service.ProductService;
+import com.inonu.stok_takip.Service.PurchaseTypeService;
+import com.inonu.stok_takip.Service.PurchasedUnitService;
+import com.inonu.stok_takip.Service.TenderService;
 import com.inonu.stok_takip.dto.Request.TenderCreateRequest;
-import com.inonu.stok_takip.dto.Response.TenderDetailResponse;
-import com.inonu.stok_takip.dto.Response.TenderProductDetailResponse;
 import com.inonu.stok_takip.dto.Response.TenderResponse;
-import com.inonu.stok_takip.entitiy.*;
+import com.inonu.stok_takip.entitiy.Product;
+import com.inonu.stok_takip.entitiy.PurchaseType;
+import com.inonu.stok_takip.entitiy.PurchasedUnit;
+import com.inonu.stok_takip.entitiy.Tender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +56,7 @@ public class TenderServiceImpl implements TenderService {
         tender.setPurchaseType(purchaseType);
         tender.setPurchasedUnit(purchasedUnit);
         tender.setRemainingQuantityInTender(tender.getTenderQuantity());
+        tender.setTenderType(TenderType.OPEN_TENDER);
 
         Tender savedTender = tenderRepository.save(tender);
 
